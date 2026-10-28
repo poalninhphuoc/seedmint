@@ -17,7 +17,8 @@ AI-built prototypes (Claude Code, Cursor, v0, Lovable) often ship with empty tab
 
 ## What it does
 
-- **Paste any structure:** TypeScript `interface`/`type`, Zod, Prisma, Drizzle, SQL `CREATE TABLE`, JSON sample, OpenAPI, or a one-line description like `users(name, email, phone, address, created_at)`.
+- **Paste any structure:** TypeScript `interface`/`type`, Zod, Prisma, Drizzle, SQL `CREATE TABLE`, JSON sample, OpenAPI (JSON or YAML), DBML, GraphQL, CSV, or a one-line description like `users(name, email, phone, address, created_at)`.
+- **See the schema:** the Web Studio draws an ER diagram with coloured relation lines, click-to-highlight, draggable tables, search and zoom, and exports Mermaid or SVG.
 - **Understands fields and relations:** `email`, `phone`, `price`, `avatar` get the right kind of value; `orders.user_id` points to a real `users.id`.
 - **Many output formats:** JSON, JSONL, CSV, SQL `INSERT`, Prisma/Drizzle `seed.ts`, typed `mock.ts`, MSW handlers, Playwright/Vitest fixtures, Excel.
 - **Many locales:** `vi`, `en`, `ja`, `ko`, `zh`, `th`, `id`, `fr`, `de`, `es`. Names, addresses, phones, currency, dates and IDs follow local rules. Mix locales in one table to test i18n.
@@ -82,6 +83,8 @@ Develop with `pnpm install && pnpm typecheck && pnpm build && pnpm test` (Turbor
 pnpm install
 pnpm --filter @seedmint/web dev   # http://localhost:3000
 ```
+
+Pages: **Studio** (generate and export), **Diagram** (ER view of your schema, see [docs/diagram.md](docs/diagram.md)), **History**, **Locales** and **Formats**. Eleven sample schemas are one click away from the sample menu.
 
 Set `NEXT_PUBLIC_SITE_URL` to your public origin so canonical, hreflang and sitemap URLs are correct. The UI is available in English, Tiếng Việt, 简体中文, 日本語, 한국어 and Español.
 

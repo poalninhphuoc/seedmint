@@ -1,4 +1,4 @@
-# Architecture (draft)
+# Architecture
 
 Pipeline: **parse → model → generate → format**.
 
@@ -13,9 +13,11 @@ Packages (Turborepo monorepo):
 |---|---|
 | `packages/core` (`@seedmint/core`) | Parsers, field inference, generator, formatters, locales |
 | `packages/cli` (`seedmint`) | `init` / `generate`, config loading, project detection; bundles core |
-| `apps/web` (planned) | Next.js Web Studio |
+| `apps/web` | Next.js Web Studio: generate, export, ER [diagram](diagram.md), history |
 | `apps/docs` (planned) | Documentation site |
 
-Inputs: Prisma, Drizzle, Zod, TypeScript, SQL DDL, JSON Schema, JSON sample, one-line DSL. Outputs: json, jsonl, csv, sql, ts, prisma seed, drizzle seed, AI prompt (Markdown).
+Inputs: Prisma, Drizzle, Zod, TypeScript, SQL DDL, DBML, GraphQL, OpenAPI/Swagger (JSON or YAML), JSON Schema, JSON sample, CSV, one-line DSL. Outputs: json, jsonl, csv, sql, ts, prisma seed, drizzle seed, AI prompt (Markdown).
+
+The Studio's Diagram page reuses the same `Schema` model: `apps/web/src/lib/er-layout.ts` turns tables and their references into boxes and routed lines, and exports Mermaid. See [diagram.md](diagram.md).
 
 Principles: runs fully local (no data leaves the machine), deterministic with a seed, tree-shakeable locale packs.
