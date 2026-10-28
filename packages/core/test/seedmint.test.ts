@@ -117,3 +117,116 @@ describe("render", () => {
     expect(out).toContain("'O''Brien'");
   });
 });
+
+const PRISMA = `
+enum Role { ADMIN MEMBER }
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String?
+  role      Role     @default(MEMBER)
+  createdAt DateTime @default(now())
+  posts     Post[]
+}
+model Post {
+  id       String @id @default(uuid())
+  title    String
+  authorId Int
+  author   User   @relation(fields: [authorId], references: [id])
+}
+`;
+const DRIZZLE = `
+import { pgTable, pgEnum, serial, text, integer, timestamp } from "drizzle-orm/pg-core";
+export const roleEnum = pgEnum("role", ["admin", "member"]);
+export const users = pgTable("users", {
+  id: serial("id").primaryKey(),
+  email: text("email").notNull(),
+  bio: text("bio"),
+  role: roleEnum("role").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+export const posts = pgTable("posts", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  authorId: integer("author_id").notNull().references(() => users.id),
+});
+`;
+const JSON_SCHEMA = JSON.stringify({
+  title: "Customer",
+  type: "object",
+  required: ["id", "email"],
+  properties: {
+    id: { type: "string", format: "uuid" },
+    email: { type: "string", format: "email" },
+    plan: { type: "string", enum: ["free", "pro"] },
+    age: { type: "integer" },
+    joined: { type: "string", format: "date-time" },
+    note: { type: ["string", "null"] },
+  },
+});
+
+describe("Prisma, Drizzle and JSON Schema", () => {
+  it("detects them", () => {
+    expect(detectFormat(PRISMA)).toBe("prisma");
+    expect(detectFormat(DRIZZLE)).toBe("drizzle");
+    expect(detectFormat(JSON_SCHEMA)).toBe("jsonschema");
+  });
+  it("Prisma: enums, optional, uuid ids, relation FK, skips relation fields", () => {
+    const s = parseSchema(PRISMA);
+    const user = s.tables[0];
+    expect(user.fields.map((f) => f.name)).toEqual(["id", "email", "name", "role", "createdAt"]);
+    expect(user.fields.find((f) => f.name === "role")?.enumValues).toEqual(["ADMIN", "MEMBER"]);
+    expect(user.fields.find((f) => f.name === "name")?.optional).toBe(true);
+    expect(s.tables[1].fields[0]).toMatchObject({ kind: "uuid", primary: true });
+    expect(s.tables[1].fields.find((f) => f.name === "authorId")?.ref).toEqual({ table: "User", field: "id" });
+  });
+  it("Drizzle: enums, notNull, references", () => {
+    const s = parseSchema(DRIZZLE);
+    expect(s.tables.map((t) => t.name)).toEqual(["users", "posts"]);
+    expect(s.tables[0].fields.find((f) => f.name === "role")?.enumValues).toEqual(["admin", "member"]);
+    expect(s.tables[0].fields.find((f) => f.name === "bio")?.optional).toBe(true);
+    expect(s.tables[1].fields.find((f) => f.name === "authorId")?.ref).toEqual({ table: "users", field: "id" });
+  });
+  it("JSON Schema: formats, enums, required, nullable", () => {
+    const t = parseSchema(JSON_SCHEMA).tables[0];
+    expect(t.name).toBe("Customer");
+    expect(t.fields.find((f) => f.name === "id")).toMatchObject({ kind: "uuid", optional: undefined });
+    expect(t.fields.find((f) => f.name === "email")?.hint).toBe("email");
+    expect(t.fields.find((f) => f.name === "plan")?.enumValues).toEqual(["free", "pro"]);
+    expect(t.fields.find((f) => f.name === "joined")?.kind).toBe("datetime");
+    expect(t.fields.find((f) => f.name === "note")?.optional).toBe(true);
+  });
+  it("generates consistent data from Prisma", () => {
+    const d = mint({ schema: parseSchema(PRISMA), rows: { User: 4, Post: 12 }, seed: 11 });
+    const ids = new Set(d.User.map((u) => u.id));
+    expect(d.Post.every((p) => ids.has(p.authorId))).toBe(true);
+    expect(d.User.every((u) => ["ADMIN", "MEMBER"].includes(String(u.role)))).toBe(true);
+  });
+});
+
+describe("seed.ts and prompt outputs", () => {
+  it("Prisma seed uses the client delegate and real Dates", () => {
+    const schema = parseSchema(PRISMA);
+    const out = render(mint({ schema, rows: 2, seed: 1 }), "prisma", schema)[0];
+    expect(out.name).toBe("seed.ts");
+    expect(out.content).toContain("prisma.user.createMany");
+    expect(out.content).toContain("prisma.post.createMany");
+    expect(out.content).toMatch(/createdAt: new Date\("/);
+  });
+  it("Drizzle seed inserts into schema tables", () => {
+    const schema = parseSchema(DRIZZLE);
+    const out = render(mint({ schema, rows: 2, seed: 1 }), "drizzle", schema)[0].content;
+    expect(out).toContain("db.insert(schema.users)");
+    expect(out).toContain("db.insert(schema.posts)");
+  });
+  it("vibe prompt contains schema, samples and instructions", () => {
+    const schema = parseSchema(SQL);
+    const out = render(mint({ schema, rows: 8, seed: 2, locale: "vi" }), "prompt", schema, { locale: "vi", seed: 2 })[0];
+    expect(out.name).toBe("seedmint-prompt.md");
+    expect(out.content).toContain("Locale: vi, seed: 2");
+    expect(out.content).toContain("**orders**(");
+    expect(out.content).toContain("user_id: integer -> users.id");
+    expect(out.content).toContain("(5 of 8 rows)");
+    expect(out.content).toContain("Instructions for the AI coding agent");
+  });
+});

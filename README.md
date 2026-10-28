@@ -2,9 +2,12 @@
 
 [English](README.md) · [Tiếng Việt](README.vi.md) · [简体中文](README.zh-CN.md) · [日本語](README.ja.md) · [한국어](README.ko.md) · [Español](README.es.md)
 
+
+[![CI](https://github.com/poalninhphuoc/seedmint/actions/workflows/ci.yml/badge.svg)](https://github.com/poalninhphuoc/seedmint/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) ![Node](https://img.shields.io/badge/node-%E2%89%A518-339933)
+
 > Paste a schema. Get realistic sample data in any language and format. Built so vibe-coded apps never look empty.
 
-**Status:** MVP. The CLI and library work; the web playground, Prisma/Drizzle/OpenAPI parsers and most locales are still planned (see the roadmap).
+**Status:** early. The CLI and library work (Prisma, Drizzle, Zod, TS, SQL, JSON Schema in; JSON, CSV, SQL, `seed.ts`, AI prompt out). The Web Studio, docs site, direct DB insert and AI engine are planned (see the roadmap).
 
 ## Why
 
@@ -18,33 +21,58 @@ AI-built prototypes (Claude Code, Cursor, v0, Lovable) often ship with empty tab
 - **Many locales:** `vi`, `en`, `ja`, `ko`, `zh`, `th`, `id`, `fr`, `de`, `es`. Names, addresses, phones, currency, dates and IDs follow local rules. Mix locales in one table to test i18n.
 - **Repeatable:** fixed seeds give the same data every run.
 - **Edge cases on demand:** empty strings, very long names, emoji, RTL text.
-- **Built for AI tools:** ships a Claude Code skill and an MCP server so agents can call `generate_data(schema, locale, rows)`.
+- **Built for AI tools:** a Claude Code skill, `AGENTS.md`/`CLAUDE.md`, and a `prompt` output you can paste into Cursor or Claude Code. An MCP server and an opt-in AI engine for business-specific columns are planned.
 
 ## Usage
 
 ```bash
-pnpm install && pnpm build
+# in a project that has prisma/schema.prisma, a Drizzle schema, Zod schemas or a .sql file
+npx seedmint init                       # detects the ORM, writes seedmint.config.ts
+npx seedmint generate --locale=vi       # writes prisma/seed.ts (or your configured output)
 
-# paste/point at a schema (TypeScript, Zod, SQL, JSON sample, or users(name, email) one-liners)
-node dist/cli.js schema.sql --locale vi,en --rows users=50,orders=200 --format sql --seed 42
-
-# from stdin
-echo 'users(name, email, phone?, avatar:image)' | node dist/cli.js - -l vi -n 10
+# one-off, no config
+npx seedmint schema.sql --locale vi,en --rows users=50,orders=200 --format sql
+echo 'users(name, email, phone?, avatar:image)' | npx seedmint - -l vi -n 10
 ```
 
-Options: `--locale`, `--rows`, `--format json|jsonl|csv|sql|ts`, `--seed`, `--from ts|zod|sql|dsl|json`, `--edge-cases`, `--out <dir>`.
+**Inputs:** Prisma, Drizzle, Zod, TypeScript interfaces, SQL DDL, JSON Schema, a JSON sample, or one-line `table(field, field:type)`.
+**Outputs (`--format`):** `json`, `jsonl`, `csv`, `sql`, `ts` (typed mock), `prisma` (`seed.ts`), `drizzle` (`seed.ts`), `prompt` (Markdown with schema, sample rows and instructions to paste into Cursor / Claude Code).
+**Other options:** `--seed`, `--from`, `--edge-cases`, `--out <file|dir>`.
 
 ```ts
-import { parseSchema, mint, render } from "seedmint";
+// seedmint.config.ts (written by `init`)
+import type { SeedmintConfig } from "seedmint";
 
-const schema = parseSchema(sqlOrTsOrZod);
+const config: SeedmintConfig = {
+  schema: "prisma/schema.prisma",
+  locale: ["vi", "en"],
+  rows: { User: 50, "*": 20 },
+  seed: 42,
+  format: "prisma",
+  out: "prisma/seed.ts",
+};
+export default config;
+```
+
+```ts
+import { parseSchema, mint, render } from "@seedmint/core";
+
+const schema = parseSchema(prismaOrSqlOrZod);
 const data = mint({ schema, locale: ["vi", "en"], rows: 50, seed: 42 });
-const [{ content }] = render(data, "sql", schema);
+const [{ content }] = render(data, "prompt", schema, { locale: "vi", seed: 42 });
 ```
 
 Tables are generated parents first, so foreign keys (explicit, or `user_id` pointing at `users`) always reference real rows. Output is repeatable for the same seed within a day (relative dates are based on today).
 
-A web playground (paste on the left, data on the right) is still planned.
+## Repository layout
+
+```
+packages/core   @seedmint/core: parsers, generator, formats, locales
+packages/cli    seedmint: the CLI (bundles core)
+apps/           Web Studio and docs (planned)
+```
+
+Develop with `pnpm install && pnpm typecheck && pnpm build && pnpm test` (Turborepo). AI coding agents: see [AGENTS.md](AGENTS.md).
 
 ## Roadmap
 
@@ -56,7 +84,7 @@ See [docs/roadmap.md](docs/roadmap.md). MVP: TypeScript/Zod/SQL parsers, `vi` + 
 - [Locales](docs/locales.md)
 - [Roadmap](docs/roadmap.md)
 - [Claude Code skill](.claude/skills/seedmint/SKILL.md)
-- [Contributing](CONTRIBUTING.md)
+- [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md) · [Agents guide](AGENTS.md)
 
 ## License
 

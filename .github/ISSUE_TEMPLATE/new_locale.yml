@@ -1,0 +1,24 @@
+name: New locale
+description: Request or offer a locale pack (names, addresses, phones, IDs, text)
+labels: [locale]
+body:
+  - type: input
+    id: code
+    attributes:
+      label: Locale code
+      placeholder: pt-BR
+    validations:
+      required: true
+  - type: textarea
+    id: local-formats
+    attributes:
+      label: Local formats worth supporting
+      description: Phone, national ID, tax code, address layout, currency, date format.
+    validations:
+      required: true
+  - type: checkboxes
+    id: contribute
+    attributes:
+      label: Can you help?
+      options:
+        - label: I can open a pull request for this locale

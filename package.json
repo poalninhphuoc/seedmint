@@ -1,34 +1,15 @@
 {
-  "name": "seedmint",
-  "version": "0.0.1",
-  "description": "Paste a schema, get realistic sample data in any language and format.",
+  "name": "seedmint-monorepo",
+  "private": true,
   "license": "MIT",
-  "type": "module",
-  "bin": {
-    "seedmint": "./dist/cli.js"
-  },
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
-  "engines": {
-    "node": ">=18"
-  },
+  "packageManager": "pnpm@11.0.9",
+  "engines": { "node": ">=18" },
   "scripts": {
-    "build": "tsup",
-    "dev": "tsx src/cli.ts",
-    "test": "vitest run",
-    "typecheck": "tsc --noEmit"
-  },
-  "dependencies": {
-    "@faker-js/faker": "^9.0.0",
-    "typescript": "^5.5.0"
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "typecheck": "turbo run typecheck"
   },
   "devDependencies": {
-    "@types/node": "^22.0.0",
-    "tsup": "^8.0.0",
-    "tsx": "^4.0.0",
-    "vitest": "^2.0.0"
+    "turbo": "^2.0.0"
   }
 }

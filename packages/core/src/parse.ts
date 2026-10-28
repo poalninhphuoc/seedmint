@@ -1,5 +1,8 @@
 import type { Field, InputFormat, Schema } from "./types.js";
+import { parseDrizzle } from "./parsers/drizzle.js";
 import { parseDsl } from "./parsers/dsl.js";
+import { parseJsonSchema } from "./parsers/jsonschema.js";
+import { parsePrisma } from "./parsers/prisma.js";
 import { parseJson } from "./parsers/json.js";
 import { parseSql } from "./parsers/sql.js";
 import { parseTs } from "./parsers/ts.js";
@@ -8,9 +11,11 @@ import { parseZod } from "./parsers/zod.js";
 export function detectFormat(src: string): InputFormat {
   const s = src.trim();
   if (/create\s+table/i.test(s)) return "sql";
+  if (/(pg|mysql|sqlite)Table\s*\(/.test(s)) return "drizzle";
+  if (/^\s*(model|enum)\s+\w+\s*\{/m.test(s) && !/\binterface\b/.test(s)) return "prisma";
   if (/z\s*\.\s*object\s*\(/.test(s)) return "zod";
   if (/^(export\s+)?(interface|type)\s+\w+/m.test(s)) return "ts";
-  if (/^[[{]/.test(s)) return "json";
+  if (/^[[{]/.test(s)) return /"\$schema"|"properties"\s*:/.test(s) ? "jsonschema" : "json";
   if (/^\w+\s*\(.*\)\s*;?\s*$/m.test(s)) return "dsl";
   throw new Error("Could not detect the input format. Use --from ts|zod|sql|dsl|json.");
 }
@@ -49,7 +54,10 @@ export function finalize(schema: Schema): Schema {
 
 export function parseSchema(src: string, from?: InputFormat): Schema {
   const format = from ?? detectFormat(src);
-  const parsers = { ts: parseTs, zod: parseZod, sql: parseSql, dsl: parseDsl, json: (s: string) => parseJson(s) };
+  const parsers = {
+    ts: parseTs, zod: parseZod, sql: parseSql, dsl: parseDsl, json: (s: string) => parseJson(s),
+    prisma: parsePrisma, drizzle: parseDrizzle, jsonschema: parseJsonSchema,
+  };
   const schema = finalize(parsers[format](src));
   if (!schema.tables.length) throw new Error(`No tables found in ${format} input.`);
   return schema;

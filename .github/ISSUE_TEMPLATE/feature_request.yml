@@ -1,0 +1,28 @@
+name: Feature request
+description: Suggest a parser, output format, locale or CLI improvement
+labels: [enhancement]
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options: [Schema parser, Output format, Locale / language, CLI, Web studio, AI engine, Docs, Other]
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem are you trying to solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+    validations:
+      required: true
+  - type: textarea
+    id: example
+    attributes:
+      label: Example input and the output you would like
+      render: text

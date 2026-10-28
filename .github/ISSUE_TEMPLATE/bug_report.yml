@@ -1,0 +1,54 @@
+name: Bug report
+description: Something produced wrong, missing or broken data
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for reporting. Please do not paste real customer data; anonymize the schema first.
+  - type: textarea
+    id: schema
+    attributes:
+      label: Schema that triggers the bug
+      description: The smallest Prisma / Drizzle / Zod / TS / SQL / JSON Schema input that reproduces it.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: command
+    attributes:
+      label: Command or code you ran
+      placeholder: npx seedmint generate --locale=vi --format=prisma
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected vs actual output
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: seedmint version
+      placeholder: 0.0.1
+    validations:
+      required: true
+  - type: input
+    id: node
+    attributes:
+      label: Node.js version
+      placeholder: v22.16.0
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options: [macOS, Linux, Windows, Other]
+    validations:
+      required: true
+  - type: dropdown
+    id: pm
+    attributes:
+      label: Package manager
+      options: [pnpm, npm, yarn, bun]
