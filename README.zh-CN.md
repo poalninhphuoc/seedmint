@@ -8,11 +8,15 @@
 
 **在线体验：** https://seedmint.vercel.app
 
-**状态：** CLI、库和 Web Studio 已可使用（输入：Prisma、Drizzle、Zod、TypeScript、SQL、JSON Schema；输出：JSON、CSV、SQL、`seed.ts`、AI 提示词）。
+**状态：** 早期但可用。CLI、库和 Web Studio（6 种界面语言、ER 图、11 个示例 schema）均已可使用。输入：Prisma、Drizzle、Zod、TypeScript、SQL、DBML、GraphQL、OpenAPI、JSON Schema、CSV；输出：JSON、JSONL、CSV、SQL、Excel、`seed.ts`、`mock.ts`、AI 提示词。计划中：MSW、Playwright fixtures、MCP 服务器、文档站、直接写入数据库和 AI 引擎。
+
+<p align="center">
+  <img src="docs/images/diagram.png" alt="8 张表的电商 schema ER 图" width="880">
+</p>
 
 ## 为什么
 
-AI 生成的原型常常只有空表或 `John Doe`。没有可信数据，就很难审查界面、国际化问题和边界情况。seedmint 把你已有的结构直接变成可用的数据。支持 TypeScript、Zod、Prisma、Drizzle、SQL、JSON、OpenAPI，理解外键关系，可固定随机种子，并提供 Claude Code skill 与 MCP 服务器。
+AI 生成的原型常常只有空表或 `John Doe`。没有可信数据，就很难审查界面、国际化问题和边界情况。seedmint 把你已有的结构直接变成可用的数据。支持 TypeScript、Zod、Prisma、Drizzle、SQL、DBML、GraphQL、OpenAPI、JSON，理解外键关系，可固定随机种子，并提供 Claude Code skill（MCP 服务器在计划中）。
 
 ## 快速使用
 
@@ -30,6 +34,8 @@ pnpm --filter @seedmint/web dev   # http://localhost:3000
 ```
 
 界面支持 6 种语言：English、Tiếng Việt、简体中文、日本語、한국어、Español。
+
+页面：**Studio**（生成与导出）、**图表**（schema 的 ER 视图，可拖动表格、导出 Mermaid/SVG，见 [docs/diagram.md](docs/diagram.md)）、**历史**、**区域语言**、**格式**。示例菜单内置 11 个示例 schema。
 
 ## 路线图与贡献
 

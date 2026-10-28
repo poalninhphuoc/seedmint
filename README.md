@@ -7,11 +7,11 @@
 
 > Paste a schema. Get realistic sample data in any language and format. Built so vibe-coded apps never look empty.
 
-Open-source seed data and mock data generator for Prisma, Drizzle, Zod, SQL and JSON Schema, with localized names, addresses and phone numbers.
+Open-source seed data and mock data generator for Prisma, Drizzle, Zod, SQL, OpenAPI, GraphQL, DBML and JSON Schema, with localized names, addresses and phone numbers.
 
 **Live demo:** https://seedmint.vercel.app
 
-**Status:** early. The CLI and library work (Prisma, Drizzle, Zod, TS, SQL, JSON Schema in; JSON, CSV, SQL, `seed.ts`, AI prompt out). The Web Studio (Next.js + shadcn/ui, 6 UI languages) also works. The docs site, direct DB insert and AI engine are planned (see the roadmap).
+**Status:** early but usable. The CLI, the library and the Web Studio (Next.js + shadcn/ui, 6 UI languages, ER diagram, 11 sample schemas) work. Prisma, Drizzle, Zod, TS, SQL, DBML, GraphQL, OpenAPI, JSON Schema and CSV go in; JSON, JSONL, CSV, SQL, Excel, `seed.ts`, `mock.ts` and an AI prompt come out. MSW handlers, Playwright fixtures, an MCP server, the docs site, direct DB insert and the AI engine are planned (see the roadmap).
 
 ## Why
 
@@ -26,7 +26,7 @@ AI-built prototypes (Claude Code, Cursor, v0, Lovable) often ship with empty tab
 - **Paste any structure:** TypeScript `interface`/`type`, Zod, Prisma, Drizzle, SQL `CREATE TABLE`, JSON sample, OpenAPI (JSON or YAML), DBML, GraphQL, CSV, or a one-line description like `users(name, email, phone, address, created_at)`.
 - **See the schema:** the Web Studio draws an ER diagram with coloured relation lines, click-to-highlight, draggable tables, search and zoom, and exports Mermaid or SVG.
 - **Understands fields and relations:** `email`, `phone`, `price`, `avatar` get the right kind of value; `orders.user_id` points to a real `users.id`.
-- **Many output formats:** JSON, JSONL, CSV, SQL `INSERT`, Prisma/Drizzle `seed.ts`, typed `mock.ts`, MSW handlers, Playwright/Vitest fixtures, Excel.
+- **Many output formats:** JSON, JSONL, CSV, SQL `INSERT`, Prisma/Drizzle `seed.ts`, typed `mock.ts`, Excel (`.xlsx`) and zip bundles. MSW handlers and Playwright fixtures are planned.
 - **Many locales:** `vi`, `en`, `ja`, `ko`, `zh`, `th`, `id`, `fr`, `de`, `es`. Names, addresses, phones, currency, dates and IDs follow local rules. Mix locales in one table to test i18n.
 - **Repeatable:** fixed seeds give the same data every run.
 - **Edge cases on demand:** empty strings, very long names, emoji, RTL text.
@@ -44,7 +44,7 @@ npx seedmint schema.sql --locale vi,en --rows users=50,orders=200 --format sql
 echo 'users(name, email, phone?, avatar:image)' | npx seedmint - -l vi -n 10
 ```
 
-**Inputs:** Prisma, Drizzle, Zod, TypeScript interfaces, SQL DDL, JSON Schema, a JSON sample, or one-line `table(field, field:type)`.
+**Inputs:** Prisma, Drizzle, Zod, TypeScript interfaces, SQL DDL, DBML, GraphQL SDL, OpenAPI/Swagger (JSON or YAML), JSON Schema, a JSON sample, a CSV header, or one-line `table(field, field:type)`.
 **Outputs (`--format`):** `json`, `jsonl`, `csv`, `sql`, `ts` (typed mock), `prisma` (`seed.ts`), `drizzle` (`seed.ts`), `prompt` (Markdown with schema, sample rows and instructions to paste into Cursor / Claude Code).
 **Other options:** `--seed`, `--from`, `--edge-cases`, `--out <file|dir>`.
 
@@ -100,11 +100,12 @@ Set `NEXT_PUBLIC_SITE_URL` to your public origin so canonical, hreflang and site
 
 ## Roadmap
 
-See [docs/roadmap.md](docs/roadmap.md). MVP: TypeScript/Zod/SQL parsers, `vi` + `en`, JSON/CSV/SQL output, one-page Next.js playground.
+See [docs/roadmap.md](docs/roadmap.md). Next up: MSW handlers and Playwright fixtures, richer data for `ja`/`ko`/`zh`/`th`/`id`, an MCP server, direct DB insert (`--db`), and an opt-in AI engine.
 
 ## Docs
 
 - [Architecture](docs/architecture.md)
+- [Diagram guide](docs/diagram.md)
 - [Locales](docs/locales.md)
 - [Roadmap](docs/roadmap.md)
 - [Claude Code skill](.claude/skills/seedmint/SKILL.md)

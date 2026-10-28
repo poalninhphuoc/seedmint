@@ -8,11 +8,15 @@ Generador de datos de ejemplo (seed data, mock data) de código abierto a partir
 
 **Demo en vivo:** https://seedmint.vercel.app
 
-**Estado:** la CLI, la biblioteca y el Web Studio ya funcionan (entrada: Prisma, Drizzle, Zod, TypeScript, SQL, JSON Schema; salida: JSON, CSV, SQL, `seed.ts`, prompt para IA).
+**Estado:** temprano pero utilizable. La CLI, la biblioteca y el Web Studio (6 idiomas, diagrama ER, 11 esquemas de ejemplo) ya funcionan. Entrada: Prisma, Drizzle, Zod, TypeScript, SQL, DBML, GraphQL, OpenAPI, JSON Schema, CSV; salida: JSON, JSONL, CSV, SQL, Excel, `seed.ts`, `mock.ts`, prompt para IA. Planificado: MSW, fixtures de Playwright, servidor MCP, sitio de documentación, inserción directa en base de datos y motor de IA.
+
+<p align="center">
+  <img src="docs/images/diagram.png" alt="Diagrama ER de un esquema de comercio electrónico con 8 tablas" width="880">
+</p>
 
 ## Por qué
 
-Los prototipos hechos con IA suelen tener tablas vacías o `John Doe`. Sin datos creíbles es difícil revisar la interfaz, la internacionalización y los casos límite. seedmint convierte la estructura que ya tienes en datos útiles. Soporta TypeScript, Zod, Prisma, Drizzle, SQL, JSON y OpenAPI, entiende relaciones entre tablas, permite semillas fijas y ofrece un skill de Claude Code y un servidor MCP.
+Los prototipos hechos con IA suelen tener tablas vacías o `John Doe`. Sin datos creíbles es difícil revisar la interfaz, la internacionalización y los casos límite. seedmint convierte la estructura que ya tienes en datos útiles. Soporta TypeScript, Zod, Prisma, Drizzle, SQL, DBML, GraphQL, OpenAPI y JSON, entiende relaciones entre tablas, permite semillas fijas y ofrece un skill de Claude Code (el servidor MCP está planificado).
 
 ## Uso rápido
 
@@ -30,6 +34,8 @@ pnpm --filter @seedmint/web dev   # http://localhost:3000
 ```
 
 La interfaz está en 6 idiomas: English, Tiếng Việt, 简体中文, 日本語, 한국어, Español.
+
+Páginas: **Studio** (generar y exportar), **Diagrama** (vista ER del esquema, tablas arrastrables, exporta Mermaid/SVG; ver [docs/diagram.md](docs/diagram.md)), **Historial**, **Idiomas** y **Formatos**. El menú de ejemplos trae 11 esquemas.
 
 ## Hoja de ruta y contribuciones
 
