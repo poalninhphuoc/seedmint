@@ -21,7 +21,7 @@ Options:
   -n, --rows <n|t=n,..>  rows per table, e.g. 50 or users=50,orders=200 (default 20)
   -f, --format <fmt>     ${OUTPUT_FORMATS.join(" | ")} (default json)
   -s, --seed <n>         seed for repeatable output (default 42)
-      --from <fmt>       force input: ts | zod | sql | dsl | json | prisma | drizzle | jsonschema | dbml | graphql | csv
+      --from <fmt>       force input: ts | zod | sql | dsl | json | prisma | drizzle | jsonschema | dbml | graphql | openapi | csv
       --edge-cases       sprinkle empty / long / emoji / quote / RTL strings
   -o, --out <path>       file (has an extension) or directory; default is stdout
       --force            init: overwrite an existing config
@@ -36,7 +36,7 @@ function readFolder(root: string, dir = root, out: SourceFile[] = []): SourceFil
     const p = join(dir, name);
     const st = statSync(p);
     if (st.isDirectory()) readFolder(root, p, out);
-    else if (/\.(prisma|sql|ts|tsx|mts|json)$/.test(name) && st.size < 1_000_000) out.push({ path: p.slice(root.length + 1), content: readFileSync(p, "utf8") });
+    else if (/\.(prisma|sql|ts|tsx|mts|json|dbml|graphql|gql|ya?ml)$/.test(name) && st.size < 1_000_000) out.push({ path: p.slice(root.length + 1), content: readFileSync(p, "utf8") });
   }
   return out;
 }

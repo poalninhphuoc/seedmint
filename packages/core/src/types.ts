@@ -34,13 +34,13 @@ export interface Schema {
 export type Row = Record<string, unknown>;
 export type Dataset = Record<string, Row[]>;
 
-export type InputFormat = "ts" | "zod" | "sql" | "dsl" | "json" | "prisma" | "drizzle" | "jsonschema" | "dbml" | "graphql" | "csv";
+export type InputFormat = "ts" | "zod" | "sql" | "dsl" | "json" | "prisma" | "drizzle" | "jsonschema" | "dbml" | "graphql" | "csv" | "openapi";
 
 export type OutputFormat = "json" | "jsonl" | "csv" | "sql" | "ts" | "prisma" | "drizzle" | "prompt";
 
 /** Shape of `seedmint.config.ts`. */
 export interface SeedmintConfig {
-  /** Schema file to read (Prisma, Drizzle, Zod, TS, SQL, JSON Schema, DBML, GraphQL, CSV). */
+  /** Schema file to read (Prisma, Drizzle, Zod, TS, SQL, JSON Schema, DBML, GraphQL, OpenAPI, CSV). */
   schema?: string;
   from?: InputFormat;
   locale?: string | string[];

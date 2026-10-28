@@ -57,6 +57,14 @@ describe("seedmint CLI (built)", () => {
     expect(existsSync(join(dir, "out.md"))).toBe(true);
     expect(readFileSync(join(dir, "out.md"), "utf8")).toContain("# Mock data for this project");
   });
+  it("reads an OpenAPI YAML spec through the bundled CLI", () => {
+    const dir = project({ "api/openapi.yaml": "openapi: 3.0.0\ncomponents:\n  schemas:\n    Pet:\n      type: object\n      required: [id, name]\n      properties:\n        id: { type: integer }\n        name: { type: string }\n" });
+    const r = run(dir, "api", "-n", "3");
+    expect(r.status).toBe(0);
+    const data = JSON.parse(r.stdout);
+    expect(data.Pet).toHaveLength(3);
+    expect(typeof data.Pet[0].name).toBe("string");
+  });
   it("reports unknown formats", () => {
     const dir = project({ "s.sql": "CREATE TABLE a (id INT PRIMARY KEY);" });
     const r = run(dir, "s.sql", "-f", "nope");

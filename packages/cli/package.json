@@ -4,11 +4,17 @@
   "description": "Paste a schema, get realistic sample data in any language and format.",
   "license": "MIT",
   "type": "module",
-  "bin": { "seedmint": "./dist/cli.js" },
+  "bin": {
+    "seedmint": "./dist/cli.js"
+  },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": ["dist"],
-  "engines": { "node": ">=22" },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "build": "tsup",
     "dev": "tsx src/cli.ts",
@@ -17,7 +23,8 @@
   },
   "dependencies": {
     "@faker-js/faker": "^9.0.0",
-    "typescript": "^5.5.0"
+    "typescript": "^5.5.0",
+    "yaml": "^2.9.1"
   },
   "devDependencies": {
     "@seedmint/core": "workspace:*",

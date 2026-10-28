@@ -370,3 +370,88 @@ describe("dbml, graphql and csv input", () => {
     expect(s.tables[0].fields.map((x) => x.kind)).toEqual(["integer", "string", "number", "boolean"]);
   });
 });
+
+describe("openapi input", () => {
+  const yaml = `openapi: 3.0.3
+info: { title: Shop, version: "1" }
+paths: {}
+components:
+  schemas:
+    Status:
+      type: string
+      enum: [open, closed]
+    Base:
+      type: object
+      required: [id]
+      properties:
+        id: { type: string, format: uuid }
+        createdAt: { type: string, format: date-time }
+    User:
+      allOf:
+        - $ref: "#/components/schemas/Base"
+        - type: object
+          required: [email]
+          properties:
+            email: { type: string, format: email }
+            age: { type: integer, nullable: true }
+            tags: { type: array, items: { type: string } }
+            status: { $ref: "#/components/schemas/Status" }
+            address: { $ref: "#/components/schemas/Address" }
+    Address:
+      type: object
+      properties:
+        id: { type: integer }
+        city: { type: string }
+    Order:
+      type: object
+      required: [id, userId]
+      properties:
+        id: { type: integer }
+        userId: { type: string, format: uuid }
+        total: { type: number }
+`;
+
+  it("detects and reads YAML, merging allOf and resolving enum refs", () => {
+    expect(detectFormat(yaml)).toBe("openapi");
+    const s = parseSchema(yaml);
+    expect(s.tables.map((t) => t.name)).toEqual(["Base", "User", "Address", "Order"]);
+    const user = s.tables[1].fields;
+    expect(user.map((f) => f.name)).toEqual(["id", "createdAt", "email", "age", "tags", "status"]);
+    expect(user.find((f) => f.name === "email")).toMatchObject({ hint: "email", optional: undefined });
+    expect(user.find((f) => f.name === "age")).toMatchObject({ kind: "integer", optional: true });
+    expect(user.find((f) => f.name === "tags")?.kind).toBe("json");
+    expect(user.find((f) => f.name === "status")).toMatchObject({ kind: "enum", enumValues: ["open", "closed"] });
+    expect(user.find((f) => f.name === "id")?.primary).toBe(true);
+  });
+
+  it("reads Swagger 2.0 JSON and keeps links through *Id fields", () => {
+    const json = JSON.stringify({ swagger: "2.0", definitions: { Pet: { type: "object", properties: { id: { type: "integer" }, name: { type: "string" } } }, Toy: { type: "object", properties: { id: { type: "integer" }, petId: { type: "integer" } } } } });
+    expect(detectFormat(json)).toBe("openapi");
+    const s = parseSchema(json);
+    expect(s.tables.map((t) => t.name)).toEqual(["Pet", "Toy"]);
+    expect(s.tables[1].fields[1].ref).toEqual({ table: "Pet", field: "id" });
+  });
+
+  it("generates data and survives circular refs", () => {
+    const circ = `openapi: 3.0.0\ncomponents:\n  schemas:\n    Node:\n      type: object\n      properties:\n        id: { type: integer }\n        parent: { $ref: "#/components/schemas/Node" }\n        self:\n          allOf:\n            - $ref: "#/components/schemas/Node"\n`;
+    expect(parseSchema(circ).tables[0].fields.map((f) => f.name)).toEqual(["id"]);
+    const rows = mint({ schema: parseSchema(yaml), rows: 3, seed: 1 });
+    expect(rows.Order).toHaveLength(3);
+    expect(typeof rows.User[0].email).toBe("string");
+  });
+
+  it("errors when the spec has no schemas", () => {
+    expect(() => parseSchema("openapi: 3.0.0\npaths: {}\n")).toThrow(/No tables/);
+  });
+
+  it("collects the first OpenAPI file of a folder without comment prefixes", () => {
+    const got = collectSchemaSource([
+      { path: "api/openapi.yaml", content: yaml },
+      { path: "api/other.yaml", content: "openapi: 3.0.0\n" },
+    ]);
+    expect(got.format).toBe("openapi");
+    expect(got.used).toEqual(["api/openapi.yaml"]);
+    expect(got.source.startsWith("openapi:")).toBe(true);
+    expect(parseSchema(got.source, got.format).tables).toHaveLength(4);
+  });
+});

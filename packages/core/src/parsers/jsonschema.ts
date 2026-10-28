@@ -1,6 +1,7 @@
 import type { Field, FieldKind, Schema, Table } from "../types.js";
 
-type JS = {
+export type JS = {
+  nullable?: boolean;
   type?: string | string[];
   format?: string;
   enum?: unknown[];
@@ -14,9 +15,9 @@ type JS = {
 
 const FORMAT_HINT: Record<string, string> = { email: "email", uri: "url", url: "url", "idn-email": "email", hostname: "url" };
 
-function fieldOf(name: string, p: JS, required: boolean): Field {
+export function fieldOf(name: string, p: JS, required: boolean): Field {
   const types = Array.isArray(p.type) ? p.type : [p.type];
-  const nullable = types.includes("null");
+  const nullable = types.includes("null") || p.nullable === true;
   const type = types.find((t) => t && t !== "null");
   let kind: FieldKind = "json";
   const field: Field = { name, kind, optional: !required || nullable || undefined };

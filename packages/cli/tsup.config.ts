@@ -6,5 +6,6 @@ export default defineConfig({
   format: ["esm"],
   dts: { entry: { index: "src/index.ts" }, resolve: true },
   noExternal: ["@seedmint/core"],
+  external: ["yaml"],
   clean: true,
 });
