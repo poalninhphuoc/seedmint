@@ -1,19 +1,22 @@
 # Roadmap
 
 ## MVP (about 1 week)
-- [ ] Schema model + field inference
-- [ ] Parsers: TypeScript, Zod, SQL `CREATE TABLE`
-- [ ] Locales: `vi`, `en` (on top of `@faker-js/faker`)
-- [ ] Formats: JSON, CSV, SQL INSERT
+- [x] Schema model + field inference
+- [x] Parsers: TypeScript, Zod, SQL `CREATE TABLE`
+- [x] Locales: `vi`, `en` (on top of `@faker-js/faker`)
+- [x] Formats: JSON, CSV, SQL INSERT
 - [ ] One-page Next.js playground (paste, generate, download)
 
 ## Next
-- [ ] Prisma, Drizzle, OpenAPI, JSON-sample parsers
-- [ ] Foreign-key aware generation
-- [ ] `seed.ts`, `mock.ts`, MSW, Playwright fixtures, Excel output
-- [ ] Locales: `ja`, `ko`, `zh`, `th`, `id`, `fr`, `de`, `es`
+- [x] JSON-sample and one-line DSL parsers
+- [ ] Prisma, Drizzle, OpenAPI parsers
+- [x] Foreign-key aware generation
+- [x] JSONL and typed `mock.ts` output
+- [ ] `seed.ts`, MSW, Playwright fixtures, Excel output
+- [x] Locale codes `ja`, `ko`, `zh`, `th`, `id`, `fr`, `de`, `es` accepted (names/addresses via faker; native text pools and ID formats still to do)
+- [ ] Locales: richer data for `ja`, `ko`, `zh`, `th`, `id`, `fr`, `de`, `es`
 - [ ] Claude Code skill polished, MCP server
-- [ ] Edge-case mode (long text, emoji, RTL)
+- [x] Edge-case mode (`--edge-cases`)
 
 ## Later
 - [ ] Image placeholders, scenario dates ("last 30 days")

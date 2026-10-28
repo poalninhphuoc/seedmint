@@ -4,7 +4,7 @@
 
 > Paste a schema. Get realistic sample data in any language and format. Built so vibe-coded apps never look empty.
 
-**Status:** early planning. APIs and names below are a design target, not shipped yet.
+**Status:** MVP. The CLI and library work; the web playground, Prisma/Drizzle/OpenAPI parsers and most locales are still planned (see the roadmap).
 
 ## Why
 
@@ -20,18 +20,31 @@ AI-built prototypes (Claude Code, Cursor, v0, Lovable) often ship with empty tab
 - **Edge cases on demand:** empty strings, very long names, emoji, RTL text.
 - **Built for AI tools:** ships a Claude Code skill and an MCP server so agents can call `generate_data(schema, locale, rows)`.
 
-## Planned usage
+## Usage
 
 ```bash
-# CLI
-npx seedmint schema.ts --locale vi,en --rows 50 --format json
+pnpm install && pnpm build
 
-# Library
-import { mint } from "seedmint";
-const data = mint({ schema, locale: "vi", rows: 50, seed: 42 });
+# paste/point at a schema (TypeScript, Zod, SQL, JSON sample, or users(name, email) one-liners)
+node dist/cli.js schema.sql --locale vi,en --rows users=50,orders=200 --format sql --seed 42
+
+# from stdin
+echo 'users(name, email, phone?, avatar:image)' | node dist/cli.js - -l vi -n 10
 ```
 
-A web playground (paste on the left, data on the right) is also planned.
+Options: `--locale`, `--rows`, `--format json|jsonl|csv|sql|ts`, `--seed`, `--from ts|zod|sql|dsl|json`, `--edge-cases`, `--out <dir>`.
+
+```ts
+import { parseSchema, mint, render } from "seedmint";
+
+const schema = parseSchema(sqlOrTsOrZod);
+const data = mint({ schema, locale: ["vi", "en"], rows: 50, seed: 42 });
+const [{ content }] = render(data, "sql", schema);
+```
+
+Tables are generated parents first, so foreign keys (explicit, or `user_id` pointing at `users`) always reference real rows. Output is repeatable for the same seed within a day (relative dates are based on today).
+
+A web playground (paste on the left, data on the right) is still planned.
 
 ## Roadmap
 
