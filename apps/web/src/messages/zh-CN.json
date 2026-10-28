@@ -30,7 +30,7 @@
     "generate": "生成数据",
     "generating": "生成中…",
     "inputTitle": "你的 Schema",
-    "inputHint": "支持 Prisma、Drizzle、Zod、TypeScript、SQL、JSON Schema，或类似 users(name, email) 的一行描述。",
+    "inputHint": "Prisma、Drizzle、Zod、TypeScript、SQL、DBML、GraphQL、OpenAPI、JSON Schema、CSV，或类似 users(name, email) 的单行写法。",
     "loadSample": "载入示例",
     "inputFormat": "输入格式",
     "auto": "自动识别",
@@ -89,7 +89,14 @@
     },
     "filesTitle": "已导入的文件",
     "treeTables": "{count} 张表",
-    "treeIgnored": "已忽略"
+    "treeIgnored": "已忽略",
+    "pagination": {
+      "label": "分页",
+      "first": "第一页",
+      "previous": "上一页",
+      "next": "下一页",
+      "last": "最后一页"
+    }
   },
   "localesPage": {
     "title": "语言区域",
@@ -138,7 +145,11 @@
     "noMatch": "没有匹配的表。",
     "selected": "{count} 张相关表",
     "clear": "取消选择",
-    "allHidden": "所有表都已隐藏，请在列表中勾选。"
+    "allHidden": "所有表都已隐藏，请在列表中勾选。",
+    "zoomOut": "缩小",
+    "zoomIn": "放大",
+    "fit": "适应屏幕",
+    "resetLayout": "重置布局"
   },
   "historyPage": {
     "title": "历史记录",
@@ -160,5 +171,63 @@
       "generate": "已生成",
       "export": "已导出"
     }
+  },
+  "samples": {
+    "title": "示例 schema",
+    "shop": {
+      "name": "电商",
+      "desc": "用户、商品、订单、支付、评价"
+    },
+    "blog": {
+      "name": "博客 / CMS",
+      "desc": "作者、文章、标签、评论"
+    },
+    "hr": {
+      "name": "人事与薪资",
+      "desc": "部门、员工、考勤、薪资"
+    },
+    "school": {
+      "name": "学校",
+      "desc": "教师、课程、选课、成绩"
+    },
+    "crm": {
+      "name": "CRM 销售管道",
+      "desc": "公司、联系人、商机、活动"
+    },
+    "clinic": {
+      "name": "诊所",
+      "desc": "医生、患者、预约、处方"
+    },
+    "construction": {
+      "name": "建筑工程（越南语）",
+      "desc": "越南语列名：项目、人员、材料"
+    },
+    "petApi": {
+      "name": "宠物诊所 API",
+      "desc": "OpenAPI YAML：主人、宠物、就诊、疫苗"
+    },
+    "social": {
+      "name": "社交网络",
+      "desc": "GraphQL：用户、帖子、评论、关注、私信"
+    },
+    "booking": {
+      "name": "酒店预订",
+      "desc": "Zod：酒店、房间、客人、预订"
+    },
+    "logistics": {
+      "name": "物流",
+      "desc": "单行 DSL：仓库、库存、运单"
+    }
+  },
+  "errors": {
+    "schemaEmpty": "Schema 为空。",
+    "schemaTooLarge": "Schema 太大（最大 3 MB）。",
+    "folderTooLarge": "文件夹太大，无法导入。",
+    "noTables": "在 {format} 输入中未找到任何表。",
+    "detectFailed": "无法识别输入格式，请在“输入格式”中手动选择。",
+    "noSchemaFiles": "所选内容中没有找到 schema 文件。",
+    "generateFailed": "无法生成数据。",
+    "readFailed": "无法读取 schema。",
+    "folderFailed": "无法读取文件夹。"
   }
 }

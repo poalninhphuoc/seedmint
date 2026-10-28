@@ -30,7 +30,7 @@
     "generate": "Generar datos",
     "generating": "Generando…",
     "inputTitle": "Tu esquema",
-    "inputHint": "Prisma, Drizzle, Zod, TypeScript, SQL, JSON Schema o una línea como users(name, email).",
+    "inputHint": "Prisma, Drizzle, Zod, TypeScript, SQL, DBML, GraphQL, OpenAPI, JSON Schema, CSV o una línea como users(name, email).",
     "loadSample": "Cargar ejemplo",
     "inputFormat": "Formato de entrada",
     "auto": "Detección automática",
@@ -89,7 +89,14 @@
     },
     "filesTitle": "Archivos importados",
     "treeTables": "{count} tablas",
-    "treeIgnored": "ignorado"
+    "treeIgnored": "ignorado",
+    "pagination": {
+      "label": "Paginación",
+      "first": "Primera página",
+      "previous": "Página anterior",
+      "next": "Página siguiente",
+      "last": "Última página"
+    }
   },
   "localesPage": {
     "title": "Idiomas de datos",
@@ -138,7 +145,11 @@
     "noMatch": "Ninguna tabla coincide.",
     "selected": "{count} tablas relacionadas",
     "clear": "Quitar",
-    "allHidden": "Todas las tablas están ocultas. Marca algunas en la lista."
+    "allHidden": "Todas las tablas están ocultas. Marca algunas en la lista.",
+    "zoomOut": "Alejar",
+    "zoomIn": "Acercar",
+    "fit": "Ajustar a la pantalla",
+    "resetLayout": "Restablecer diseño"
   },
   "historyPage": {
     "title": "Historial",
@@ -160,5 +171,63 @@
       "generate": "Generado",
       "export": "Exportado"
     }
+  },
+  "samples": {
+    "title": "Esquemas de ejemplo",
+    "shop": {
+      "name": "Comercio electrónico",
+      "desc": "Usuarios, productos, pedidos, pagos, reseñas"
+    },
+    "blog": {
+      "name": "Blog / CMS",
+      "desc": "Autores, entradas, etiquetas, comentarios"
+    },
+    "hr": {
+      "name": "RR. HH. y nómina",
+      "desc": "Departamentos, empleados, asistencia, nómina"
+    },
+    "school": {
+      "name": "Escuela",
+      "desc": "Profesores, cursos, matrículas, notas"
+    },
+    "crm": {
+      "name": "Embudo de ventas CRM",
+      "desc": "Empresas, contactos, negocios, actividades"
+    },
+    "clinic": {
+      "name": "Clínica",
+      "desc": "Médicos, pacientes, citas, recetas"
+    },
+    "construction": {
+      "name": "Construcción (vietnamita)",
+      "desc": "Columnas en vietnamita: proyectos, personal, materiales"
+    },
+    "petApi": {
+      "name": "API de clínica veterinaria",
+      "desc": "OpenAPI YAML: dueños, mascotas, visitas, vacunas"
+    },
+    "social": {
+      "name": "Red social",
+      "desc": "GraphQL: usuarios, publicaciones, comentarios, seguidores, mensajes"
+    },
+    "booking": {
+      "name": "Reserva de hoteles",
+      "desc": "Zod: hoteles, habitaciones, huéspedes, reservas"
+    },
+    "logistics": {
+      "name": "Logística",
+      "desc": "DSL de una línea: almacenes, stock, envíos"
+    }
+  },
+  "errors": {
+    "schemaEmpty": "El esquema está vacío.",
+    "schemaTooLarge": "El esquema es demasiado grande (máx. 3 MB).",
+    "folderTooLarge": "La carpeta es demasiado grande para importar.",
+    "noTables": "No se encontraron tablas en la entrada {format}.",
+    "detectFailed": "No se pudo detectar el formato de entrada. Elígelo en «Formato de entrada».",
+    "noSchemaFiles": "No se encontraron archivos de esquema en la selección.",
+    "generateFailed": "No se pudieron generar los datos.",
+    "readFailed": "No se pudo leer el esquema.",
+    "folderFailed": "No se pudo leer la carpeta."
   }
 }

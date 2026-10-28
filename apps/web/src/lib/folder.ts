@@ -1,6 +1,6 @@
 import type { SourceFile } from "@seedmint/core";
 
-const SCHEMA_EXT = /\.(prisma|sql|ts|tsx|mts|json|dbml|graphql|gql)$/;
+const SCHEMA_EXT = /\.(prisma|sql|ts|tsx|mts|json|dbml|graphql|gql|ya?ml)$/;
 const SKIP_DIR = /(^|\/)(node_modules|\.git|\.next|\.turbo|dist|build|coverage)(\/|$)/;
 const MAX_FILE = 1_000_000;
 

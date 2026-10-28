@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Copy, Download, FolderOpen, Sparkles, WandSparkles } from "lucide-react";
+import { Check, Copy, Download, FlaskConical, FolderOpen, Sparkles, WandSparkles } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { analyze, generate, importFiles, type AnalyzeResult, type GenerateResult, type ImportedFile, type OutputFile } from "@/app/actions";
@@ -8,6 +8,9 @@ import { DataGrid } from "@/components/data-grid";
 import { ExportMenu } from "@/components/export-menu";
 import { FileTree } from "@/components/file-tree";
 import { PageHeader } from "@/components/page-header";
+import { useErrorText } from "@/hooks/use-error-text";
+import { IconButton } from "@/components/icon-button";
+import { SampleMenu } from "@/components/sample-menu";
 import { SplitView } from "@/components/split-view";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -26,13 +29,14 @@ import { addHistory } from "@/lib/history";
 import { SAMPLE_SCHEMA, loadSchema, loadSettings, saveSchema, saveSettings, type StudioSettings } from "@/lib/studio-state";
 import type { RegionFormat, SqlDialect } from "@seedmint/core";
 
-const INPUTS = ["ts", "zod", "sql", "dsl", "json", "prisma", "drizzle", "jsonschema", "dbml", "graphql", "csv"] as const;
+const INPUTS = ["ts", "zod", "sql", "dsl", "json", "prisma", "drizzle", "jsonschema", "dbml", "graphql", "openapi", "csv"] as const;
 export function Studio({ locales, regions, initialLocale }: {
   locales: { code: string; label: string }[];
   regions: Record<string, RegionFormat>;
   initialLocale: string;
 }) {
   const t = useTranslations("studio");
+  const errorText = useErrorText();
   const [schema, setSchema] = useState(SAMPLE_SCHEMA);
   const [settings, setSettings] = useState<StudioSettings>({
     from: "auto", locale: initialLocale, rows: 10, tableRows: {}, seed: 42, format: "json", edgeCases: false,
@@ -144,8 +148,10 @@ export function Studio({ locales, regions, initialLocale }: {
             <p className="text-sm text-muted-foreground">{t("inputHint")}</p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={() => folder.current?.click()}><FolderOpen />{t("importFolder")}</Button>
-            <Button variant="outline" size="sm" onClick={() => { setSchema(SAMPLE_SCHEMA); setImported(null); set({ tableRows: {} }); }}>{t("loadSample")}</Button>
+            <IconButton variant="outline" label={t("importFolder")} onClick={() => folder.current?.click()}><FolderOpen /></IconButton>
+            <SampleMenu onPick={(sample) => { setSchema(sample.schema); setImported(null); set({ tableRows: {}, from: "auto" }); }}>
+              <IconButton variant="outline" label={t("loadSample")}><FlaskConical /></IconButton>
+            </SampleMenu>
           </div>
           <input ref={folder} type="file" multiple hidden onChange={(e) => pickFolder(e.target.files)}
             {...folderInputProps} />
@@ -156,7 +162,7 @@ export function Studio({ locales, regions, initialLocale }: {
             <FileTree files={imported.files} />
           </div>
         )}
-        {importError && <p role="alert" className="text-sm text-destructive">{importError}</p>}
+        {importError && <p role="alert" className="text-sm text-destructive">{errorText(importError)}</p>}
         <Textarea value={schema} onChange={(e) => { setSchema(e.target.value); setImported(null); }} spellCheck={false}
           aria-label={t("inputTitle")} className="max-h-96 min-h-64 bg-card font-mono text-[13px] leading-relaxed" />
       </section>
@@ -280,7 +286,7 @@ export function Studio({ locales, regions, initialLocale }: {
         </div>
       </div>
 
-      {result && !result.ok && <p role="alert" className="m-4 rounded-lg bg-destructive/10 p-3 text-sm text-destructive md:mx-6">{result.error}</p>}
+      {result && !result.ok && <p role="alert" className="m-4 rounded-lg bg-destructive/10 p-3 text-sm text-destructive md:mx-6">{errorText(result.error)}</p>}
       {!result && <p className="m-4 rounded-lg border border-dashed p-12 text-center text-sm text-muted-foreground md:mx-6">{t("empty")}</p>}
       {ok && (
         <Tabs value={activeTab} onValueChange={setTab} className="min-h-0 min-w-0 flex-1 gap-0">
@@ -348,9 +354,9 @@ function FileView({ file, copied, onCopy, t }: { file: OutputFile; copied: boole
         <p className="font-mono text-sm">{file.name}</p>
         <div className="flex gap-2">
           {!file.binary && (
-            <Button variant="outline" size="sm" onClick={onCopy}>{copied ? <Check /> : <Copy />}{copied ? t("copied") : t("copy")}</Button>
+            <IconButton variant="outline" label={copied ? t("copied") : t("copy")} onClick={onCopy}>{copied ? <Check /> : <Copy />}</IconButton>
           )}
-          <Button variant="outline" size="sm" onClick={() => downloadFile(file)}><Download />{t("download")}</Button>
+          <IconButton variant="outline" label={t("download")} onClick={() => downloadFile(file)}><Download /></IconButton>
         </div>
       </div>
       {file.binary ? (

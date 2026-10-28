@@ -30,7 +30,7 @@
     "generate": "데이터 생성",
     "generating": "생성 중…",
     "inputTitle": "스키마",
-    "inputHint": "Prisma, Drizzle, Zod, TypeScript, SQL, JSON Schema 또는 users(name, email) 같은 한 줄.",
+    "inputHint": "Prisma, Drizzle, Zod, TypeScript, SQL, DBML, GraphQL, OpenAPI, JSON Schema, CSV 또는 users(name, email) 같은 한 줄.",
     "loadSample": "예시 불러오기",
     "inputFormat": "입력 형식",
     "auto": "자동 감지",
@@ -89,7 +89,14 @@
     },
     "filesTitle": "가져온 파일",
     "treeTables": "테이블 {count}개",
-    "treeIgnored": "무시됨"
+    "treeIgnored": "무시됨",
+    "pagination": {
+      "label": "페이지 이동",
+      "first": "첫 페이지",
+      "previous": "이전 페이지",
+      "next": "다음 페이지",
+      "last": "마지막 페이지"
+    }
   },
   "localesPage": {
     "title": "로케일",
@@ -138,7 +145,11 @@
     "noMatch": "일치하는 테이블이 없습니다.",
     "selected": "관련 테이블 {count}개",
     "clear": "해제",
-    "allHidden": "모든 테이블이 숨겨져 있습니다. 목록에서 선택하세요."
+    "allHidden": "모든 테이블이 숨겨져 있습니다. 목록에서 선택하세요.",
+    "zoomOut": "축소",
+    "zoomIn": "확대",
+    "fit": "화면에 맞춤",
+    "resetLayout": "레이아웃 초기화"
   },
   "historyPage": {
     "title": "기록",
@@ -160,5 +171,63 @@
       "generate": "생성됨",
       "export": "내보냄"
     }
+  },
+  "samples": {
+    "title": "예시 스키마",
+    "shop": {
+      "name": "쇼핑몰",
+      "desc": "사용자, 상품, 주문, 결제, 리뷰"
+    },
+    "blog": {
+      "name": "블로그 / CMS",
+      "desc": "작성자, 글, 태그, 댓글"
+    },
+    "hr": {
+      "name": "인사 및 급여",
+      "desc": "부서, 직원, 근태, 급여"
+    },
+    "school": {
+      "name": "학교",
+      "desc": "교사, 강좌, 수강, 성적"
+    },
+    "crm": {
+      "name": "CRM 영업 파이프라인",
+      "desc": "회사, 연락처, 거래, 활동"
+    },
+    "clinic": {
+      "name": "병원",
+      "desc": "의사, 환자, 예약, 처방"
+    },
+    "construction": {
+      "name": "건설 (베트남어)",
+      "desc": "베트남어 컬럼명: 프로젝트, 인력, 자재"
+    },
+    "petApi": {
+      "name": "반려동물 병원 API",
+      "desc": "OpenAPI YAML: 보호자, 반려동물, 진료, 예방접종"
+    },
+    "social": {
+      "name": "소셜 네트워크",
+      "desc": "GraphQL: 사용자, 게시글, 댓글, 팔로우, 메시지"
+    },
+    "booking": {
+      "name": "호텔 예약",
+      "desc": "Zod: 호텔, 객실, 투숙객, 예약"
+    },
+    "logistics": {
+      "name": "물류",
+      "desc": "한 줄 DSL: 창고, 재고, 배송"
+    }
+  },
+  "errors": {
+    "schemaEmpty": "스키마가 비어 있습니다.",
+    "schemaTooLarge": "스키마가 너무 큽니다(최대 3 MB).",
+    "folderTooLarge": "폴더가 너무 커서 가져올 수 없습니다.",
+    "noTables": "{format} 입력에서 테이블을 찾을 수 없습니다.",
+    "detectFailed": "입력 형식을 인식하지 못했습니다. \"입력 형식\"에서 선택하세요.",
+    "noSchemaFiles": "선택한 항목에서 스키마 파일을 찾을 수 없습니다.",
+    "generateFailed": "데이터를 생성하지 못했습니다.",
+    "readFailed": "스키마를 읽지 못했습니다.",
+    "folderFailed": "폴더를 읽지 못했습니다."
   }
 }

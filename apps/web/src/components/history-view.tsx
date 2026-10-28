@@ -6,7 +6,8 @@ import { useEffect, useState } from "react";
 import { generate } from "@/app/actions";
 import { PageHeader } from "@/components/page-header";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { useErrorText } from "@/hooks/use-error-text";
+import { IconButton } from "@/components/icon-button";
 import { useRouter } from "@/i18n/navigation";
 import { downloadFile } from "@/lib/download";
 import { clearHistory, loadHistory, removeHistory, type HistoryEntry } from "@/lib/history";
@@ -15,6 +16,7 @@ import { saveSchema, saveSettings } from "@/lib/studio-state";
 export function HistoryView() {
   const t = useTranslations("historyPage");
   const locale = useLocale();
+  const errorText = useErrorText();
   const router = useRouter();
   const [items, setItems] = useState<HistoryEntry[] | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
@@ -51,11 +53,11 @@ export function HistoryView() {
         subtitle={t("subtitle")}
         actions={
           items?.length ? (
-            <Button variant="outline" onClick={() => { clearHistory(); setItems([]); }}><Trash2 />{t("clearAll")}</Button>
+            <IconButton variant="outline" size="icon" label={t("clearAll")} onClick={() => { clearHistory(); setItems([]); }}><Trash2 /></IconButton>
           ) : null
         }
       />
-      {error && <p role="alert" className="m-4 rounded-lg bg-destructive/10 p-3 text-sm text-destructive md:mx-6">{error}</p>}
+      {error && <p role="alert" className="m-4 rounded-lg bg-destructive/10 p-3 text-sm text-destructive md:mx-6">{errorText(error)}</p>}
       {items && items.length === 0 && <p className="p-12 text-center text-sm text-muted-foreground">{t("empty")}</p>}
       {items && items.length > 0 && (
         <div className="min-h-0 flex-1 overflow-auto">
@@ -78,9 +80,9 @@ export function HistoryView() {
                   <td className="px-4 py-3 tabular-nums">{h.tables}</td>
                   <td className="px-4 py-3 tabular-nums">{h.rows}</td>
                   <td className="whitespace-nowrap px-4 py-3 text-right md:pr-6">
-                    <Button variant="ghost" size="sm" disabled={!h.schema} onClick={() => open(h)}><RotateCcw />{t("open")}</Button>
-                    <Button variant="ghost" size="sm" disabled={!h.schema || busy === h.id} onClick={() => again(h)}><Download />{t("exportAgain")}</Button>
-                    <Button variant="ghost" size="icon" aria-label={t("delete")} onClick={() => { removeHistory(h.id); setItems(loadHistory()); }}><Trash2 /></Button>
+                    <IconButton variant="ghost" label={t("open")} disabled={!h.schema} onClick={() => open(h)}><RotateCcw /></IconButton>
+                    <IconButton variant="ghost" label={t("exportAgain")} disabled={!h.schema || busy === h.id} onClick={() => again(h)}><Download /></IconButton>
+                    <IconButton variant="ghost" label={t("delete")} onClick={() => { removeHistory(h.id); setItems(loadHistory()); }}><Trash2 /></IconButton>
                   </td>
                 </tr>
               ))}

@@ -30,7 +30,7 @@
     "generate": "Generate data",
     "generating": "Generating…",
     "inputTitle": "Your schema",
-    "inputHint": "Prisma, Drizzle, Zod, TypeScript, SQL, JSON Schema or a one-liner like users(name, email).",
+    "inputHint": "Prisma, Drizzle, Zod, TypeScript, SQL, DBML, GraphQL, OpenAPI, JSON Schema, CSV or a one-liner like users(name, email).",
     "loadSample": "Load sample",
     "inputFormat": "Input format",
     "auto": "Auto-detect",
@@ -89,7 +89,14 @@
     },
     "filesTitle": "Imported files",
     "treeTables": "{count} tables",
-    "treeIgnored": "ignored"
+    "treeIgnored": "ignored",
+    "pagination": {
+      "label": "Pagination",
+      "first": "First page",
+      "previous": "Previous page",
+      "next": "Next page",
+      "last": "Last page"
+    }
   },
   "localesPage": {
     "title": "Locales",
@@ -138,7 +145,11 @@
     "noMatch": "No table matches.",
     "selected": "{count} related tables",
     "clear": "Clear",
-    "allHidden": "Every table is hidden. Tick some in the list."
+    "allHidden": "Every table is hidden. Tick some in the list.",
+    "zoomOut": "Zoom out",
+    "zoomIn": "Zoom in",
+    "fit": "Fit to screen",
+    "resetLayout": "Reset layout"
   },
   "historyPage": {
     "title": "History",
@@ -160,5 +171,63 @@
       "generate": "Generated",
       "export": "Exported"
     }
+  },
+  "samples": {
+    "title": "Sample schemas",
+    "shop": {
+      "name": "E-commerce",
+      "desc": "Users, products, orders, payments, reviews"
+    },
+    "blog": {
+      "name": "Blog / CMS",
+      "desc": "Authors, posts, tags, comments"
+    },
+    "hr": {
+      "name": "HR and payroll",
+      "desc": "Departments, employees, attendance, payroll"
+    },
+    "school": {
+      "name": "School",
+      "desc": "Teachers, courses, enrollments, grades"
+    },
+    "crm": {
+      "name": "CRM sales pipeline",
+      "desc": "Companies, contacts, deals, activities"
+    },
+    "clinic": {
+      "name": "Clinic",
+      "desc": "Doctors, patients, appointments, prescriptions"
+    },
+    "construction": {
+      "name": "Construction (Vietnamese)",
+      "desc": "Vietnamese column names: projects, staff, materials"
+    },
+    "petApi": {
+      "name": "Pet clinic API",
+      "desc": "OpenAPI YAML: owners, pets, visits, vaccinations"
+    },
+    "social": {
+      "name": "Social network",
+      "desc": "GraphQL: users, posts, comments, follows, messages"
+    },
+    "booking": {
+      "name": "Hotel booking",
+      "desc": "Zod: hotels, rooms, guests, bookings"
+    },
+    "logistics": {
+      "name": "Logistics",
+      "desc": "One-line DSL: warehouses, stock, shipments"
+    }
+  },
+  "errors": {
+    "schemaEmpty": "Schema is empty.",
+    "schemaTooLarge": "Schema is too large (3 MB max).",
+    "folderTooLarge": "The folder is too large to import.",
+    "noTables": "No tables found in {format} input.",
+    "detectFailed": "Could not detect the input format. Choose one under “Input format”.",
+    "noSchemaFiles": "No schema files found in this selection.",
+    "generateFailed": "Could not generate data.",
+    "readFailed": "Could not read the schema.",
+    "folderFailed": "Could not read the folder."
   }
 }

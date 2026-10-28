@@ -30,7 +30,7 @@
     "generate": "Tạo dữ liệu",
     "generating": "Đang tạo…",
     "inputTitle": "Schema của bạn",
-    "inputHint": "Prisma, Drizzle, Zod, TypeScript, SQL, JSON Schema hoặc một dòng như users(name, email).",
+    "inputHint": "Prisma, Drizzle, Zod, TypeScript, SQL, DBML, GraphQL, OpenAPI, JSON Schema, CSV hoặc một dòng như users(name, email).",
     "loadSample": "Dùng mẫu",
     "inputFormat": "Định dạng đầu vào",
     "auto": "Tự nhận diện",
@@ -89,7 +89,14 @@
     },
     "filesTitle": "File đã nhập",
     "treeTables": "{count} bảng",
-    "treeIgnored": "bỏ qua"
+    "treeIgnored": "bỏ qua",
+    "pagination": {
+      "label": "Phân trang",
+      "first": "Trang đầu",
+      "previous": "Trang trước",
+      "next": "Trang sau",
+      "last": "Trang cuối"
+    }
   },
   "localesPage": {
     "title": "Ngôn ngữ dữ liệu",
@@ -138,7 +145,11 @@
     "noMatch": "Không có bảng nào khớp.",
     "selected": "{count} bảng liên quan",
     "clear": "Bỏ chọn",
-    "allHidden": "Đang ẩn hết bảng. Hãy tick vài bảng trong danh sách."
+    "allHidden": "Đang ẩn hết bảng. Hãy tick vài bảng trong danh sách.",
+    "zoomOut": "Thu nhỏ",
+    "zoomIn": "Phóng to",
+    "fit": "Vừa màn hình",
+    "resetLayout": "Đặt lại bố cục"
   },
   "historyPage": {
     "title": "Lịch sử",
@@ -160,5 +171,63 @@
       "generate": "Đã tạo",
       "export": "Đã xuất"
     }
+  },
+  "samples": {
+    "title": "Mẫu schema",
+    "shop": {
+      "name": "Thương mại điện tử",
+      "desc": "Người dùng, sản phẩm, đơn hàng, thanh toán, đánh giá"
+    },
+    "blog": {
+      "name": "Blog / CMS",
+      "desc": "Tác giả, bài viết, thẻ, bình luận"
+    },
+    "hr": {
+      "name": "Nhân sự và lương",
+      "desc": "Phòng ban, nhân viên, chấm công, bảng lương"
+    },
+    "school": {
+      "name": "Trường học",
+      "desc": "Giáo viên, khóa học, đăng ký, điểm"
+    },
+    "crm": {
+      "name": "CRM quy trình bán hàng",
+      "desc": "Công ty, liên hệ, deal, hoạt động"
+    },
+    "clinic": {
+      "name": "Phòng khám",
+      "desc": "Bác sĩ, bệnh nhân, lịch hẹn, đơn thuốc"
+    },
+    "construction": {
+      "name": "Xây dựng (tiếng Việt)",
+      "desc": "Tên cột tiếng Việt: dự án, nhân sự, vật tư"
+    },
+    "petApi": {
+      "name": "API phòng khám thú cưng",
+      "desc": "OpenAPI YAML: chủ nuôi, thú cưng, lượt khám, tiêm phòng"
+    },
+    "social": {
+      "name": "Mạng xã hội",
+      "desc": "GraphQL: người dùng, bài đăng, bình luận, theo dõi, tin nhắn"
+    },
+    "booking": {
+      "name": "Đặt phòng khách sạn",
+      "desc": "Zod: khách sạn, phòng, khách, đặt phòng"
+    },
+    "logistics": {
+      "name": "Kho vận",
+      "desc": "DSL một dòng: kho, tồn kho, vận đơn"
+    }
+  },
+  "errors": {
+    "schemaEmpty": "Schema đang trống.",
+    "schemaTooLarge": "Schema quá lớn (tối đa 3 MB).",
+    "folderTooLarge": "Thư mục quá lớn để nhập.",
+    "noTables": "Không tìm thấy bảng nào trong dữ liệu {format}.",
+    "detectFailed": "Không nhận diện được định dạng đầu vào. Hãy chọn tại “Định dạng đầu vào”.",
+    "noSchemaFiles": "Không tìm thấy file schema nào trong lựa chọn này.",
+    "generateFailed": "Không thể tạo dữ liệu.",
+    "readFailed": "Không đọc được schema.",
+    "folderFailed": "Không đọc được thư mục."
   }
 }

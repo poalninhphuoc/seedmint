@@ -2,13 +2,14 @@ import type { Metadata } from "next";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
+import Script from "next/script";
 import type { ReactNode } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { THEME_SCRIPT } from "@/components/theme-toggle";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { routing } from "@/i18n/routing";
 import { alternates, siteUrl } from "@/lib/seo";
+import { THEME_SCRIPT } from "@/lib/theme";
 import "../globals.css";
 
 export function generateStaticParams() {
@@ -50,10 +51,8 @@ export default async function LocaleLayout({ children, params }: { children: Rea
 
   return (
     <html lang={locale} suppressHydrationWarning>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
-      </head>
       <body className="min-h-svh">
+        <Script id="theme-init" strategy="beforeInteractive">{THEME_SCRIPT}</Script>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
         <NextIntlClientProvider>
           <TooltipProvider>

@@ -30,7 +30,7 @@
     "generate": "データを生成",
     "generating": "生成中…",
     "inputTitle": "スキーマ",
-    "inputHint": "Prisma、Drizzle、Zod、TypeScript、SQL、JSON Schema、または users(name, email) のような一行。",
+    "inputHint": "Prisma、Drizzle、Zod、TypeScript、SQL、DBML、GraphQL、OpenAPI、JSON Schema、CSV、または users(name, email) のような 1 行。",
     "loadSample": "サンプルを読み込む",
     "inputFormat": "入力形式",
     "auto": "自動判定",
@@ -89,7 +89,14 @@
     },
     "filesTitle": "読み込んだファイル",
     "treeTables": "{count} テーブル",
-    "treeIgnored": "無視"
+    "treeIgnored": "無視",
+    "pagination": {
+      "label": "ページ送り",
+      "first": "最初のページ",
+      "previous": "前のページ",
+      "next": "次のページ",
+      "last": "最後のページ"
+    }
   },
   "localesPage": {
     "title": "ロケール",
@@ -138,7 +145,11 @@
     "noMatch": "一致するテーブルがありません。",
     "selected": "関連テーブル {count} 件",
     "clear": "解除",
-    "allHidden": "すべてのテーブルが非表示です。リストでチェックしてください。"
+    "allHidden": "すべてのテーブルが非表示です。リストでチェックしてください。",
+    "zoomOut": "縮小",
+    "zoomIn": "拡大",
+    "fit": "画面に合わせる",
+    "resetLayout": "レイアウトをリセット"
   },
   "historyPage": {
     "title": "履歴",
@@ -160,5 +171,63 @@
       "generate": "生成",
       "export": "書き出し"
     }
+  },
+  "samples": {
+    "title": "サンプルスキーマ",
+    "shop": {
+      "name": "EC サイト",
+      "desc": "ユーザー、商品、注文、支払い、レビュー"
+    },
+    "blog": {
+      "name": "ブログ / CMS",
+      "desc": "著者、記事、タグ、コメント"
+    },
+    "hr": {
+      "name": "人事・給与",
+      "desc": "部署、従業員、勤怠、給与"
+    },
+    "school": {
+      "name": "学校",
+      "desc": "教師、講座、履修、成績"
+    },
+    "crm": {
+      "name": "CRM 営業パイプライン",
+      "desc": "会社、連絡先、案件、活動"
+    },
+    "clinic": {
+      "name": "クリニック",
+      "desc": "医師、患者、予約、処方"
+    },
+    "construction": {
+      "name": "建設（ベトナム語）",
+      "desc": "ベトナム語の列名：案件、人員、資材"
+    },
+    "petApi": {
+      "name": "ペットクリニック API",
+      "desc": "OpenAPI YAML：飼い主、ペット、診察、予防接種"
+    },
+    "social": {
+      "name": "SNS",
+      "desc": "GraphQL：ユーザー、投稿、コメント、フォロー、メッセージ"
+    },
+    "booking": {
+      "name": "ホテル予約",
+      "desc": "Zod：ホテル、部屋、宿泊客、予約"
+    },
+    "logistics": {
+      "name": "物流",
+      "desc": "1 行 DSL：倉庫、在庫、出荷"
+    }
+  },
+  "errors": {
+    "schemaEmpty": "スキーマが空です。",
+    "schemaTooLarge": "スキーマが大きすぎます（最大 3 MB）。",
+    "folderTooLarge": "フォルダが大きすぎてインポートできません。",
+    "noTables": "{format} の入力にテーブルが見つかりません。",
+    "detectFailed": "入力形式を判別できません。「入力形式」で選択してください。",
+    "noSchemaFiles": "選択した内容にスキーマファイルが見つかりません。",
+    "generateFailed": "データを生成できませんでした。",
+    "readFailed": "スキーマを読み込めませんでした。",
+    "folderFailed": "フォルダを読み込めませんでした。"
   }
 }

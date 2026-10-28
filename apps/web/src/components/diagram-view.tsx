@@ -2,37 +2,27 @@
 
 import { Check, Copy, Download, Eye, EyeOff, FileUp, FlaskConical, FolderOpen, Maximize, Network, RotateCcw, Search, X, ZoomIn, ZoomOut } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, useTransition, type ComponentProps } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, useTransition } from "react";
 import { analyze, importFiles, type AnalyzeResult, type ImportedFile } from "@/app/actions";
 import { ErDiagram } from "@/components/er-diagram";
 import { FileTree } from "@/components/file-tree";
 import { PageHeader } from "@/components/page-header";
 import { SplitView } from "@/components/split-view";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { useErrorText } from "@/hooks/use-error-text";
+import { IconButton } from "@/components/icon-button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { folderInputProps, readFolder } from "@/lib/folder";
 import { colorOf, layoutEr, toMermaid, withOffsets } from "@/lib/er-layout";
 import { loadSchema, saveSchema } from "@/lib/schema-store";
+import { SampleMenu } from "@/components/sample-menu";
 import { SAMPLE_SCHEMA } from "@/lib/sample";
-
-/** Icon-only button; the label shows as a tooltip on hover and doubles as the accessible name. */
-function IconButton({ label, children, ...props }: { label: string } & Omit<ComponentProps<typeof Button>, "size" | "aria-label">) {
-  return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Button size="icon-sm" aria-label={label} {...props}>{children}</Button>
-      </TooltipTrigger>
-      <TooltipContent>{label}</TooltipContent>
-    </Tooltip>
-  );
-}
 
 export function DiagramView() {
   const t = useTranslations("diagramPage");
   const ts = useTranslations("studio");
+  const errorText = useErrorText();
   const folder = useRef<HTMLInputElement>(null);
   const fileInput = useRef<HTMLInputElement>(null);
   const [imported, setImported] = useState<{ text: string; files: ImportedFile[] } | null>(null);
@@ -227,9 +217,11 @@ export function DiagramView() {
             <div className="flex gap-2">
               <IconButton variant="outline" label={ts("importFile")} onClick={() => fileInput.current?.click()}><FileUp /></IconButton>
               <IconButton variant="outline" label={ts("importFolder")} onClick={() => folder.current?.click()}><FolderOpen /></IconButton>
-              <IconButton variant="outline" label={t("loadSample")} onClick={() => { setSchema(SAMPLE_SCHEMA); setImported(null); }}><FlaskConical /></IconButton>
+              <SampleMenu onPick={(sample) => { setSchema(sample.schema); setImported(null); }}>
+                <IconButton variant="outline" label={t("loadSample")}><FlaskConical /></IconButton>
+              </SampleMenu>
             </div>
-            <input ref={fileInput} type="file" multiple hidden accept=".prisma,.sql,.ts,.tsx,.mts,.json,.dbml,.graphql,.gql" onChange={(e) => pickFolder(e.target.files)} />
+            <input ref={fileInput} type="file" multiple hidden accept=".prisma,.sql,.ts,.tsx,.mts,.json,.dbml,.graphql,.gql,.yaml,.yml" onChange={(e) => pickFolder(e.target.files)} />
             <input ref={folder} type="file" multiple hidden onChange={(e) => pickFolder(e.target.files)} {...folderInputProps} />
           </div>
           {imported && (
@@ -238,7 +230,7 @@ export function DiagramView() {
               <FileTree files={imported.files} />
             </div>
           )}
-          {importError && <p role="alert" className="text-sm text-destructive">{importError}</p>}
+          {importError && <p role="alert" className="text-sm text-destructive">{errorText(importError)}</p>}
           <Textarea value={schema} onChange={(e) => { setSchema(e.target.value); setImported(null); }} spellCheck={false} aria-label={t("inputTitle")}
             className="max-h-72 min-h-40 bg-card font-mono text-[13px] leading-relaxed" />
 
@@ -275,7 +267,7 @@ export function DiagramView() {
         </div>
       ) : (
         <div className="flex flex-1 items-center justify-center p-6 text-center text-sm text-muted-foreground">
-          {result && !result.ok ? <p role="alert" className="text-destructive">{result.error}</p>
+          {result && !result.ok ? <p role="alert" className="text-destructive">{errorText(result.error)}</p>
             : ok && ok.tables.length === 0 ? t("empty")
             : ok ? t("allHidden")
             : t("hint")}
@@ -299,11 +291,11 @@ export function DiagramView() {
           <div className="pointer-events-auto ml-auto flex items-center gap-0.5 rounded-md border bg-card/90 p-0.5 shadow-sm backdrop-blur">
             {layout && (
               <>
-                <IconButton variant="ghost" label="Zoom out" onClick={() => setZoom((z) => Math.max(0.15, +(z - 0.15).toFixed(2)))}><ZoomOut /></IconButton>
+                <IconButton variant="ghost" label={t("zoomOut")} onClick={() => setZoom((z) => Math.max(0.15, +(z - 0.15).toFixed(2)))}><ZoomOut /></IconButton>
                 <span className="w-10 text-center text-xs tabular-nums text-muted-foreground">{Math.round(zoom * 100)}%</span>
-                <IconButton variant="ghost" label="Zoom in" onClick={() => setZoom((z) => Math.min(2, +(z + 0.15).toFixed(2)))}><ZoomIn /></IconButton>
-                <IconButton variant="ghost" label="Fit" onClick={fit}><Maximize /></IconButton>
-                {Object.keys(moved).length > 0 && <IconButton variant="ghost" label="Reset layout" onClick={() => setMoved({})}><RotateCcw /></IconButton>}
+                <IconButton variant="ghost" label={t("zoomIn")} onClick={() => setZoom((z) => Math.min(2, +(z + 0.15).toFixed(2)))}><ZoomIn /></IconButton>
+                <IconButton variant="ghost" label={t("fit")} onClick={fit}><Maximize /></IconButton>
+                {Object.keys(moved).length > 0 && <IconButton variant="ghost" label={t("resetLayout")} onClick={() => setMoved({})}><RotateCcw /></IconButton>}
               </>
             )}
             <Badge variant="secondary" className="mx-1">{ok.detected}</Badge>

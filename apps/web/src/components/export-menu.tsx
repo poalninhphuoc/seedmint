@@ -2,7 +2,7 @@
 
 import { Download, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { Button } from "@/components/ui/button";
+import { IconButton } from "@/components/icon-button";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -14,10 +14,9 @@ export function ExportMenu({ busy, onExport }: { busy: boolean; onExport: (forma
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" disabled={busy} aria-label={t("exportMenu")}>
+        <IconButton variant="outline" size="icon" disabled={busy} label={t("exportMenu")}>
           {busy ? <Loader2 className="animate-spin" /> : <Download />}
-          {t("exportMenu")}
-        </Button>
+        </IconButton>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-60">
         {EXPORT_MENU.map((g, i) => (

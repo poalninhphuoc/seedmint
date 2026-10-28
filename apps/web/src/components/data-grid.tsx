@@ -2,6 +2,7 @@
 
 import { ArrowDown, ArrowUp, ArrowUpDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useMemo, useState } from "react";
 import type { PreviewTable } from "@/app/actions";
 import { Input } from "@/components/ui/input";
@@ -97,28 +98,36 @@ export function DataGrid({ table }: { table: PreviewTable }) {
           </label>
           {table.total > table.rows.length && <span className="text-xs text-muted-foreground">{t("previewCap", { count: table.rows.length })}</span>}
         </div>
-        <nav className="flex items-center gap-1" aria-label="pagination">
-          <PageButton label="first" disabled={current === 0} onClick={() => setPage(0)}><ChevronsLeft /></PageButton>
-          <PageButton label="previous" disabled={current === 0} onClick={() => setPage(current - 1)}><ChevronLeft /></PageButton>
+        <nav className="flex items-center gap-1" aria-label={t("pagination.label")}>
+          <PageButton tip label={t("pagination.first")} disabled={current === 0} onClick={() => setPage(0)}><ChevronsLeft /></PageButton>
+          <PageButton tip label={t("pagination.previous")} disabled={current === 0} onClick={() => setPage(current - 1)}><ChevronLeft /></PageButton>
           {window.map((p) => (
             <PageButton key={p} label={String(p + 1)} active={p === current} onClick={() => setPage(p)}>{p + 1}</PageButton>
           ))}
-          <PageButton label="next" disabled={current >= pages - 1} onClick={() => setPage(current + 1)}><ChevronRight /></PageButton>
-          <PageButton label="last" disabled={current >= pages - 1} onClick={() => setPage(pages - 1)}><ChevronsRight /></PageButton>
+          <PageButton tip label={t("pagination.next")} disabled={current >= pages - 1} onClick={() => setPage(current + 1)}><ChevronRight /></PageButton>
+          <PageButton tip label={t("pagination.last")} disabled={current >= pages - 1} onClick={() => setPage(pages - 1)}><ChevronsRight /></PageButton>
         </nav>
       </div>
     </div>
   );
 }
 
-function PageButton({ children, label, active, disabled, onClick }: {
-  children: React.ReactNode; label: string; active?: boolean; disabled?: boolean; onClick: () => void;
+function PageButton({ children, label, active, disabled, onClick, tip }: {
+  children: React.ReactNode; label: string; active?: boolean; disabled?: boolean; onClick: () => void; tip?: boolean;
 }) {
-  return (
+  const button = (
     <button type="button" aria-label={label} aria-current={active ? "page" : undefined} disabled={disabled} onClick={onClick}
       className={cn("flex size-8 items-center justify-center rounded-full text-sm tabular-nums transition-colors [&_svg]:size-4",
         active ? "bg-brand text-white" : "text-muted-foreground hover:bg-muted disabled:pointer-events-none disabled:opacity-40")}>
       {children}
     </button>
+  );
+  if (!tip) return button;
+  // a disabled button swallows pointer events, so the tooltip hangs on a wrapper
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild><span className="inline-flex">{button}</span></TooltipTrigger>
+      <TooltipContent>{label}</TooltipContent>
+    </Tooltip>
   );
 }
