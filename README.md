@@ -3,7 +3,7 @@
 [English](README.md) · [Tiếng Việt](README.vi.md) · [简体中文](README.zh-CN.md) · [日本語](README.ja.md) · [한국어](README.ko.md) · [Español](README.es.md)
 
 
-[![CI](https://github.com/poalninhphuoc/seedmint/actions/workflows/ci.yml/badge.svg)](https://github.com/poalninhphuoc/seedmint/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) ![Node](https://img.shields.io/badge/node-%E2%89%A518-339933)
+[![CI](https://github.com/poalninhphuoc/seedmint/actions/workflows/ci.yml/badge.svg)](https://github.com/poalninhphuoc/seedmint/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) ![Node](https://img.shields.io/badge/node-%E2%89%A522-339933)
 
 > Paste a schema. Get realistic sample data in any language and format. Built so vibe-coded apps never look empty.
 
