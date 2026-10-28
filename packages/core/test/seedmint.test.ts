@@ -230,3 +230,122 @@ describe("seed.ts and prompt outputs", () => {
     expect(out.content).toContain("Instructions for the AI coding agent");
   });
 });
+
+describe("Vietnamese column names and comment hints", () => {
+  const src = `
+model ChamCong {
+  id String @id @default(cuid())
+  ngay String // YYYY-MM-DD (string để filter nhanh)
+  taiKhoanId String
+  maNhanVien String
+  hoVaTen String
+  gioVao String? // HH:mm:ss
+  diaChiVao String @default("")
+  viDoVao Float?
+  kinhDoVao Float?
+  lichSuVao String @default("")
+  caLamViec String @default("")
+  tenDuAn String?
+  doiThiCong String?
+}`;
+  const row = () => mint({ schema: parseSchema(src), locale: "vi", rows: 30, seed: 3 }).ChamCong;
+
+  it("produces dates, times, coordinates and Vietnamese text", () => {
+    for (const r of row()) {
+      expect(r.ngay).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      expect(r.taiKhoanId).toMatch(/^[0-9a-f-]{36}$/);
+      if (r.gioVao !== null) expect(r.gioVao).toMatch(/^\d{2}:\d{2}:\d{2}$/);
+      if (r.viDoVao !== null) expect(r.viDoVao as number).toBeGreaterThan(8);
+      if (r.viDoVao !== null) expect(r.viDoVao as number).toBeLessThan(22);
+      expect(String(r.caLamViec)).toMatch(/^Ca /);
+      expect(String(r.diaChiVao)).toMatch(/,/);
+    }
+  });
+
+  it("never falls back to Latin lorem for Vietnamese output", () => {
+    expect(JSON.stringify(row())).not.toMatch(/\b(voluptas|vociferor|advoco|tribuo)\b/);
+  });
+});
+
+import { collectSchemaSource, formatDataset, regionDefaults } from "../src/index.js";
+
+describe("folder scan", () => {
+  it("joins a Prisma schema split over many files, enums included", () => {
+    const got = collectSchemaSource([
+      { path: "prisma/schema/_enums.prisma", content: "enum Role { ADMIN USER }" },
+      { path: "prisma/schema/user.prisma", content: "model User {\n id Int @id\n role Role\n}" },
+      { path: "prisma/schema/post.prisma", content: "model Post {\n id Int @id\n authorId Int\n author User @relation(fields: [authorId], references: [id])\n}" },
+      { path: "node_modules/x/schema.prisma", content: "model Ignored { id Int @id }" },
+      { path: "README.md", content: "# hi" },
+    ]);
+    expect(got.format).toBe("prisma");
+    expect(got.used).toHaveLength(3);
+    const schema = parseSchema(got.source, got.format);
+    expect(schema.tables.map((t) => t.name).sort()).toEqual(["Post", "User"]);
+    expect(schema.tables.find((t) => t.name === "User")!.fields.find((f) => f.name === "role")!.enumValues).toEqual(["ADMIN", "USER"]);
+  });
+
+  it("fails clearly when nothing matches", () => {
+    expect(() => collectSchemaSource([{ path: "a.txt", content: "x" }])).toThrow(/No schema files/);
+  });
+});
+
+describe("regional formats and SQL dialects", () => {
+  const schema = parseSchema("orders(id, total:number, quantity:integer, placed_at:date)", "dsl");
+  const data = mint({ schema, locale: "vi", rows: 3, seed: 1 });
+
+  it("writes dates and numbers the way the region reads them", () => {
+    const f = formatDataset(data, schema, regionDefaults("vi")).orders[0];
+    expect(String(f.placed_at)).toMatch(/^\d{2}\/\d{2}\/\d{4}$/);
+    expect(String(f.total)).toMatch(/^\d{1,3}(\.\d{3})*(,\d+)?$/);
+  });
+
+  it("emits dialect specific DDL and quoting", () => {
+    const my = render(data, "sql", schema, { dialect: "mysql" })[0].content;
+    expect(my).toContain("CREATE TABLE IF NOT EXISTS `orders`");
+    const ms = render(data, "sql", schema, { dialect: "mssql" })[0].content;
+    expect(ms).toContain("IF OBJECT_ID");
+    expect(ms).toContain("[orders]");
+    const pg = render(data, "sql", schema, { dialect: "postgres", ddl: false })[0].content;
+    expect(pg).not.toContain("CREATE TABLE");
+    expect(pg).toContain('INSERT INTO "orders"');
+  });
+
+  it("uses a delimiter and BOM for CSV", () => {
+    const csv = render(data, "csv", schema, { delimiter: ";", bom: true })[0].content;
+    expect(csv.startsWith("﻿id;total;quantity;placed_at")).toBe(true);
+  });
+});
+
+describe("project-style Vietnamese tables", () => {
+  const src = `
+model DuAn {
+  id String @id @default(cuid())
+  maDuAn String
+  tenDuAn String
+  khuVuc String
+  giaiDoan String
+  trangThai String
+  soNhanSu Int
+  soDiem Int
+  ngayBatDau DateTime
+  ktDuKien DateTime?
+}`;
+  const rows = () => mint({ schema: parseSchema(src), locale: "vi", rows: 40, seed: 5 }).DuAn;
+
+  it("makes sequential codes, Vietnamese stages and small counts", () => {
+    const r = rows();
+    expect(r[0].maDuAn).toBe("DA-0001");
+    expect(r[1].maDuAn).toBe("DA-0002");
+    for (const x of r) {
+      expect(["Khảo sát", "Thiết kế", "Đang thi công", "Nghiệm thu", "Bảo hành"]).toContain(x.giaiDoan);
+      expect(["Đang xử lý", "Hoàn thành", "Chờ duyệt", "Tạm dừng", "Đã hủy"]).toContain(x.trangThai);
+      expect(x.soNhanSu as number).toBeLessThanOrEqual(20);
+      expect(x.soDiem as number).toBeGreaterThanOrEqual(0);
+    }
+  });
+
+  it("never ends a project before it starts", () => {
+    for (const x of rows()) if (x.ktDuKien) expect(String(x.ktDuKien) >= String(x.ngayBatDau)).toBe(true);
+  });
+});

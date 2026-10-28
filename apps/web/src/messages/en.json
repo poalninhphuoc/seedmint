@@ -1,0 +1,163 @@
+{
+  "meta": {
+    "title": "seedmint: realistic sample data from any schema",
+    "description": "Paste a Prisma, Drizzle, Zod, SQL or JSON Schema and get realistic, localized sample data as SQL, seed.ts, JSON, CSV or an AI prompt. Free and open source.",
+    "keywords": "sample data generator, seed data, Prisma seed, Drizzle seed, Zod mock data, SQL INSERT generator, faker, test data, localized mock data"
+  },
+  "brand": {
+    "name": "seedmint",
+    "tagline": "Web Studio"
+  },
+  "nav": {
+    "generate": "Generate",
+    "explore": "Explore",
+    "project": "Project",
+    "studio": "Studio",
+    "locales": "Locales",
+    "formats": "Formats",
+    "github": "GitHub",
+    "docs": "Roadmap",
+    "toggleSidebar": "Toggle sidebar",
+    "language": "Language",
+    "diagram": "Diagram",
+    "history": "History",
+    "theme": "Toggle dark mode"
+  },
+  "studio": {
+    "title": "Studio",
+    "subtitle": "Paste a schema, pick a language and format, get data you can use.",
+    "regenerate": "Regenerate",
+    "generate": "Generate data",
+    "generating": "Generating…",
+    "inputTitle": "Your schema",
+    "inputHint": "Prisma, Drizzle, Zod, TypeScript, SQL, JSON Schema or a one-liner like users(name, email).",
+    "loadSample": "Load sample",
+    "inputFormat": "Input format",
+    "auto": "Auto-detect",
+    "locale": "Locale",
+    "rows": "Rows per table",
+    "seed": "Seed",
+    "seedHint": "Same seed, same data.",
+    "outputFormat": "Output format",
+    "edgeCases": "Edge cases",
+    "edgeCasesHint": "Empty, very long, emoji, quotes and RTL strings.",
+    "outputTitle": "Output",
+    "empty": "Nothing yet. Press “Generate data”.",
+    "copy": "Copy",
+    "copied": "Copied",
+    "download": "Download",
+    "detected": "Detected: {format}",
+    "stats": {
+      "tables": "Tables",
+      "fields": "Fields",
+      "rows": "Rows"
+    },
+    "tablesTitle": "Tables",
+    "tableRows": "{rows} rows · {fields} fields",
+    "builtFrom": "Runs the same engine as the CLI: @seedmint/core.",
+    "importFolder": "Import folder",
+    "imported": "{count} files read as {format}. {skipped} other files ignored.",
+    "tablesHint": "Rows to generate per table. Use 0 to leave a table empty.",
+    "fieldsCount": "{count} fields",
+    "sqlDialect": "SQL dialect",
+    "includeDdl": "Include CREATE TABLE",
+    "includeDdlHint": "Adds tables and foreign keys before the INSERTs.",
+    "regional": "Regional formats",
+    "regionalHint": "Dates and numbers in the preview, CSV and Excel. SQL and code stay plain so they import cleanly.",
+    "dateFormat": "Date",
+    "decimalSep": "Decimal",
+    "thousandsSep": "Thousands",
+    "sepSpace": "space",
+    "sepNone": "none",
+    "regionExample": "Example",
+    "exportAs": "Export as",
+    "showing": "Showing {shown} of {total} rows",
+    "binaryNote": "Binary file. Use Download to save it.",
+    "search": "Search rows…",
+    "total": "Total:",
+    "records": "records",
+    "perPage": "Show",
+    "perPageSuffix": "/ page",
+    "noMatches": "No matching rows.",
+    "previewCap": "Preview shows the first {count} rows.",
+    "exportMenu": "Export",
+    "exportGroup": {
+      "files": "Files",
+      "database": "Import into a database",
+      "code": "Code and AI"
+    },
+    "filesTitle": "Imported files",
+    "treeTables": "{count} tables",
+    "treeIgnored": "ignored"
+  },
+  "localesPage": {
+    "title": "Locales",
+    "subtitle": "Names, addresses and phones follow local rules. Mix locales in one table to test i18n.",
+    "sample": "Sample row",
+    "tryIt": "Use in Studio"
+  },
+  "formatsPage": {
+    "title": "Output formats",
+    "subtitle": "One schema in, whatever your project needs out.",
+    "items": {
+      "json": "A JSON object keyed by table name.",
+      "jsonl": "One JSON row per line, easy to stream or import.",
+      "csv": "One CSV file per table for spreadsheets and bulk imports.",
+      "sql": "INSERT statements in dependency order.",
+      "ts": "Typed mock.ts with an interface per table.",
+      "prisma": "seed.ts that calls prisma.createMany, ready to run.",
+      "drizzle": "seed.ts that inserts through Drizzle ORM.",
+      "prompt": "A Markdown prompt to paste into Cursor or Claude Code."
+    }
+  },
+  "diagramPage": {
+    "title": "Diagram",
+    "subtitle": "See your schema as an entity-relationship diagram.",
+    "inputTitle": "Your schema",
+    "loadSample": "Load sample",
+    "hint": "Paste a schema to draw it.",
+    "summary": "{tables} tables · {links} relations",
+    "empty": "No tables found in this schema.",
+    "copyMermaid": "Copy Mermaid",
+    "copied": "Copied",
+    "downloadSvg": "Download SVG",
+    "legend": {
+      "entity": "Entity",
+      "root": "Aggregate root",
+      "join": "Join table",
+      "pk": "Primary key",
+      "fk": "Foreign key",
+      "cardinality": "Cardinality",
+      "hint": "Click a table to highlight what it links to"
+    },
+    "search": "Search tables or fields…",
+    "tablesTitle": "Tables",
+    "showAll": "Show all",
+    "hideAll": "Hide all",
+    "noMatch": "No table matches.",
+    "selected": "{count} related tables",
+    "clear": "Clear",
+    "allHidden": "Every table is hidden. Tick some in the list."
+  },
+  "historyPage": {
+    "title": "History",
+    "subtitle": "Exports you ran in this browser. Open one in Studio or export it again.",
+    "empty": "Nothing exported yet. Generate or export data in Studio.",
+    "clearAll": "Clear all",
+    "open": "Open",
+    "exportAgain": "Export again",
+    "delete": "Delete",
+    "cols": {
+      "when": "When",
+      "action": "Action",
+      "format": "Format",
+      "locale": "Locale",
+      "tables": "Tables",
+      "rows": "Rows"
+    },
+    "kind": {
+      "generate": "Generated",
+      "export": "Exported"
+    }
+  }
+}

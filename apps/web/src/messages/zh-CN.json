@@ -1,0 +1,163 @@
+{
+  "meta": {
+    "title": "seedmint：从任意 Schema 生成逼真的示例数据",
+    "description": "粘贴 Prisma、Drizzle、Zod、SQL 或 JSON Schema，即可生成本地化的示例数据，支持 SQL、seed.ts、JSON、CSV 和 AI 提示词。免费开源。",
+    "keywords": "示例数据生成器, 种子数据, Prisma seed, Drizzle seed, Zod 模拟数据, SQL INSERT 生成, faker, 测试数据, 中文模拟数据"
+  },
+  "brand": {
+    "name": "seedmint",
+    "tagline": "Web Studio"
+  },
+  "nav": {
+    "generate": "生成",
+    "explore": "探索",
+    "project": "项目",
+    "studio": "工作台",
+    "locales": "语言区域",
+    "formats": "输出格式",
+    "github": "GitHub",
+    "docs": "路线图",
+    "toggleSidebar": "切换侧边栏",
+    "language": "语言",
+    "diagram": "关系图",
+    "history": "历史记录",
+    "theme": "切换深色模式"
+  },
+  "studio": {
+    "title": "工作台",
+    "subtitle": "粘贴 Schema，选择语言和格式，直接得到可用的数据。",
+    "regenerate": "重新生成",
+    "generate": "生成数据",
+    "generating": "生成中…",
+    "inputTitle": "你的 Schema",
+    "inputHint": "支持 Prisma、Drizzle、Zod、TypeScript、SQL、JSON Schema，或类似 users(name, email) 的一行描述。",
+    "loadSample": "载入示例",
+    "inputFormat": "输入格式",
+    "auto": "自动识别",
+    "locale": "语言区域",
+    "rows": "每表行数",
+    "seed": "种子",
+    "seedHint": "相同种子，相同数据。",
+    "outputFormat": "输出格式",
+    "edgeCases": "边界情况",
+    "edgeCasesHint": "空字符串、超长文本、表情符号、引号和 RTL 文本。",
+    "outputTitle": "输出",
+    "empty": "还没有内容。点击“生成数据”。",
+    "copy": "复制",
+    "copied": "已复制",
+    "download": "下载",
+    "detected": "识别为：{format}",
+    "stats": {
+      "tables": "表",
+      "fields": "字段",
+      "rows": "行"
+    },
+    "tablesTitle": "数据表",
+    "tableRows": "{rows} 行 · {fields} 个字段",
+    "builtFrom": "与 CLI 使用同一个引擎：@seedmint/core。",
+    "importFolder": "导入文件夹",
+    "imported": "已按 {format} 读取 {count} 个文件，忽略其他 {skipped} 个。",
+    "tablesHint": "每张表生成的行数。填 0 则该表保持为空。",
+    "fieldsCount": "{count} 个字段",
+    "sqlDialect": "SQL 类型",
+    "includeDdl": "包含 CREATE TABLE",
+    "includeDdlHint": "在 INSERT 之前添加建表语句和外键。",
+    "regional": "地区格式",
+    "regionalHint": "应用于预览、CSV 和 Excel 中的日期与数字。SQL 和代码保持标准格式，便于无误导入。",
+    "dateFormat": "日期",
+    "decimalSep": "小数点",
+    "thousandsSep": "千位分隔",
+    "sepSpace": "空格",
+    "sepNone": "无",
+    "regionExample": "示例",
+    "exportAs": "导出为",
+    "showing": "显示 {total} 行中的 {shown} 行",
+    "binaryNote": "二进制文件，请点击下载保存。",
+    "search": "搜索行…",
+    "total": "共",
+    "records": "条记录",
+    "perPage": "每页显示",
+    "perPageSuffix": "条",
+    "noMatches": "没有匹配的行。",
+    "previewCap": "预览仅显示前 {count} 行。",
+    "exportMenu": "导出",
+    "exportGroup": {
+      "files": "文件",
+      "database": "导入数据库",
+      "code": "代码与 AI"
+    },
+    "filesTitle": "已导入的文件",
+    "treeTables": "{count} 张表",
+    "treeIgnored": "已忽略"
+  },
+  "localesPage": {
+    "title": "语言区域",
+    "subtitle": "姓名、地址和电话遵循各国规则。可在同一张表里混用多个区域来测试 i18n。",
+    "sample": "示例行",
+    "tryIt": "在工作台中使用"
+  },
+  "formatsPage": {
+    "title": "输出格式",
+    "subtitle": "输入一份 Schema，输出项目需要的任何格式。",
+    "items": {
+      "json": "以表名为键的 JSON 对象。",
+      "jsonl": "每行一条 JSON 记录，便于流式处理或导入。",
+      "csv": "每张表一个 CSV，适合电子表格和批量导入。",
+      "sql": "按依赖顺序排列的 INSERT 语句。",
+      "ts": "带类型的 mock.ts，每张表一个接口。",
+      "prisma": "调用 prisma.createMany 的 seed.ts，可直接运行。",
+      "drizzle": "通过 Drizzle ORM 插入数据的 seed.ts。",
+      "prompt": "可粘贴到 Cursor 或 Claude Code 的 Markdown 提示词。"
+    }
+  },
+  "diagramPage": {
+    "title": "关系图",
+    "subtitle": "把 Schema 显示为实体关系图。",
+    "inputTitle": "你的 Schema",
+    "loadSample": "载入示例",
+    "hint": "粘贴 Schema 即可绘制。",
+    "summary": "{tables} 张表 · {links} 个关系",
+    "empty": "这份 Schema 中没有找到表。",
+    "copyMermaid": "复制 Mermaid",
+    "copied": "已复制",
+    "downloadSvg": "下载 SVG",
+    "legend": {
+      "entity": "实体",
+      "root": "聚合根",
+      "join": "关联表",
+      "pk": "主键",
+      "fk": "外键",
+      "cardinality": "基数",
+      "hint": "点击某张表即可高亮与其相关的表和键"
+    },
+    "search": "搜索表或字段…",
+    "tablesTitle": "数据表",
+    "showAll": "全部显示",
+    "hideAll": "全部隐藏",
+    "noMatch": "没有匹配的表。",
+    "selected": "{count} 张相关表",
+    "clear": "取消选择",
+    "allHidden": "所有表都已隐藏，请在列表中勾选。"
+  },
+  "historyPage": {
+    "title": "历史记录",
+    "subtitle": "在此浏览器中执行过的导出。可在工作台中打开或再次导出。",
+    "empty": "还没有导出记录。请在工作台中生成或导出数据。",
+    "clearAll": "全部清除",
+    "open": "打开",
+    "exportAgain": "再次导出",
+    "delete": "删除",
+    "cols": {
+      "when": "时间",
+      "action": "操作",
+      "format": "格式",
+      "locale": "区域",
+      "tables": "表",
+      "rows": "行"
+    },
+    "kind": {
+      "generate": "已生成",
+      "export": "已导出"
+    }
+  }
+}

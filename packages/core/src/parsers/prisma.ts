@@ -8,7 +8,10 @@ const SCALAR: Record<string, FieldKind> = {
 
 /** Parses `model` and `enum` blocks of a schema.prisma file. Relation fields are skipped; their scalar FK keeps a `ref`. */
 export function parsePrisma(src: string): Schema {
-  const code = stripComments(src.replace(/\/\/\/.*$/gm, ""));
+  // Keep trailing `// note` on field lines as an @comment attribute so inference can read hints like "YYYY-MM-DD".
+  const withNotes = src.replace(/^(\s*\w+\s+\w+(?:\[\])?\??[^\n/]*?)\s*\/\/(?!\/)\s*(.+)$/gm, (_m, head: string, note: string) =>
+    `${head} @comment("${note.replace(/["\r]/g, "'").trim()}")`);
+  const code = stripComments(withNotes.replace(/\/\/\/.*$/gm, ""));
   const enums = new Map<string, string[]>();
   for (const m of code.matchAll(/\benum\s+(\w+)\s*\{/g)) {
     const { inner } = readBalanced(code, m.index! + m[0].length - 1);
@@ -47,6 +50,8 @@ export function parsePrisma(src: string): Schema {
         field.kind = "enum";
         field.enumValues = enums.get(type);
       }
+      const note = attrs.match(/@comment\("(.*)"\)\s*$/);
+      if (note) field.comment = note[1];
       if (/@id\b/.test(attrs)) field.primary = true;
       if (/@default\(\s*(uuid|cuid|nanoid)/.test(attrs) && field.kind === "string") field.kind = "uuid";
       if (/@updatedAt/.test(attrs)) field.hint = "updatedAt";

@@ -5,7 +5,7 @@
 - [x] Parsers: TypeScript, Zod, SQL `CREATE TABLE`
 - [x] Locales: `vi`, `en` (on top of `@faker-js/faker`)
 - [x] Formats: JSON, CSV, SQL INSERT
-- [ ] One-page Next.js playground (paste, generate, download)
+- [x] Web Studio: Next.js App Router + shadcn/ui, six UI languages (`apps/web`)
 
 ## Next
 - [x] JSON-sample and one-line DSL parsers
@@ -25,7 +25,7 @@
 - [ ] VS Code extension
 
 ## Platform
-- [x] Turborepo monorepo: `packages/core`, `packages/cli`
+- [x] Turborepo monorepo: `packages/core`, `packages/cli`, `apps/web`
 - [x] `seedmint init` (detects ORM, writes `seedmint.config.ts`) and `seedmint generate`
 - [x] GitHub Actions CI, issue forms, SECURITY, CODEOWNERS
 - [ ] `apps/web`: Web Studio (Next.js App Router, Tailwind, shadcn/ui)

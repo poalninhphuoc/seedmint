@@ -7,7 +7,9 @@
 
 > Paste a schema. Get realistic sample data in any language and format. Built so vibe-coded apps never look empty.
 
-**Status:** early. The CLI and library work (Prisma, Drizzle, Zod, TS, SQL, JSON Schema in; JSON, CSV, SQL, `seed.ts`, AI prompt out). The Web Studio, docs site, direct DB insert and AI engine are planned (see the roadmap).
+Open-source seed data and mock data generator for Prisma, Drizzle, Zod, SQL and JSON Schema, with localized names, addresses and phone numbers.
+
+**Status:** early. The CLI and library work (Prisma, Drizzle, Zod, TS, SQL, JSON Schema in; JSON, CSV, SQL, `seed.ts`, AI prompt out). The Web Studio (Next.js + shadcn/ui, 6 UI languages) also works. The docs site, direct DB insert and AI engine are planned (see the roadmap).
 
 ## Why
 
@@ -69,10 +71,19 @@ Tables are generated parents first, so foreign keys (explicit, or `user_id` poin
 ```
 packages/core   @seedmint/core: parsers, generator, formats, locales
 packages/cli    seedmint: the CLI (bundles core)
-apps/           Web Studio and docs (planned)
+apps/web        Web Studio: Next.js App Router, Tailwind, shadcn/ui, next-intl (en, vi, zh-CN, ja, ko, es)
 ```
 
 Develop with `pnpm install && pnpm typecheck && pnpm build && pnpm test` (Turborepo). AI coding agents: see [AGENTS.md](AGENTS.md).
+
+## Web Studio
+
+```bash
+pnpm install
+pnpm --filter @seedmint/web dev   # http://localhost:3000
+```
+
+Set `NEXT_PUBLIC_SITE_URL` to your public origin so canonical, hreflang and sitemap URLs are correct. The UI is available in English, Tiếng Việt, 简体中文, 日本語, 한국어 and Español.
 
 ## Roadmap
 
@@ -89,3 +100,7 @@ See [docs/roadmap.md](docs/roadmap.md). MVP: TypeScript/Zod/SQL parsers, `vi` + 
 ## License
 
 [MIT](LICENSE)
+
+## Keywords
+
+sample data generator · seed data · mock data · test data · Prisma seed · Drizzle seed · Zod mock · SQL INSERT generator · faker · localized fake data · vibe coding · Claude Code · Cursor

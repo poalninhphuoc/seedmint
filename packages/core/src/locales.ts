@@ -22,6 +22,14 @@ export interface Custom {
   plate?: (f: Faker) => string;
   sentence?: (f: Faker) => string;
   paragraph?: (f: Faker) => string;
+  word?: (f: Faker) => string;
+  project?: (f: Faker) => string;
+  team?: (f: Faker) => string;
+  shift?: (f: Faker) => string;
+  status?: (f: Faker) => string;
+  stage?: (f: Faker) => string;
+  lat?: (f: Faker) => number;
+  lng?: (f: Faker) => number;
 }
 
 const DEFS: Record<string, { def: LocaleDefinition; currency: string; money: [number, number, number] }> = {
@@ -57,8 +65,19 @@ const VI_SENTENCES = [
   "Thông tin hiển thị rõ ràng, dễ theo dõi và đối chiếu.",
 ];
 
+const VI_WORDS = ["Kiểm tra định kỳ", "Hoàn thiện phần thô", "Giao vật tư", "Nghiệm thu hạng mục", "Bảo trì hệ thống", "Lắp đặt thiết bị", "Khảo sát mặt bằng", "Sửa chữa nhỏ", "Họp giao ban", "Vệ sinh công trình", "Đang xử lý", "Chờ phản hồi", "Hàng mới về", "Khách quen", "Ưu tiên cao"];
+const VI_PROJECTS = ["Chung cư Sunrise Riverside", "Nhà máy Bình Dương 2", "Trung tâm thương mại Vincom", "Khu dân cư Phú Mỹ", "Trường tiểu học Hòa Bình", "Cầu vượt Ngã Tư Sở", "Bệnh viện Đa khoa Quận 7", "Khách sạn Biển Xanh", "Nhà xưởng KCN Long Hậu", "Biệt thự Thảo Điền"];
+
 const CUSTOM: Record<string, Custom> = {
   vi: {
+    word: (f) => pick(f, VI_WORDS),
+    status: (f) => pick(f, ["Đang xử lý", "Hoàn thành", "Chờ duyệt", "Tạm dừng", "Đã hủy"]),
+    stage: (f) => pick(f, ["Khảo sát", "Thiết kế", "Đang thi công", "Nghiệm thu", "Bảo hành"]),
+    project: (f) => pick(f, VI_PROJECTS),
+    team: (f) => `Đội thi công số ${f.number.int({ min: 1, max: 12 })}`,
+    shift: (f) => pick(f, ["Ca sáng", "Ca chiều", "Ca tối", "Ca hành chính"]),
+    lat: (f) => f.number.float({ min: 8.6, max: 21.5, fractionDigits: 6 }),
+    lng: (f) => f.number.float({ min: 102.2, max: 109.3, fractionDigits: 6 }),
     phone: (f) => `0${pick(f, ["3", "5", "7", "8", "9"])}${digits(f, 8)}`,
     province: (f) => pick(f, VI_PROVINCES),
     city: (f) => pick(f, VI_PROVINCES),

@@ -1,10 +1,10 @@
 #!/usr/bin/env node
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { dirname, extname, join, resolve } from "node:path";
 import { parseArgs } from "node:util";
 import {
-  OUTPUT_FORMATS, SUPPORTED_LOCALES, mint, parseSchema, render,
-  type InputFormat, type OutputFormat, type SeedmintConfig,
+  OUTPUT_FORMATS, SUPPORTED_LOCALES, collectSchemaSource, mint, parseSchema, render,
+  type InputFormat, type OutputFormat, type SeedmintConfig, type SourceFile,
 } from "@seedmint/core";
 import { CONFIG_NAMES, configTemplate, findConfig, loadConfig } from "./config.js";
 import { detectProject } from "./detect.js";
@@ -13,7 +13,7 @@ const HELP = `seedmint: realistic sample data from a schema
 
 Usage:
   seedmint init                      detect Prisma/Drizzle/Zod/SQL in this project and write seedmint.config.ts
-  seedmint generate [schema]         generate data (uses seedmint.config.* when present)
+  seedmint generate [schema|folder] generate data (uses seedmint.config.* when present)
   seedmint <schema|->                same as generate; "-" reads stdin
 
 Options:
@@ -27,6 +27,19 @@ Options:
       --force            init: overwrite an existing config
   -h, --help
 `;
+
+/** Reads every schema-looking file under a folder (prisma/schema/*.prisma, several Drizzle files, ...). */
+function readFolder(root: string, dir = root, out: SourceFile[] = []): SourceFile[] {
+  if (out.length > 2000) return out;
+  for (const name of readdirSync(dir)) {
+    if (["node_modules", ".git", "dist", "build", ".next", ".turbo", "coverage"].includes(name)) continue;
+    const p = join(dir, name);
+    const st = statSync(p);
+    if (st.isDirectory()) readFolder(root, p, out);
+    else if (/\.(prisma|sql|ts|tsx|mts|json)$/.test(name) && st.size < 1_000_000) out.push({ path: p.slice(root.length + 1), content: readFileSync(p, "utf8") });
+  }
+  return out;
+}
 
 function parseRows(v: string | undefined): number | Record<string, number> | undefined {
   if (!v) return undefined;
@@ -68,14 +81,24 @@ async function generate(positional: string | undefined, v: Record<string, string
 
   const schemaPath = positional ?? cfg.schema;
   if (!schemaPath) throw new Error(`No schema given. Pass a file or run "seedmint init" (looks for ${CONFIG_NAMES[0]}).`);
-  const src = readFileSync(schemaPath === "-" ? 0 : resolve(cwd, schemaPath), "utf8");
+  const abs = schemaPath === "-" ? undefined : resolve(cwd, schemaPath);
+  let src: string;
+  let folderFormat: InputFormat | undefined;
+  if (abs && statSync(abs).isDirectory()) {
+    const got = collectSchemaSource(readFolder(abs));
+    src = got.source;
+    folderFormat = got.format;
+    console.error(`Read ${got.used.length} ${got.format} file(s) from ${schemaPath}`);
+  } else {
+    src = readFileSync(abs ?? 0, "utf8");
+  }
 
   const format = ((v.format as string | undefined) ?? cfg.format ?? "json") as OutputFormat;
   if (!OUTPUT_FORMATS.includes(format)) throw new Error(`Unknown format "${format}". Use: ${OUTPUT_FORMATS.join(", ")}`);
   const locale = (v.locale as string | undefined) ?? cfg.locale ?? "en";
   const seed = v.seed !== undefined ? Number(v.seed) : cfg.seed ?? 42;
 
-  const schema = parseSchema(src, (v.from as InputFormat | undefined) ?? cfg.from);
+  const schema = parseSchema(src, (v.from as InputFormat | undefined) ?? folderFormat ?? cfg.from);
   const data = mint({
     schema,
     locale,

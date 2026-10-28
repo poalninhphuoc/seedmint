@@ -1,0 +1,163 @@
+{
+  "meta": {
+    "title": "seedmint: 어떤 스키마로든 현실적인 샘플 데이터 생성",
+    "description": "Prisma, Drizzle, Zod, SQL, JSON Schema를 붙여 넣으면 언어별로 현지화된 샘플 데이터를 SQL, seed.ts, JSON, CSV, AI 프롬프트로 만들어 줍니다. 무료 오픈 소스.",
+    "keywords": "샘플 데이터 생성기, 시드 데이터, Prisma seed, Drizzle seed, Zod 목 데이터, SQL INSERT 생성, faker, 테스트 데이터, 한국어 더미 데이터"
+  },
+  "brand": {
+    "name": "seedmint",
+    "tagline": "Web Studio"
+  },
+  "nav": {
+    "generate": "생성",
+    "explore": "둘러보기",
+    "project": "프로젝트",
+    "studio": "스튜디오",
+    "locales": "로케일",
+    "formats": "출력 형식",
+    "github": "GitHub",
+    "docs": "로드맵",
+    "toggleSidebar": "사이드바 전환",
+    "language": "언어",
+    "diagram": "다이어그램",
+    "history": "기록",
+    "theme": "다크 모드 전환"
+  },
+  "studio": {
+    "title": "스튜디오",
+    "subtitle": "스키마를 붙여 넣고 언어와 형식을 고르면 바로 쓸 수 있는 데이터가 나옵니다.",
+    "regenerate": "다시 생성",
+    "generate": "데이터 생성",
+    "generating": "생성 중…",
+    "inputTitle": "스키마",
+    "inputHint": "Prisma, Drizzle, Zod, TypeScript, SQL, JSON Schema 또는 users(name, email) 같은 한 줄.",
+    "loadSample": "예시 불러오기",
+    "inputFormat": "입력 형식",
+    "auto": "자동 감지",
+    "locale": "로케일",
+    "rows": "테이블당 행 수",
+    "seed": "시드",
+    "seedHint": "같은 시드면 같은 데이터가 나옵니다.",
+    "outputFormat": "출력 형식",
+    "edgeCases": "엣지 케이스",
+    "edgeCasesHint": "빈 문자열, 매우 긴 문자열, 이모지, 따옴표, RTL 문자열.",
+    "outputTitle": "출력",
+    "empty": "아직 없습니다. “데이터 생성”을 누르세요.",
+    "copy": "복사",
+    "copied": "복사됨",
+    "download": "다운로드",
+    "detected": "감지됨: {format}",
+    "stats": {
+      "tables": "테이블",
+      "fields": "필드",
+      "rows": "행"
+    },
+    "tablesTitle": "테이블",
+    "tableRows": "{rows}행 · {fields}개 필드",
+    "builtFrom": "CLI와 같은 엔진 @seedmint/core를 사용합니다.",
+    "importFolder": "폴더 가져오기",
+    "imported": "파일 {count}개를 {format}(으)로 읽었습니다. 나머지 {skipped}개는 무시했습니다.",
+    "tablesHint": "테이블별 생성 행 수입니다. 0이면 빈 테이블로 둡니다.",
+    "fieldsCount": "필드 {count}개",
+    "sqlDialect": "SQL 종류",
+    "includeDdl": "CREATE TABLE 포함",
+    "includeDdlHint": "INSERT 앞에 테이블과 외래 키를 추가합니다.",
+    "regional": "지역별 형식",
+    "regionalHint": "미리보기, CSV, Excel의 날짜와 숫자에 적용합니다. SQL과 코드는 문제없이 가져오도록 표준 형식을 유지합니다.",
+    "dateFormat": "날짜",
+    "decimalSep": "소수점",
+    "thousandsSep": "천 단위",
+    "sepSpace": "공백",
+    "sepNone": "없음",
+    "regionExample": "예시",
+    "exportAs": "내보내기",
+    "showing": "{total}행 중 {shown}행 표시",
+    "binaryNote": "바이너리 파일입니다. 다운로드로 저장하세요.",
+    "search": "행 검색…",
+    "total": "전체:",
+    "records": "건",
+    "perPage": "표시",
+    "perPageSuffix": "/ 페이지",
+    "noMatches": "일치하는 행이 없습니다.",
+    "previewCap": "미리보기는 처음 {count}행만 보여 줍니다.",
+    "exportMenu": "내보내기",
+    "exportGroup": {
+      "files": "파일",
+      "database": "데이터베이스로 가져오기",
+      "code": "코드와 AI"
+    },
+    "filesTitle": "가져온 파일",
+    "treeTables": "테이블 {count}개",
+    "treeIgnored": "무시됨"
+  },
+  "localesPage": {
+    "title": "로케일",
+    "subtitle": "이름, 주소, 전화번호가 각 나라의 규칙을 따릅니다. 한 테이블에 여러 로케일을 섞어 i18n을 테스트하세요.",
+    "sample": "샘플 행",
+    "tryIt": "스튜디오에서 사용"
+  },
+  "formatsPage": {
+    "title": "출력 형식",
+    "subtitle": "하나의 스키마로 프로젝트에 필요한 형식을 만듭니다.",
+    "items": {
+      "json": "테이블 이름을 키로 하는 JSON 객체.",
+      "jsonl": "한 줄에 JSON 한 행. 스트리밍과 가져오기에 편리합니다.",
+      "csv": "테이블마다 CSV 한 개. 스프레드시트와 대량 가져오기용.",
+      "sql": "의존 순서대로 정렬된 INSERT 문.",
+      "ts": "테이블마다 인터페이스가 있는 타입드 mock.ts.",
+      "prisma": "prisma.createMany를 호출하는 바로 실행 가능한 seed.ts.",
+      "drizzle": "Drizzle ORM으로 삽입하는 seed.ts.",
+      "prompt": "Cursor나 Claude Code에 붙여 넣는 Markdown 프롬프트."
+    }
+  },
+  "diagramPage": {
+    "title": "다이어그램",
+    "subtitle": "스키마를 개체 관계 다이어그램으로 봅니다.",
+    "inputTitle": "스키마",
+    "loadSample": "예시 불러오기",
+    "hint": "스키마를 붙여 넣으면 다이어그램을 그립니다.",
+    "summary": "테이블 {tables}개 · 관계 {links}개",
+    "empty": "이 스키마에서 테이블을 찾지 못했습니다.",
+    "copyMermaid": "Mermaid 복사",
+    "copied": "복사됨",
+    "downloadSvg": "SVG 다운로드",
+    "legend": {
+      "entity": "엔티티",
+      "root": "애그리거트 루트",
+      "join": "조인 테이블",
+      "pk": "기본 키",
+      "fk": "외래 키",
+      "cardinality": "카디널리티",
+      "hint": "테이블을 클릭하면 관련된 항목이 강조됩니다"
+    },
+    "search": "테이블 또는 필드 검색…",
+    "tablesTitle": "테이블",
+    "showAll": "모두 표시",
+    "hideAll": "모두 숨기기",
+    "noMatch": "일치하는 테이블이 없습니다.",
+    "selected": "관련 테이블 {count}개",
+    "clear": "해제",
+    "allHidden": "모든 테이블이 숨겨져 있습니다. 목록에서 선택하세요."
+  },
+  "historyPage": {
+    "title": "기록",
+    "subtitle": "이 브라우저에서 실행한 내보내기입니다. 스튜디오에서 열거나 다시 내보낼 수 있습니다.",
+    "empty": "아직 내보낸 항목이 없습니다. 스튜디오에서 데이터를 생성하거나 내보내세요.",
+    "clearAll": "모두 삭제",
+    "open": "열기",
+    "exportAgain": "다시 내보내기",
+    "delete": "삭제",
+    "cols": {
+      "when": "시각",
+      "action": "작업",
+      "format": "형식",
+      "locale": "로케일",
+      "tables": "테이블",
+      "rows": "행"
+    },
+    "kind": {
+      "generate": "생성됨",
+      "export": "내보냄"
+    }
+  }
+}

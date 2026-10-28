@@ -1,0 +1,124 @@
+"use client";
+
+import { ArrowDown, ArrowUp, ArrowUpDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Search } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useMemo, useState } from "react";
+import type { PreviewTable } from "@/app/actions";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
+
+const SIZES = [10, 25, 50, 100];
+type Cell = PreviewTable["rows"][number][number];
+
+const compare = (a: Cell, b: Cell) => {
+  if (a === null) return b === null ? 0 : 1;
+  if (b === null) return -1;
+  if (typeof a === "number" && typeof b === "number") return a - b;
+  return String(a).localeCompare(String(b), undefined, { numeric: true });
+};
+
+/** Table preview: search, sortable header, and a footer with the record count, page size and pages. */
+export function DataGrid({ table }: { table: PreviewTable }) {
+  const t = useTranslations("studio");
+  const [q, setQ] = useState("");
+  const [sort, setSort] = useState<{ col: number; dir: 1 | -1 } | null>(null);
+  const [size, setSize] = useState(25);
+  const [page, setPage] = useState(0);
+
+  const rows = useMemo(() => {
+    const needle = q.trim().toLowerCase();
+    let out = needle ? table.rows.filter((r) => r.some((v) => v !== null && String(v).toLowerCase().includes(needle))) : table.rows;
+    if (sort) out = [...out].sort((a, b) => sort.dir * compare(a[sort.col], b[sort.col]));
+    return out;
+  }, [table.rows, q, sort]);
+
+  const pages = Math.max(1, Math.ceil(rows.length / size));
+  const current = Math.min(page, pages - 1);
+  const slice = rows.slice(current * size, current * size + size);
+  const total = q ? rows.length : table.total;
+
+  const toggle = (col: number) =>
+    setSort((s) => (s?.col !== col ? { col, dir: 1 } : s.dir === 1 ? { col, dir: -1 } : null));
+
+  const window = Array.from({ length: Math.min(5, pages) }, (_, i) => Math.min(Math.max(0, current - 2), Math.max(0, pages - 5)) + i);
+
+  return (
+    <div className="flex min-h-0 flex-1 flex-col">
+      <div className="flex items-center gap-2 border-b px-4 py-2 md:px-6">
+        <div className="relative w-full max-w-sm">
+          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input value={q} onChange={(e) => { setQ(e.target.value); setPage(0); }} placeholder={t("search")} aria-label={t("search")} className="bg-card pl-9" />
+        </div>
+      </div>
+
+      <div className="max-h-[70svh] min-h-0 flex-1 overflow-auto lg:max-h-none">
+        <table className="w-full text-[13px]">
+          <thead className="sticky top-0 z-10 bg-muted/95 backdrop-blur">
+            <tr>
+              {table.columns.map((c, i) => (
+                <th key={c} className="whitespace-nowrap px-3 py-2.5 text-left font-semibold first:pl-4 md:first:pl-6">
+                  <button type="button" onClick={() => toggle(i)} className="inline-flex items-center gap-1 hover:text-foreground">
+                    {c}
+                    {sort?.col === i ? (sort.dir === 1 ? <ArrowUp className="size-3.5" /> : <ArrowDown className="size-3.5" />) : <ArrowUpDown className="size-3.5 text-muted-foreground/60" />}
+                  </button>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="divide-y">
+            {slice.map((r, i) => (
+              <tr key={i} className="hover:bg-muted/50">
+                {r.map((v, j) => (
+                  <td key={j} title={v === null ? undefined : String(v)}
+                    className={cn("max-w-[18rem] truncate whitespace-nowrap px-3 py-2.5 first:pl-4 md:first:pl-6", typeof v === "number" && "text-right tabular-nums")}>
+                    {v === null ? <span className="text-muted-foreground">–</span> : String(v)}
+                  </td>
+                ))}
+              </tr>
+            ))}
+            {slice.length === 0 && (
+              <tr><td colSpan={table.columns.length} className="px-4 py-10 text-center text-muted-foreground">{t("noMatches")}</td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t bg-card/60 px-4 py-2.5 text-sm md:px-6">
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+          <span className="text-muted-foreground">{t("total")} <b className="text-foreground tabular-nums">{total}</b> {t("records")}</span>
+          <label className="flex items-center gap-2 text-muted-foreground">
+            {t("perPage")}
+            <Select value={String(size)} onValueChange={(v) => { setSize(Number(v)); setPage(0); }}>
+              <SelectTrigger size="sm" className="w-20 bg-card"><SelectValue /></SelectTrigger>
+              <SelectContent>{SIZES.map((s) => <SelectItem key={s} value={String(s)}>{s}</SelectItem>)}</SelectContent>
+            </Select>
+            {t("perPageSuffix")}
+          </label>
+          {table.total > table.rows.length && <span className="text-xs text-muted-foreground">{t("previewCap", { count: table.rows.length })}</span>}
+        </div>
+        <nav className="flex items-center gap-1" aria-label="pagination">
+          <PageButton label="first" disabled={current === 0} onClick={() => setPage(0)}><ChevronsLeft /></PageButton>
+          <PageButton label="previous" disabled={current === 0} onClick={() => setPage(current - 1)}><ChevronLeft /></PageButton>
+          {window.map((p) => (
+            <PageButton key={p} label={String(p + 1)} active={p === current} onClick={() => setPage(p)}>{p + 1}</PageButton>
+          ))}
+          <PageButton label="next" disabled={current >= pages - 1} onClick={() => setPage(current + 1)}><ChevronRight /></PageButton>
+          <PageButton label="last" disabled={current >= pages - 1} onClick={() => setPage(pages - 1)}><ChevronsRight /></PageButton>
+        </nav>
+      </div>
+    </div>
+  );
+}
+
+function PageButton({ children, label, active, disabled, onClick }: {
+  children: React.ReactNode; label: string; active?: boolean; disabled?: boolean; onClick: () => void;
+}) {
+  return (
+    <button type="button" aria-label={label} aria-current={active ? "page" : undefined} disabled={disabled} onClick={onClick}
+      className={cn("flex size-8 items-center justify-center rounded-full text-sm tabular-nums transition-colors [&_svg]:size-4",
+        active ? "bg-brand text-white" : "text-muted-foreground hover:bg-muted disabled:pointer-events-none disabled:opacity-40")}>
+      {children}
+    </button>
+  );
+}

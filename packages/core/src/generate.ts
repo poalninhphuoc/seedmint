@@ -16,6 +16,7 @@ export interface MintOptions {
   now?: Date;
 }
 
+const snakeName = (s: string) => s.replace(/([a-z0-9])([A-Z])/g, "$1_$2").toLowerCase();
 const EDGE = ["", "A".repeat(180), "😀 Emoji 🎉", "<script>alert(1)</script>", `O'Brien "quoted"`, "  padded  ", "مرحبا بالعالم", "Line one\nLine two"];
 const STATUS = ["active", "pending", "inactive", "archived"];
 const ROLES = ["admin", "editor", "member", "viewer"];
@@ -39,6 +40,23 @@ function sortTables(schema: Schema): Table[] {
   }
   return out;
 }
+
+/** "maNhanVien" -> "NV", "ma_du_an" -> "DA": letters taken from the words after the leading "ma"/"code". */
+function codePrefix(name: string): string {
+  const words = name.replace(/([a-z0-9])([A-Z])/g, "$1 $2").split(/[\s_-]+/).map((w) => w.toLowerCase());
+  const rest = words[0] === "ma" || words[0] === "code" ? words.slice(1) : words;
+  const letters = rest.map((w) => w[0]).filter(Boolean).join("").toUpperCase().slice(0, 3);
+  return letters || "ID";
+}
+
+const addDays = (iso: string, days: number) => {
+  const d = new Date(/^\d{4}-\d{2}-\d{2}$/.test(iso) ? `${iso}T00:00:00Z` : iso);
+  d.setUTCDate(d.getUTCDate() + days);
+  return iso.length === 10 ? d.toISOString().slice(0, 10) : d.toISOString();
+};
+
+const START = /(bat_dau|start|begin)/;
+const END = /(ket_thuc|kt_|du_kien|deadline|end|due)/;
 
 function round(n: number, step: number): number {
   const v = Math.round(n / step) * step;
@@ -83,17 +101,25 @@ function value(sem: Semantic, f: Field, l: LocaleDef, i: number, refDate: Date):
     case "color": return fk.color.rgb();
     case "ip": return fk.internet.ipv4();
     case "currencyCode": return l.currency;
-    case "lat": return fk.location.latitude();
-    case "lng": return fk.location.longitude();
+    case "lat": return c.lat ? c.lat(fk) : fk.location.latitude();
+    case "lng": return c.lng ? c.lng(fk) : fk.location.longitude();
     case "sku": return fk.string.alphanumeric({ length: 8, casing: "upper" });
     case "nationalId": return c.nationalId ? c.nationalId(fk) : fk.string.numeric({ length: 12 });
     case "taxCode": return c.taxCode ? c.taxCode(fk) : fk.string.numeric({ length: 10 });
     case "plate": return c.plate ? c.plate(fk) : fk.vehicle.vrm();
     case "gender": return fk.helpers.arrayElement(["male", "female"]);
-    case "status": return fk.helpers.arrayElement(STATUS);
+    case "status": return c.status ? c.status(fk) : fk.helpers.arrayElement(STATUS);
     case "role": return fk.helpers.arrayElement(ROLES);
     case "language": return l.code;
-    case "word": return fk.lorem.words({ min: 1, max: 3 });
+    case "word": return c.word ? c.word(fk) : fk.lorem.words({ min: 1, max: 3 });
+    case "count": return fk.number.float() < 0.3 ? 0 : fk.number.int({ min: 1, max: 20 });
+    case "code": return `${codePrefix(f.name)}-${String(i + 1).padStart(4, "0")}`;
+    case "stage": return c.stage ? c.stage(fk) : fk.helpers.arrayElement(["Survey", "Design", "Build", "Acceptance", "Maintenance"]);
+    case "dateStr": return fk.date.recent({ days: 60, refDate }).toISOString().slice(0, 10);
+    case "timeStr": return `${String(fk.number.int({ min: 6, max: 21 })).padStart(2, "0")}:${String(fk.number.int({ min: 0, max: 59 })).padStart(2, "0")}:00`;
+    case "projectName": return c.project ? c.project(fk) : `${fk.company.buzzAdjective()} ${fk.commerce.department()} project`;
+    case "teamName": return c.team ? c.team(fk) : `Team ${fk.number.int({ min: 1, max: 12 })}`;
+    case "shift": return c.shift ? c.shift(fk) : fk.helpers.arrayElement(["Morning", "Afternoon", "Night"]);
     case "money": {
       const [min, max, step] = l.money;
       const v = round(fk.number.float({ min, max }), step);
@@ -158,6 +184,13 @@ export function mint(opts: MintOptions): Dataset {
         }
         row[f.name] = v;
       });
+      // An end date never comes before its start date.
+      const dateField = (re: RegExp) => table.fields.find((f, k) => (f.kind === "date" || f.kind === "datetime" || sems[k] === "dateStr" || sems[k] === "future") && re.test(snakeName(f.name)));
+      const startF = dateField(START), endF = dateField(END);
+      if (startF && endF && startF !== endF) {
+        const a = row[startF.name], b = row[endF.name];
+        if (typeof a === "string" && typeof b === "string" && b < a) row[endF.name] = addDays(a, main.number.int({ min: 7, max: 180 }));
+      }
       const created = table.fields.findIndex((_, k) => sems[k] === "createdAt");
       const updated = table.fields.findIndex((_, k) => sems[k] === "updatedAt");
       if (created >= 0 && updated >= 0) {

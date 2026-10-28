@@ -7,7 +7,7 @@ seedmint generates realistic, seeded sample data from a schema (Prisma, Drizzle,
 ```
 packages/core   @seedmint/core: parsers, inference, generator, formatters, locales (library)
 packages/cli    seedmint: `npx seedmint init | generate` (bundles core)
-apps/           planned: web studio (Next.js), docs
+apps/web        Web Studio: Next.js App Router, Tailwind, shadcn/ui, next-intl (en, vi, zh-CN, ja, ko, es)
 docs/           architecture, locales, roadmap
 ```
 
@@ -31,3 +31,4 @@ Run a single package: `pnpm --filter @seedmint/core test`. The CLI tests need `p
 - Add a test for every new parser, output format or locale. Vitest, files in `packages/*/test/`.
 - Ideas, brainstorms and rankings live outside this repo (`../_ideas`). Do not add them here.
 - README is multilingual: when changing `README.md`, note what needs updating in the translated files.
+- Web UI strings live in `apps/web/src/messages/<locale>.json`. Add every new key to all six catalogs (a test enforces parity). shadcn components are generated into `apps/web/src/components/ui`; fix the `cn` import to `@/lib/utils` if the CLI emits `from "cn"`.

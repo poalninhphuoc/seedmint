@@ -18,6 +18,8 @@ export interface Field {
   ref?: { table: string; field: string };
   /** Semantic hint from the source, e.g. "email" from z.string().email(). */
   hint?: string;
+  /** Trailing `// ...` comment from the source, used as an extra hint (e.g. "YYYY-MM-DD"). */
+  comment?: string;
 }
 
 export interface Table {

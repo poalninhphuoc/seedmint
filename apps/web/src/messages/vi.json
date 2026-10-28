@@ -1,0 +1,163 @@
+{
+  "meta": {
+    "title": "seedmint: tạo dữ liệu mẫu thật từ mọi schema",
+    "description": "Dán schema Prisma, Drizzle, Zod, SQL hoặc JSON Schema để nhận dữ liệu mẫu đúng ngôn ngữ dưới dạng SQL, seed.ts, JSON, CSV hoặc prompt cho AI. Miễn phí, mã nguồn mở.",
+    "keywords": "tạo dữ liệu mẫu, seed data, Prisma seed, Drizzle seed, dữ liệu giả Zod, tạo SQL INSERT, faker, dữ liệu test, mock data tiếng Việt"
+  },
+  "brand": {
+    "name": "seedmint",
+    "tagline": "Web Studio"
+  },
+  "nav": {
+    "generate": "Tạo dữ liệu",
+    "explore": "Khám phá",
+    "project": "Dự án",
+    "studio": "Studio",
+    "locales": "Ngôn ngữ dữ liệu",
+    "formats": "Định dạng",
+    "github": "GitHub",
+    "docs": "Lộ trình",
+    "toggleSidebar": "Ẩn/hiện thanh bên",
+    "language": "Ngôn ngữ",
+    "diagram": "Sơ đồ",
+    "history": "Lịch sử",
+    "theme": "Chuyển chế độ sáng/tối"
+  },
+  "studio": {
+    "title": "Studio",
+    "subtitle": "Dán schema, chọn ngôn ngữ và định dạng, nhận dữ liệu dùng được ngay.",
+    "regenerate": "Tạo lại",
+    "generate": "Tạo dữ liệu",
+    "generating": "Đang tạo…",
+    "inputTitle": "Schema của bạn",
+    "inputHint": "Prisma, Drizzle, Zod, TypeScript, SQL, JSON Schema hoặc một dòng như users(name, email).",
+    "loadSample": "Dùng mẫu",
+    "inputFormat": "Định dạng đầu vào",
+    "auto": "Tự nhận diện",
+    "locale": "Ngôn ngữ dữ liệu",
+    "rows": "Số dòng mỗi bảng",
+    "seed": "Seed",
+    "seedHint": "Cùng seed thì ra cùng dữ liệu.",
+    "outputFormat": "Định dạng đầu ra",
+    "edgeCases": "Ca biên",
+    "edgeCasesHint": "Chuỗi rỗng, rất dài, emoji, dấu nháy và chữ RTL.",
+    "outputTitle": "Kết quả",
+    "empty": "Chưa có gì. Bấm “Tạo dữ liệu”.",
+    "copy": "Sao chép",
+    "copied": "Đã chép",
+    "download": "Tải xuống",
+    "detected": "Nhận diện: {format}",
+    "stats": {
+      "tables": "Bảng",
+      "fields": "Trường",
+      "rows": "Dòng"
+    },
+    "tablesTitle": "Các bảng",
+    "tableRows": "{rows} dòng · {fields} trường",
+    "builtFrom": "Dùng chung engine với CLI: @seedmint/core.",
+    "importFolder": "Nhập thư mục",
+    "imported": "Đã đọc {count} file ({format}). Bỏ qua {skipped} file khác.",
+    "tablesHint": "Số dòng tạo cho từng bảng. Nhập 0 để bỏ trống bảng.",
+    "fieldsCount": "{count} trường",
+    "sqlDialect": "Loại SQL",
+    "includeDdl": "Kèm CREATE TABLE",
+    "includeDdlHint": "Thêm lệnh tạo bảng và khóa ngoại trước các INSERT.",
+    "regional": "Định dạng theo khu vực",
+    "regionalHint": "Áp dụng cho ngày và số trong bản xem trước, CSV và Excel. SQL và code giữ dạng chuẩn để import không lỗi.",
+    "dateFormat": "Ngày",
+    "decimalSep": "Thập phân",
+    "thousandsSep": "Hàng nghìn",
+    "sepSpace": "khoảng trắng",
+    "sepNone": "không",
+    "regionExample": "Ví dụ",
+    "exportAs": "Xuất ra",
+    "showing": "Hiển thị {shown} trên {total} dòng",
+    "binaryNote": "File nhị phân. Bấm Tải xuống để lưu.",
+    "search": "Tìm trong bảng…",
+    "total": "Tổng:",
+    "records": "bản ghi",
+    "perPage": "Hiển thị",
+    "perPageSuffix": "/ trang",
+    "noMatches": "Không có dòng nào khớp.",
+    "previewCap": "Bản xem trước chỉ hiện {count} dòng đầu.",
+    "exportMenu": "Xuất file",
+    "exportGroup": {
+      "files": "File dữ liệu",
+      "database": "Import vào cơ sở dữ liệu",
+      "code": "Code và AI"
+    },
+    "filesTitle": "File đã nhập",
+    "treeTables": "{count} bảng",
+    "treeIgnored": "bỏ qua"
+  },
+  "localesPage": {
+    "title": "Ngôn ngữ dữ liệu",
+    "subtitle": "Tên, địa chỉ và số điện thoại theo quy tắc từng nước. Trộn nhiều locale trong một bảng để thử i18n.",
+    "sample": "Dòng mẫu",
+    "tryIt": "Dùng trong Studio"
+  },
+  "formatsPage": {
+    "title": "Định dạng đầu ra",
+    "subtitle": "Một schema vào, ra đúng thứ dự án cần.",
+    "items": {
+      "json": "Một object JSON, khóa là tên bảng.",
+      "jsonl": "Mỗi dòng một bản ghi JSON, dễ stream hoặc import.",
+      "csv": "Mỗi bảng một file CSV cho bảng tính và import hàng loạt.",
+      "sql": "Câu INSERT theo đúng thứ tự phụ thuộc.",
+      "ts": "File mock.ts có kiểu, mỗi bảng một interface.",
+      "prisma": "seed.ts gọi prisma.createMany, chạy được ngay.",
+      "drizzle": "seed.ts chèn dữ liệu qua Drizzle ORM.",
+      "prompt": "Prompt Markdown để dán vào Cursor hoặc Claude Code."
+    }
+  },
+  "diagramPage": {
+    "title": "Sơ đồ",
+    "subtitle": "Xem schema dưới dạng sơ đồ thực thể và quan hệ.",
+    "inputTitle": "Schema của bạn",
+    "loadSample": "Dùng mẫu",
+    "hint": "Dán schema để vẽ sơ đồ.",
+    "summary": "{tables} bảng · {links} quan hệ",
+    "empty": "Không tìm thấy bảng nào trong schema.",
+    "copyMermaid": "Chép Mermaid",
+    "copied": "Đã chép",
+    "downloadSvg": "Tải SVG",
+    "legend": {
+      "entity": "Thực thể",
+      "root": "Gốc tổng hợp",
+      "join": "Bảng nối",
+      "pk": "Khóa chính",
+      "fk": "Khóa ngoại",
+      "cardinality": "Bản số",
+      "hint": "Bấm vào một bảng để làm nổi các bảng và khóa liên quan"
+    },
+    "search": "Tìm bảng hoặc trường…",
+    "tablesTitle": "Danh sách bảng",
+    "showAll": "Hiện tất cả",
+    "hideAll": "Ẩn tất cả",
+    "noMatch": "Không có bảng nào khớp.",
+    "selected": "{count} bảng liên quan",
+    "clear": "Bỏ chọn",
+    "allHidden": "Đang ẩn hết bảng. Hãy tick vài bảng trong danh sách."
+  },
+  "historyPage": {
+    "title": "Lịch sử",
+    "subtitle": "Các lần xuất dữ liệu trên trình duyệt này. Mở lại trong Studio hoặc xuất lại.",
+    "empty": "Chưa xuất gì. Hãy tạo hoặc xuất dữ liệu trong Studio.",
+    "clearAll": "Xóa tất cả",
+    "open": "Mở",
+    "exportAgain": "Xuất lại",
+    "delete": "Xóa",
+    "cols": {
+      "when": "Thời gian",
+      "action": "Thao tác",
+      "format": "Định dạng",
+      "locale": "Ngôn ngữ",
+      "tables": "Bảng",
+      "rows": "Dòng"
+    },
+    "kind": {
+      "generate": "Đã tạo",
+      "export": "Đã xuất"
+    }
+  }
+}

@@ -1,0 +1,163 @@
+{
+  "meta": {
+    "title": "seedmint: datos de ejemplo realistas desde cualquier esquema",
+    "description": "Pega un esquema de Prisma, Drizzle, Zod, SQL o JSON Schema y obtén datos de ejemplo realistas y localizados en SQL, seed.ts, JSON, CSV o un prompt para IA. Gratis y de código abierto.",
+    "keywords": "generador de datos de ejemplo, seed data, Prisma seed, Drizzle seed, datos falsos Zod, generador SQL INSERT, faker, datos de prueba, mock data en español"
+  },
+  "brand": {
+    "name": "seedmint",
+    "tagline": "Web Studio"
+  },
+  "nav": {
+    "generate": "Generar",
+    "explore": "Explorar",
+    "project": "Proyecto",
+    "studio": "Studio",
+    "locales": "Idiomas de datos",
+    "formats": "Formatos",
+    "github": "GitHub",
+    "docs": "Hoja de ruta",
+    "toggleSidebar": "Mostrar u ocultar la barra lateral",
+    "language": "Idioma",
+    "diagram": "Diagrama",
+    "history": "Historial",
+    "theme": "Cambiar modo oscuro"
+  },
+  "studio": {
+    "title": "Studio",
+    "subtitle": "Pega un esquema, elige idioma y formato, y obtén datos listos para usar.",
+    "regenerate": "Regenerar",
+    "generate": "Generar datos",
+    "generating": "Generando…",
+    "inputTitle": "Tu esquema",
+    "inputHint": "Prisma, Drizzle, Zod, TypeScript, SQL, JSON Schema o una línea como users(name, email).",
+    "loadSample": "Cargar ejemplo",
+    "inputFormat": "Formato de entrada",
+    "auto": "Detección automática",
+    "locale": "Idioma de los datos",
+    "rows": "Filas por tabla",
+    "seed": "Semilla",
+    "seedHint": "Misma semilla, mismos datos.",
+    "outputFormat": "Formato de salida",
+    "edgeCases": "Casos límite",
+    "edgeCasesHint": "Cadenas vacías, muy largas, emoji, comillas y texto RTL.",
+    "outputTitle": "Resultado",
+    "empty": "Aún no hay nada. Pulsa “Generar datos”.",
+    "copy": "Copiar",
+    "copied": "Copiado",
+    "download": "Descargar",
+    "detected": "Detectado: {format}",
+    "stats": {
+      "tables": "Tablas",
+      "fields": "Campos",
+      "rows": "Filas"
+    },
+    "tablesTitle": "Tablas",
+    "tableRows": "{rows} filas · {fields} campos",
+    "builtFrom": "Usa el mismo motor que la CLI: @seedmint/core.",
+    "importFolder": "Importar carpeta",
+    "imported": "{count} archivos leídos como {format}. {skipped} archivos más ignorados.",
+    "tablesHint": "Filas a generar por tabla. Usa 0 para dejar una tabla vacía.",
+    "fieldsCount": "{count} campos",
+    "sqlDialect": "Dialecto SQL",
+    "includeDdl": "Incluir CREATE TABLE",
+    "includeDdlHint": "Añade tablas y claves foráneas antes de los INSERT.",
+    "regional": "Formatos regionales",
+    "regionalHint": "Fechas y números en la vista previa, CSV y Excel. SQL y código se mantienen simples para importar sin errores.",
+    "dateFormat": "Fecha",
+    "decimalSep": "Decimal",
+    "thousandsSep": "Millares",
+    "sepSpace": "espacio",
+    "sepNone": "ninguno",
+    "regionExample": "Ejemplo",
+    "exportAs": "Exportar como",
+    "showing": "Mostrando {shown} de {total} filas",
+    "binaryNote": "Archivo binario. Usa Descargar para guardarlo.",
+    "search": "Buscar filas…",
+    "total": "Total:",
+    "records": "registros",
+    "perPage": "Mostrar",
+    "perPageSuffix": "/ página",
+    "noMatches": "Ninguna fila coincide.",
+    "previewCap": "La vista previa muestra las primeras {count} filas.",
+    "exportMenu": "Exportar",
+    "exportGroup": {
+      "files": "Archivos",
+      "database": "Importar a una base de datos",
+      "code": "Código e IA"
+    },
+    "filesTitle": "Archivos importados",
+    "treeTables": "{count} tablas",
+    "treeIgnored": "ignorado"
+  },
+  "localesPage": {
+    "title": "Idiomas de datos",
+    "subtitle": "Nombres, direcciones y teléfonos siguen las reglas de cada país. Mezcla idiomas en una tabla para probar i18n.",
+    "sample": "Fila de ejemplo",
+    "tryIt": "Usar en Studio"
+  },
+  "formatsPage": {
+    "title": "Formatos de salida",
+    "subtitle": "Un esquema de entrada, lo que tu proyecto necesite de salida.",
+    "items": {
+      "json": "Un objeto JSON con el nombre de cada tabla como clave.",
+      "jsonl": "Una fila JSON por línea, fácil de transmitir o importar.",
+      "csv": "Un CSV por tabla para hojas de cálculo e importaciones masivas.",
+      "sql": "Sentencias INSERT en orden de dependencias.",
+      "ts": "mock.ts tipado con una interfaz por tabla.",
+      "prisma": "seed.ts que llama a prisma.createMany, listo para ejecutar.",
+      "drizzle": "seed.ts que inserta mediante Drizzle ORM.",
+      "prompt": "Un prompt en Markdown para pegar en Cursor o Claude Code."
+    }
+  },
+  "diagramPage": {
+    "title": "Diagrama",
+    "subtitle": "Mira tu esquema como un diagrama entidad-relación.",
+    "inputTitle": "Tu esquema",
+    "loadSample": "Cargar ejemplo",
+    "hint": "Pega un esquema para dibujarlo.",
+    "summary": "{tables} tablas · {links} relaciones",
+    "empty": "No se encontraron tablas en este esquema.",
+    "copyMermaid": "Copiar Mermaid",
+    "copied": "Copiado",
+    "downloadSvg": "Descargar SVG",
+    "legend": {
+      "entity": "Entidad",
+      "root": "Raíz del agregado",
+      "join": "Tabla de unión",
+      "pk": "Clave primaria",
+      "fk": "Clave foránea",
+      "cardinality": "Cardinalidad",
+      "hint": "Haz clic en una tabla para resaltar sus relaciones"
+    },
+    "search": "Buscar tablas o campos…",
+    "tablesTitle": "Tablas",
+    "showAll": "Mostrar todas",
+    "hideAll": "Ocultar todas",
+    "noMatch": "Ninguna tabla coincide.",
+    "selected": "{count} tablas relacionadas",
+    "clear": "Quitar",
+    "allHidden": "Todas las tablas están ocultas. Marca algunas en la lista."
+  },
+  "historyPage": {
+    "title": "Historial",
+    "subtitle": "Exportaciones hechas en este navegador. Ábrelas en Studio o expórtalas de nuevo.",
+    "empty": "Aún no se ha exportado nada. Genera o exporta datos en Studio.",
+    "clearAll": "Borrar todo",
+    "open": "Abrir",
+    "exportAgain": "Exportar de nuevo",
+    "delete": "Eliminar",
+    "cols": {
+      "when": "Cuándo",
+      "action": "Acción",
+      "format": "Formato",
+      "locale": "Idioma",
+      "tables": "Tablas",
+      "rows": "Filas"
+    },
+    "kind": {
+      "generate": "Generado",
+      "export": "Exportado"
+    }
+  }
+}

@@ -1,0 +1,163 @@
+{
+  "meta": {
+    "title": "seedmint: あらゆるスキーマからリアルなサンプルデータを生成",
+    "description": "Prisma、Drizzle、Zod、SQL、JSON Schema を貼り付けるだけで、各言語に対応したサンプルデータを SQL、seed.ts、JSON、CSV、AI 用プロンプトとして生成。無料のオープンソース。",
+    "keywords": "サンプルデータ生成, シードデータ, Prisma seed, Drizzle seed, Zod モックデータ, SQL INSERT 生成, faker, テストデータ, 日本語ダミーデータ"
+  },
+  "brand": {
+    "name": "seedmint",
+    "tagline": "Web Studio"
+  },
+  "nav": {
+    "generate": "生成",
+    "explore": "探す",
+    "project": "プロジェクト",
+    "studio": "スタジオ",
+    "locales": "ロケール",
+    "formats": "出力形式",
+    "github": "GitHub",
+    "docs": "ロードマップ",
+    "toggleSidebar": "サイドバーの表示切り替え",
+    "language": "言語",
+    "diagram": "ER 図",
+    "history": "履歴",
+    "theme": "ダークモードを切り替え"
+  },
+  "studio": {
+    "title": "スタジオ",
+    "subtitle": "スキーマを貼り付け、言語と形式を選ぶだけで、すぐ使えるデータを生成します。",
+    "regenerate": "再生成",
+    "generate": "データを生成",
+    "generating": "生成中…",
+    "inputTitle": "スキーマ",
+    "inputHint": "Prisma、Drizzle、Zod、TypeScript、SQL、JSON Schema、または users(name, email) のような一行。",
+    "loadSample": "サンプルを読み込む",
+    "inputFormat": "入力形式",
+    "auto": "自動判定",
+    "locale": "ロケール",
+    "rows": "テーブルあたりの行数",
+    "seed": "シード",
+    "seedHint": "同じシードなら同じデータになります。",
+    "outputFormat": "出力形式",
+    "edgeCases": "エッジケース",
+    "edgeCasesHint": "空文字、非常に長い文字列、絵文字、引用符、RTL 文字列。",
+    "outputTitle": "出力",
+    "empty": "まだ何もありません。「データを生成」を押してください。",
+    "copy": "コピー",
+    "copied": "コピーしました",
+    "download": "ダウンロード",
+    "detected": "検出: {format}",
+    "stats": {
+      "tables": "テーブル",
+      "fields": "フィールド",
+      "rows": "行"
+    },
+    "tablesTitle": "テーブル",
+    "tableRows": "{rows} 行 · {fields} フィールド",
+    "builtFrom": "CLI と同じエンジン @seedmint/core で動作します。",
+    "importFolder": "フォルダを読み込む",
+    "imported": "{count} 個のファイルを {format} として読み込みました。ほか {skipped} 個は無視しました。",
+    "tablesHint": "テーブルごとの生成行数。0 にするとそのテーブルは空になります。",
+    "fieldsCount": "{count} フィールド",
+    "sqlDialect": "SQL の種類",
+    "includeDdl": "CREATE TABLE を含める",
+    "includeDdlHint": "INSERT の前にテーブルと外部キーを作成します。",
+    "regional": "地域ごとの書式",
+    "regionalHint": "プレビュー、CSV、Excel の日付と数値に適用します。SQL とコードは取り込みやすいよう標準形式のままです。",
+    "dateFormat": "日付",
+    "decimalSep": "小数点",
+    "thousandsSep": "桁区切り",
+    "sepSpace": "スペース",
+    "sepNone": "なし",
+    "regionExample": "例",
+    "exportAs": "書き出し",
+    "showing": "{total} 行中 {shown} 行を表示",
+    "binaryNote": "バイナリファイルです。ダウンロードで保存してください。",
+    "search": "行を検索…",
+    "total": "合計:",
+    "records": "件",
+    "perPage": "表示",
+    "perPageSuffix": "/ ページ",
+    "noMatches": "一致する行がありません。",
+    "previewCap": "プレビューは最初の {count} 行のみ表示します。",
+    "exportMenu": "書き出し",
+    "exportGroup": {
+      "files": "ファイル",
+      "database": "データベースへインポート",
+      "code": "コードと AI"
+    },
+    "filesTitle": "読み込んだファイル",
+    "treeTables": "{count} テーブル",
+    "treeIgnored": "無視"
+  },
+  "localesPage": {
+    "title": "ロケール",
+    "subtitle": "氏名、住所、電話番号は各国のルールに従います。複数ロケールを混ぜて i18n を確認できます。",
+    "sample": "サンプル行",
+    "tryIt": "スタジオで使う"
+  },
+  "formatsPage": {
+    "title": "出力形式",
+    "subtitle": "ひとつのスキーマから、プロジェクトに必要な形式で出力します。",
+    "items": {
+      "json": "テーブル名をキーにした JSON オブジェクト。",
+      "jsonl": "1 行 1 レコードの JSON。ストリームやインポートに便利。",
+      "csv": "テーブルごとの CSV。スプレッドシートや一括インポート向け。",
+      "sql": "依存順に並んだ INSERT 文。",
+      "ts": "テーブルごとにインターフェースを持つ型付き mock.ts。",
+      "prisma": "prisma.createMany を呼ぶ、すぐ実行できる seed.ts。",
+      "drizzle": "Drizzle ORM 経由で挿入する seed.ts。",
+      "prompt": "Cursor や Claude Code に貼り付ける Markdown プロンプト。"
+    }
+  },
+  "diagramPage": {
+    "title": "ER 図",
+    "subtitle": "スキーマをエンティティ関連図として表示します。",
+    "inputTitle": "スキーマ",
+    "loadSample": "サンプルを読み込む",
+    "hint": "スキーマを貼り付けると図を描画します。",
+    "summary": "{tables} テーブル · {links} リレーション",
+    "empty": "このスキーマにテーブルがありません。",
+    "copyMermaid": "Mermaid をコピー",
+    "copied": "コピーしました",
+    "downloadSvg": "SVG をダウンロード",
+    "legend": {
+      "entity": "エンティティ",
+      "root": "集約ルート",
+      "join": "中間テーブル",
+      "pk": "主キー",
+      "fk": "外部キー",
+      "cardinality": "カーディナリティ",
+      "hint": "テーブルをクリックすると関連するものを強調表示します"
+    },
+    "search": "テーブルやフィールドを検索…",
+    "tablesTitle": "テーブル",
+    "showAll": "すべて表示",
+    "hideAll": "すべて非表示",
+    "noMatch": "一致するテーブルがありません。",
+    "selected": "関連テーブル {count} 件",
+    "clear": "解除",
+    "allHidden": "すべてのテーブルが非表示です。リストでチェックしてください。"
+  },
+  "historyPage": {
+    "title": "履歴",
+    "subtitle": "このブラウザで実行した書き出しです。スタジオで開くか、もう一度書き出せます。",
+    "empty": "まだ書き出していません。スタジオでデータを生成または書き出してください。",
+    "clearAll": "すべて削除",
+    "open": "開く",
+    "exportAgain": "再書き出し",
+    "delete": "削除",
+    "cols": {
+      "when": "日時",
+      "action": "操作",
+      "format": "形式",
+      "locale": "ロケール",
+      "tables": "テーブル",
+      "rows": "行"
+    },
+    "kind": {
+      "generate": "生成",
+      "export": "書き出し"
+    }
+  }
+}
