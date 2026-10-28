@@ -15,6 +15,10 @@ Open-source seed data and mock data generator for Prisma, Drizzle, Zod, SQL and 
 
 AI-built prototypes (Claude Code, Cursor, v0, Lovable) often ship with empty tables or "Lorem ipsum" and `John Doe`. Reviewing a UI without believable data hides layout bugs, i18n bugs and edge cases. seedmint turns the structure you already have into data you can actually review.
 
+<p align="center">
+  <img src="docs/images/diagram.png" alt="seedmint Diagram: an ER view of an 8-table e-commerce schema with coloured relation lines" width="880">
+</p>
+
 ## What it does
 
 - **Paste any structure:** TypeScript `interface`/`type`, Zod, Prisma, Drizzle, SQL `CREATE TABLE`, JSON sample, OpenAPI (JSON or YAML), DBML, GraphQL, CSV, or a one-line description like `users(name, email, phone, address, created_at)`.
@@ -83,6 +87,10 @@ Develop with `pnpm install && pnpm typecheck && pnpm build && pnpm test` (Turbor
 pnpm install
 pnpm --filter @seedmint/web dev   # http://localhost:3000
 ```
+
+| Studio | Diagram (dark theme) |
+|---|---|
+| ![Studio: schema on the left, generated rows on the right](docs/images/studio.png) | ![Diagram of an HR schema in dark mode](docs/images/diagram-dark.png) |
 
 Pages: **Studio** (generate and export), **Diagram** (ER view of your schema, see [docs/diagram.md](docs/diagram.md)), **History**, **Locales** and **Formats**. Eleven sample schemas are one click away from the sample menu.
 

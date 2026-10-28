@@ -2,6 +2,8 @@
 
 The **Diagram** page of the Web Studio (`/diagram`) draws a schema as an entity-relationship diagram. It uses the same parsers as the CLI and Studio, so every input format works: Prisma, Drizzle, Zod, TypeScript, SQL, DBML, GraphQL, OpenAPI, JSON Schema, CSV and the one-line DSL. Nothing leaves the browser tab except the parse call to the app's own server action.
 
+![The Diagram page with the e-commerce sample: schema editor, table list and the ER canvas](images/diagram.png)
+
 ## Reading the diagram
 
 - **One box per table.** The header shows the kind of table and its name; each row is a field with its type on the right.
@@ -14,6 +16,8 @@ The **Diagram** page of the Web Studio (`/diagram`) draws a schema as an entity-
 - **Relations come from** explicit references (`REFERENCES`, `@relation`, `[ref: > …]`, `.references()`) and from the `*_id` / `*Id` naming convention when no explicit link exists.
 
 ## Working with it
+
+![Order selected: its relations stay lit, other tables fade and each line shows its column](images/diagram-highlight.png)
 
 | Action | How |
 |---|---|
@@ -28,7 +32,13 @@ The **Diagram** page of the Web Studio (`/diagram`) draws a schema as an entity-
 
 - Type or paste in the editor.
 - **Import files** or **Import folder**: the same scanner as the CLI picks the schema files (a schema split over many files is read as one; an OpenAPI folder uses its first spec).
+![The samples menu lists eleven schemas with their input format](images/samples-menu.png)
+
 - **Samples** menu: eleven ready-made schemas of 5 to 8 tables each (e-commerce, blog, HR, school, CRM, clinic, construction with Vietnamese columns, pet-clinic OpenAPI, social GraphQL, hotel booking with Zod, logistics with the DSL). They live in `apps/web/src/lib/sample.ts`.
+
+The same diagram in dark mode, here with the HR sample:
+
+![HR and payroll sample in dark mode](images/diagram-dark.png)
 
 ## Exporting
 
