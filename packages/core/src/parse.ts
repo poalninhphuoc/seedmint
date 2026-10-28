@@ -6,18 +6,24 @@ import { parsePrisma } from "./parsers/prisma.js";
 import { parseJson } from "./parsers/json.js";
 import { parseSql } from "./parsers/sql.js";
 import { parseTs } from "./parsers/ts.js";
+import { parseCsv } from "./parsers/csv.js";
+import { parseDbml } from "./parsers/dbml.js";
+import { parseGraphql } from "./parsers/graphql.js";
 import { parseZod } from "./parsers/zod.js";
 
 export function detectFormat(src: string): InputFormat {
   const s = src.trim();
   if (/create\s+table/i.test(s)) return "sql";
+  if (/^\s*table\s+["`]?[\w.]+["`]?(\s+as\s+\w+)?\s*\{/im.test(s)) return "dbml";
+  if (/^\s*(type|input)\s+\w+(\s+implements[^{]*)?\s*\{[^}]*:\s*\[?\w+!?\]?!?/m.test(s) && !/\b(interface|export)\b|;\s*$/m.test(s)) return "graphql";
   if (/(pg|mysql|sqlite)Table\s*\(/.test(s)) return "drizzle";
   if (/^\s*(model|enum)\s+\w+\s*\{/m.test(s) && !/\binterface\b/.test(s)) return "prisma";
   if (/z\s*\.\s*object\s*\(/.test(s)) return "zod";
   if (/^(export\s+)?(interface|type)\s+\w+/m.test(s)) return "ts";
   if (/^[[{]/.test(s)) return /"\$schema"|"properties"\s*:/.test(s) ? "jsonschema" : "json";
   if (/^\w+\s*\(.*\)\s*;?\s*$/m.test(s)) return "dsl";
-  throw new Error("Could not detect the input format. Use --from ts|zod|sql|dsl|json.");
+  if (/^[^\n{}()]+[,;\t|][^\n{}()]+(\n|$)/.test(s) && !/\)\s*;?\s*$/m.test(s.split("\n")[0])) return "csv";
+  throw new Error("Could not detect the input format. Use --from ts|zod|sql|dsl|json|dbml|graphql|csv.");
 }
 
 const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -56,7 +62,7 @@ export function parseSchema(src: string, from?: InputFormat): Schema {
   const format = from ?? detectFormat(src);
   const parsers = {
     ts: parseTs, zod: parseZod, sql: parseSql, dsl: parseDsl, json: (s: string) => parseJson(s),
-    prisma: parsePrisma, drizzle: parseDrizzle, jsonschema: parseJsonSchema,
+    prisma: parsePrisma, drizzle: parseDrizzle, jsonschema: parseJsonSchema, dbml: parseDbml, graphql: parseGraphql, csv: (s: string) => parseCsv(s),
   };
   const schema = finalize(parsers[format](src));
   if (!schema.tables.length) throw new Error(`No tables found in ${format} input.`);

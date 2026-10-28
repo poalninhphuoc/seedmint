@@ -56,6 +56,7 @@
     "tableRows": "{rows} 行 · {fields} 个字段",
     "builtFrom": "与 CLI 使用同一个引擎：@seedmint/core。",
     "importFolder": "导入文件夹",
+    "importFile": "导入文件",
     "imported": "已按 {format} 读取 {count} 个文件，忽略其他 {skipped} 个。",
     "tablesHint": "每张表生成的行数。填 0 则该表保持为空。",
     "fieldsCount": "{count} 个字段",

@@ -26,7 +26,7 @@ import { addHistory } from "@/lib/history";
 import { SAMPLE_SCHEMA, loadSchema, loadSettings, saveSchema, saveSettings, type StudioSettings } from "@/lib/studio-state";
 import type { RegionFormat, SqlDialect } from "@seedmint/core";
 
-const INPUTS = ["ts", "zod", "sql", "dsl", "json", "prisma", "drizzle", "jsonschema"] as const;
+const INPUTS = ["ts", "zod", "sql", "dsl", "json", "prisma", "drizzle", "jsonschema", "dbml", "graphql", "csv"] as const;
 export function Studio({ locales, regions, initialLocale }: {
   locales: { code: string; label: string }[];
   regions: Record<string, RegionFormat>;

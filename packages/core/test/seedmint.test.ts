@@ -349,3 +349,24 @@ model DuAn {
     for (const x of rows()) if (x.ktDuKien) expect(String(x.ktDuKien) >= String(x.ngayBatDau)).toBe(true);
   });
 });
+
+describe("dbml, graphql and csv input", () => {
+  it("reads DBML with refs", () => {
+    const src = `Table users {\n  id integer [pk]\n  name varchar\n}\nTable orders {\n  id integer [pk]\n  user_id integer [ref: > users.id]\n  total decimal\n}`;
+    expect(detectFormat(src)).toBe("dbml");
+    const s = parseSchema(src);
+    expect(s.tables.map((t) => t.name)).toEqual(["users", "orders"]);
+    expect(s.tables[1].fields[1].ref).toEqual({ table: "users", field: "id" });
+  });
+  it("reads GraphQL SDL", () => {
+    const src = `type User {\n  id: ID!\n  email: String!\n  age: Int\n}`;
+    expect(detectFormat(src)).toBe("graphql");
+    const f = parseSchema(src).tables[0].fields;
+    expect(f.map((x) => x.kind)).toEqual(["uuid", "string", "integer"]);
+    expect(f[2].optional).toBe(true);
+  });
+  it("reads a CSV header and infers types", () => {
+    const s = parseSchema("id,name,price,active\n1,Ann,9.5,true\n2,Bo,10.25,false");
+    expect(s.tables[0].fields.map((x) => x.kind)).toEqual(["integer", "string", "number", "boolean"]);
+  });
+});

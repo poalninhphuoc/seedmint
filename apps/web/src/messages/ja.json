@@ -56,6 +56,7 @@
     "tableRows": "{rows} 行 · {fields} フィールド",
     "builtFrom": "CLI と同じエンジン @seedmint/core で動作します。",
     "importFolder": "フォルダを読み込む",
+    "importFile": "ファイルを読み込む",
     "imported": "{count} 個のファイルを {format} として読み込みました。ほか {skipped} 個は無視しました。",
     "tablesHint": "テーブルごとの生成行数。0 にするとそのテーブルは空になります。",
     "fieldsCount": "{count} フィールド",

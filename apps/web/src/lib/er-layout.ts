@@ -20,6 +20,8 @@ export interface Edge {
   d: string;
   lx: number;
   ly: number;
+  /** Text anchor of the label at (lx, ly). */
+  la: "start" | "middle";
   p: { x: number; y: number; dir: 1 | -1 };
   c: { x: number; y: number; dir: 1 | -1 };
 }
@@ -116,8 +118,14 @@ export function layoutEr(tables: ErTable[]): Layout {
       y += boxHeight(t) + GAP_Y;
     }
   });
-  const box = new Map(boxes.map((b) => [b.table.name, b]));
+  const edges = routeEdges(boxes);
 
+  return { boxes, edges, width: MARGIN * 2 + cols * W + (cols - 1) * GAP_X + 40, height: MARGIN * 2 + tallest };
+}
+
+/** Routes one elbow line per foreign key between the current box positions. */
+export function routeEdges(boxes: Box[]): Edge[] {
+  const box = new Map(boxes.map((b) => [b.table.name, b]));
   const edges: Edge[] = [];
   for (const c of boxes) {
     c.table.fields.forEach((f, fi) => {
@@ -131,25 +139,36 @@ export function layoutEr(tables: ErTable[]): Layout {
       if (p.x + p.w < c.x) {
         x1 = p.x + p.w; x2 = c.x;
         // Each line gets its own vertical lane in the gap so lines do not run on top of each other.
-        const xm = x1 + 26 + (edges.length % 9) * 11;
+        const xm = x1 + Math.min(26 + (edges.length % 9) * 11, Math.max(8, (x2 - x1) / 2));
         d = elbow(x1, y1, xm, y2, x2);
         lx = xm;
       } else {
-        // same column or a cycle: bracket out of the right edge and back in
+        // same column, a cycle or a dragged-over table: bracket out of the right edge and back in
         x1 = p.x + p.w; x2 = c.x + c.w;
-        const out = x1 + 34;
+        const out = Math.max(x1, x2) + 34;
         const yb = y1 === y2 ? y2 + 14 : y2;
         d = `M ${x1} ${y1} H ${out} V ${yb} H ${x2}`;
         lx = out; cd = 1;
       }
+      // Label beside the vertical run, or above a straight line, clear of the "1" / "N" marks at the ends.
+      const tall = Math.abs(y1 - y2) > 24;
       edges.push({
         from: p.table.name, to: c.table.name, toField: f.name, fromField: f.ref.field, label: f.name, color: colorOf(p.table.name),
-        d, lx, ly: Math.min(y1, y2) - 8, p: { x: x1, y: y1, dir: pd }, c: { x: x2, y: y2, dir: cd },
+        d, lx: tall ? lx + 6 : (x1 + x2) / 2, ly: tall ? (y1 + y2) / 2 + 3 : y1 - 6, la: tall ? "start" : "middle",
+        p: { x: x1, y: y1, dir: pd }, c: { x: x2, y: y2, dir: cd },
       });
     });
   }
+  return edges;
+}
 
-  return { boxes, edges, width: MARGIN * 2 + cols * W + (cols - 1) * GAP_X + 40, height: MARGIN * 2 + tallest };
+/** Layout with some tables moved by hand; lines are routed again for the new positions. */
+export function withOffsets(base: Layout, moved: Readonly<Record<string, { x: number; y: number }>>): Layout {
+  if (!Object.keys(moved).length) return base;
+  const boxes = base.boxes.map((b) => (moved[b.table.name] ? { ...b, ...moved[b.table.name] } : b));
+  const right = Math.max(...boxes.map((b) => b.x + b.w)) + MARGIN + 34;
+  const bottom = Math.max(...boxes.map((b) => b.y + b.h)) + MARGIN;
+  return { boxes, edges: routeEdges(boxes), width: Math.max(base.width, right), height: Math.max(base.height, bottom) };
 }
 
 const MERMAID_TYPE: Record<string, string> = {

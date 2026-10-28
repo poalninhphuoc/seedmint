@@ -1,4 +1,4 @@
-import { forwardRef, useMemo } from "react";
+import { forwardRef, useMemo, useRef } from "react";
 import { HEADER, ROW, colorOf, layoutEr, type ErTable, type Layout } from "@/lib/er-layout";
 
 const ROOT_STROKE = "hsl(14 75% 52%)";
@@ -16,11 +16,14 @@ interface Props {
   /** Tables matching the search box get a ring. */
   matches?: ReadonlySet<string>;
   onSelect?: (name: string | null) => void;
+  /** Called while a table is dragged, with its new top-left corner in diagram units. */
+  onMove?: (name: string, x: number, y: number) => void;
 }
 
 export const ErDiagram = forwardRef<SVGSVGElement, Props>(function ErDiagram(
-  { tables, labels, layout, scale = 1, selected = null, matches, onSelect }, ref,
+  { tables, labels, layout, scale = 1, selected = null, matches, onSelect, onMove }, ref,
 ) {
+  const drag = useRef<{ name: string; id: number; px: number; py: number; x: number; y: number; moved: boolean } | null>(null);
   const { boxes, edges, width, height } = layout ?? layoutEr(tables);
 
   // What the selection touches: connected tables and the key columns on both ends of each line.
@@ -63,7 +66,7 @@ export const ErDiagram = forwardRef<SVGSVGElement, Props>(function ErDiagram(
               <text x={e.p.x + 9} y={e.p.y - 7} fill={e.color}>1</text>
               <text x={e.c.x + (e.c.dir === -1 ? -9 : 9)} y={e.c.y - 7} textAnchor={e.c.dir === -1 ? "end" : "start"} fill={e.color}>N</text>
               {focus && on && (
-                <text x={e.lx} y={e.ly} textAnchor="middle" fontSize="9" letterSpacing="1" fontWeight="500" fill={e.color}>{e.label.toUpperCase()}</text>
+                <text x={e.lx} y={e.ly} textAnchor={e.la} fontSize="9" letterSpacing="1" fontWeight="500" fill={e.color} stroke="var(--card)" strokeWidth="3" paintOrder="stroke">{e.label.toUpperCase()}</text>
               )}
             </g>
           </g>
@@ -79,8 +82,35 @@ export const ErDiagram = forwardRef<SVGSVGElement, Props>(function ErDiagram(
         const dim = (focus && !focus.tablesHit.has(b.table.name)) || (matches && matches.size > 0 && !matches.has(b.table.name) && !focus);
         const hit = matches?.has(b.table.name);
         return (
-          <g key={`${bi}:${b.table.name}`} style={{ opacity: dim ? 0.18 : 1, transition: "opacity .15s", cursor: "pointer" }}
-            onClick={(ev) => { ev.stopPropagation(); onSelect?.(isSel ? null : b.table.name); }}>
+          <g key={`${bi}:${b.table.name}`} data-table={b.table.name} style={{ opacity: dim ? 0.18 : 1, transition: "opacity .15s", cursor: onMove ? "grab" : "pointer" }}
+            onPointerDown={(ev) => {
+              if (!onMove || ev.button !== 0) return;
+              ev.stopPropagation();
+              drag.current = { name: b.table.name, id: ev.pointerId, px: ev.clientX, py: ev.clientY, x: b.x, y: b.y, moved: false };
+            }}
+            onPointerMove={(ev) => {
+              const d = drag.current;
+              if (!d || d.id !== ev.pointerId) return;
+              const dx = (ev.clientX - d.px) / scale, dy = (ev.clientY - d.py) / scale;
+              if (!d.moved) {
+                if (Math.hypot(dx, dy) * scale < 4) return;
+                d.moved = true;
+                ev.currentTarget.setPointerCapture(ev.pointerId);
+              }
+              onMove?.(d.name, Math.max(0, d.x + dx), Math.max(0, d.y + dy));
+            }}
+            onPointerUp={(ev) => {
+              const d = drag.current;
+              if (!d || d.id !== ev.pointerId) return;
+              if (d.moved) ev.currentTarget.releasePointerCapture(ev.pointerId);
+              // keep `moved` for the click that follows, then clear it
+              setTimeout(() => { if (drag.current === d) drag.current = null; });
+            }}
+            onClick={(ev) => {
+              ev.stopPropagation();
+              if (drag.current?.moved) return;
+              onSelect?.(isSel ? null : b.table.name);
+            }}>
             {(isSel || hit) && <rect x={b.x - 5} y={b.y - 5} width={b.w + 10} height={b.h + 10} rx="10" fill="none" stroke={accent} strokeWidth="2" opacity="0.55" />}
             <rect x={b.x} y={b.y} width={b.w} height={b.h} rx="6" fill={root ? ROOT_FILL : "var(--card)"}
               stroke={isSel ? accent : stroke} strokeWidth={isSel ? 2.5 : root ? 1.5 : 1.25} strokeDasharray={join ? "5 4" : undefined} />

@@ -21,7 +21,7 @@ Options:
   -n, --rows <n|t=n,..>  rows per table, e.g. 50 or users=50,orders=200 (default 20)
   -f, --format <fmt>     ${OUTPUT_FORMATS.join(" | ")} (default json)
   -s, --seed <n>         seed for repeatable output (default 42)
-      --from <fmt>       force input: ts | zod | sql | dsl | json | prisma | drizzle | jsonschema
+      --from <fmt>       force input: ts | zod | sql | dsl | json | prisma | drizzle | jsonschema | dbml | graphql | csv
       --edge-cases       sprinkle empty / long / emoji / quote / RTL strings
   -o, --out <path>       file (has an extension) or directory; default is stdout
       --force            init: overwrite an existing config

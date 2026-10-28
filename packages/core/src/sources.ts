@@ -33,10 +33,12 @@ export function collectSchemaSource(files: SourceFile[]): CollectedSource {
     ["sql", candidates.filter((f) => f.path.endsWith(".sql") && /create\s+table/i.test(f.content))],
     ["drizzle", ts.filter((f) => /\b(pgTable|mysqlTable|sqliteTable)\s*\(/.test(f.content))],
     ["zod", ts.filter((f) => /from\s+["']zod["']/.test(f.content) && /\bz\.object\s*\(/.test(f.content))],
+    ["dbml", candidates.filter((f) => f.path.endsWith(".dbml") && /\btable\s+/i.test(f.content))],
+    ["graphql", candidates.filter((f) => /\.(graphql|gql)$/.test(f.path) && /\btype\s+\w+\s*\{/.test(f.content))],
     ["jsonschema", candidates.filter((f) => f.path.endsWith(".json") && /"\$schema"|"properties"/.test(f.content))],
   ];
   const [format, picked] = groups.find(([, g]) => g.length) ?? ["ts" as InputFormat, []];
-  if (!picked.length) throw new Error("No schema files found (looked for .prisma, .sql, Drizzle and Zod .ts files).");
+  if (!picked.length) throw new Error("No schema files found (looked for .prisma, .sql, .dbml, .graphql, Drizzle and Zod .ts files).");
 
   const usedSet = new Set(picked.map((f) => f.path));
   return {

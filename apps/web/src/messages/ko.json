@@ -56,6 +56,7 @@
     "tableRows": "{rows}행 · {fields}개 필드",
     "builtFrom": "CLI와 같은 엔진 @seedmint/core를 사용합니다.",
     "importFolder": "폴더 가져오기",
+    "importFile": "파일 가져오기",
     "imported": "파일 {count}개를 {format}(으)로 읽었습니다. 나머지 {skipped}개는 무시했습니다.",
     "tablesHint": "테이블별 생성 행 수입니다. 0이면 빈 테이블로 둡니다.",
     "fieldsCount": "필드 {count}개",

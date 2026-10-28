@@ -1,8 +1,8 @@
 "use client";
 
-import { Check, Copy, Download, FolderOpen, Maximize, Network, Search, X, ZoomIn, ZoomOut } from "lucide-react";
+import { Check, Copy, Download, Eye, EyeOff, FileUp, FlaskConical, FolderOpen, Maximize, Network, RotateCcw, Search, X, ZoomIn, ZoomOut } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, useTransition, type ComponentProps } from "react";
 import { analyze, importFiles, type AnalyzeResult, type ImportedFile } from "@/app/actions";
 import { ErDiagram } from "@/components/er-diagram";
 import { FileTree } from "@/components/file-tree";
@@ -12,15 +12,29 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { folderInputProps, readFolder } from "@/lib/folder";
-import { colorOf, layoutEr, toMermaid } from "@/lib/er-layout";
+import { colorOf, layoutEr, toMermaid, withOffsets } from "@/lib/er-layout";
 import { loadSchema, saveSchema } from "@/lib/schema-store";
 import { SAMPLE_SCHEMA } from "@/lib/sample";
+
+/** Icon-only button; the label shows as a tooltip on hover and doubles as the accessible name. */
+function IconButton({ label, children, ...props }: { label: string } & Omit<ComponentProps<typeof Button>, "size" | "aria-label">) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button size="icon-sm" aria-label={label} {...props}>{children}</Button>
+      </TooltipTrigger>
+      <TooltipContent>{label}</TooltipContent>
+    </Tooltip>
+  );
+}
 
 export function DiagramView() {
   const t = useTranslations("diagramPage");
   const ts = useTranslations("studio");
   const folder = useRef<HTMLInputElement>(null);
+  const fileInput = useRef<HTMLInputElement>(null);
   const [imported, setImported] = useState<{ text: string; files: ImportedFile[] } | null>(null);
   const [zoom, setZoom] = useState(1);
   const view = useRef<HTMLDivElement>(null);
@@ -52,9 +66,13 @@ export function DiagramView() {
     return () => clearTimeout(id);
   }, [schema]);
 
+  useEffect(() => setMoved({}), [schema]);
+
   const ok = result?.ok ? result : null;
   const visible = useMemo(() => (ok ? ok.tables.filter((x) => !hidden.has(x.name)) : []), [ok, hidden]);
-  const layout = useMemo(() => (visible.length ? layoutEr(visible) : null), [visible]);
+  const [moved, setMoved] = useState<Readonly<Record<string, { x: number; y: number }>>>({});
+  const auto = useMemo(() => (visible.length ? layoutEr(visible) : null), [visible]);
+  const layout = useMemo(() => (auto ? withOffsets(auto, moved) : null), [auto, moved]);
   const links = layout?.edges.length ?? 0;
 
   const needle = query.trim().toLowerCase();
@@ -80,13 +98,91 @@ export function DiagramView() {
       return next;
     });
 
+  // Ctrl/⌘ + wheel (also trackpad pinch) zooms around the cursor; a plain wheel scrolls the canvas both ways.
+  const zoomRef = useRef(zoom);
+  const anchor = useRef<{ x: number; y: number; px: number; py: number } | null>(null);
+  zoomRef.current = zoom;
+  const suppress = useRef(false);
+  const hasCanvas = !!layout;
+  useEffect(() => {
+    const el = view.current;
+    if (!el) return;
+    const onWheel = (e: WheelEvent) => {
+      if (!e.ctrlKey && !e.metaKey) return;
+      e.preventDefault();
+      const z1 = zoomRef.current;
+      const z2 = Math.min(2, Math.max(0.15, +(z1 * Math.exp(-e.deltaY * 0.0025)).toFixed(3)));
+      if (z2 === z1) return;
+      const r = el.getBoundingClientRect();
+      const cx = e.clientX - r.left;
+      const cy = e.clientY - r.top;
+      anchor.current = { x: cx, y: cy, px: (el.scrollLeft + cx) / z1, py: (el.scrollTop + cy) / z1 };
+      setZoom(z2);
+    };
+    // Hold the mouse on empty canvas and drag to pan; a short click still selects a table.
+    let drag: { id: number; x: number; y: number; left: number; top: number; moved: boolean } | null = null;
+    const onDown = (e: PointerEvent) => {
+      if (e.button !== 0 || (e.target as Element).closest("[data-table]")) return;
+      drag = { id: e.pointerId, x: e.clientX, y: e.clientY, left: el.scrollLeft, top: el.scrollTop, moved: false };
+    };
+    const onMove = (e: PointerEvent) => {
+      if (!drag || e.pointerId !== drag.id) return;
+      const dx = e.clientX - drag.x;
+      const dy = e.clientY - drag.y;
+      if (!drag.moved) {
+        if (Math.hypot(dx, dy) < 4) return;
+        drag.moved = true;
+        el.setPointerCapture(e.pointerId);
+        el.style.cursor = "grabbing";
+      }
+      el.scrollLeft = drag.left - dx;
+      el.scrollTop = drag.top - dy;
+    };
+    const onUp = (e: PointerEvent) => {
+      if (!drag || e.pointerId !== drag.id) return;
+      if (drag.moved) {
+        el.releasePointerCapture(e.pointerId);
+        el.style.cursor = "";
+      }
+      drag = null;
+    };
+    // The click that ends a drag must not select or clear a table.
+    const onClick = (e: MouseEvent) => {
+      if (suppress.current) { e.stopPropagation(); e.preventDefault(); suppress.current = false; }
+    };
+    const markMoved = () => { suppress.current = !!drag?.moved; };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    el.addEventListener("pointerdown", onDown);
+    el.addEventListener("pointermove", onMove);
+    el.addEventListener("pointerup", markMoved, true);
+    el.addEventListener("pointerup", onUp);
+    el.addEventListener("pointercancel", onUp);
+    el.addEventListener("click", onClick, true);
+    return () => {
+      el.removeEventListener("wheel", onWheel);
+      el.removeEventListener("pointerdown", onDown);
+      el.removeEventListener("pointermove", onMove);
+      el.removeEventListener("pointerup", markMoved, true);
+      el.removeEventListener("pointerup", onUp);
+      el.removeEventListener("pointercancel", onUp);
+      el.removeEventListener("click", onClick, true);
+    };
+  }, [hasCanvas]);
+  useLayoutEffect(() => {
+    const a = anchor.current;
+    if (!a || !view.current) return;
+    anchor.current = null;
+    view.current.scrollLeft = a.px * zoom - a.x;
+    view.current.scrollTop = a.py * zoom - a.y;
+  }, [zoom]);
+
   const fit = () => {
     if (!layout) return;
     const w = view.current?.clientWidth ?? 900;
     setZoom(Math.min(1, Math.max(0.3, (w - 8) / layout.width)));
   };
   // Fit the whole diagram into view whenever the set of tables changes.
-  const shape = layout ? `${layout.boxes.length}:${layout.width}` : "";
+  const shape = auto ? `${auto.boxes.length}:${auto.width}` : "";
   useEffect(() => { if (selected && hidden.has(selected)) setSelected(null); }, [hidden, selected]);
   useEffect(fit, [shape]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -95,6 +191,7 @@ export function DiagramView() {
     setImportError(null);
     const r = await importFiles(await readFolder(files));
     if (folder.current) folder.current.value = "";
+    if (fileInput.current) fileInput.current.value = "";
     if (!r.ok) return setImportError(r.error);
     setSchema(r.source);
     setImported({ text: ts("imported", { count: r.used.length, format: r.format, skipped: r.skipped }), files: r.files });
@@ -128,9 +225,11 @@ export function DiagramView() {
           <div className="flex items-center justify-between gap-2">
             <h2 className="font-semibold">{t("inputTitle")}</h2>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={() => folder.current?.click()}><FolderOpen />{ts("importFolder")}</Button>
-              <Button variant="outline" size="sm" onClick={() => { setSchema(SAMPLE_SCHEMA); setImported(null); }}>{t("loadSample")}</Button>
+              <IconButton variant="outline" label={ts("importFile")} onClick={() => fileInput.current?.click()}><FileUp /></IconButton>
+              <IconButton variant="outline" label={ts("importFolder")} onClick={() => folder.current?.click()}><FolderOpen /></IconButton>
+              <IconButton variant="outline" label={t("loadSample")} onClick={() => { setSchema(SAMPLE_SCHEMA); setImported(null); }}><FlaskConical /></IconButton>
             </div>
+            <input ref={fileInput} type="file" multiple hidden accept=".prisma,.sql,.ts,.tsx,.mts,.json,.dbml,.graphql,.gql" onChange={(e) => pickFolder(e.target.files)} />
             <input ref={folder} type="file" multiple hidden onChange={(e) => pickFolder(e.target.files)} {...folderInputProps} />
           </div>
           {imported && (
@@ -148,8 +247,8 @@ export function DiagramView() {
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <h2 className="font-semibold">{t("tablesTitle")} <span className="font-normal text-muted-foreground tabular-nums">({visible.length}/{ok.tables.length})</span></h2>
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm" onClick={() => setHidden(new Set())}>{t("showAll")}</Button>
-                  <Button variant="outline" size="sm" onClick={() => setHidden(new Set(ok.tables.map((x) => x.name)))}>{t("hideAll")}</Button>
+                  <IconButton variant="outline" label={t("showAll")} onClick={() => setHidden(new Set())}><Eye /></IconButton>
+                  <IconButton variant="outline" label={t("hideAll")} onClick={() => setHidden(new Set(ok.tables.map((x) => x.name)))}><EyeOff /></IconButton>
                 </div>
               </div>
               <ul className="max-h-[26rem] divide-y overflow-y-auto border-y">
@@ -168,65 +267,72 @@ export function DiagramView() {
         </section>
   );
   const right = (
-        <section className="flex h-full min-h-[24rem] min-w-0 flex-col gap-4 p-4 md:p-6">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="text-sm text-muted-foreground tabular-nums">
-              {ok ? t("summary", { tables: visible.length, links }) : t("hint")}
-            </p>
-            {ok && (
-              <div className="relative min-w-40 max-w-xs flex-1">
-                <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                <Input value={query} placeholder={t("search")} aria-label={t("search")} className="bg-card pl-9"
-                  onChange={(e) => setQuery(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") { const first = visible.find(matchesText); if (first) focusTable(first.name); }
-                    if (e.key === "Escape") { setQuery(""); setSelected(null); }
-                  }} />
-              </div>
-            )}
-            <div className="flex items-center gap-1">
-              {ok && layout && (
-                <>
-                  <Button variant="outline" size="icon" aria-label="zoom out" onClick={() => setZoom((z) => Math.max(0.15, +(z - 0.15).toFixed(2)))}><ZoomOut /></Button>
-                  <span className="w-12 text-center text-xs tabular-nums text-muted-foreground">{Math.round(zoom * 100)}%</span>
-                  <Button variant="outline" size="icon" aria-label="zoom in" onClick={() => setZoom((z) => Math.min(2, +(z + 0.15).toFixed(2)))}><ZoomIn /></Button>
-                  <Button variant="outline" size="icon" aria-label="fit" onClick={fit}><Maximize /></Button>
-                </>
-              )}
-              {ok && <Badge variant="secondary" className="ml-2">{ok.detected}</Badge>}
-            </div>
+    <section className="relative flex h-full min-h-[24rem] min-w-0 flex-col">
+      {ok && layout && ok.tables.length > 0 ? (
+        <div ref={view} className="min-h-0 flex-1 cursor-grab touch-pan-x touch-pan-y select-none overflow-auto bg-card pt-12 pb-10">
+          <ErDiagram ref={svg} tables={visible} layout={layout} scale={zoom} selected={selected} matches={matches} onSelect={setSelected} onMove={(name, x, y) => setMoved((m) => ({ ...m, [name]: { x, y } }))}
+            labels={{ entity: t("legend.entity"), root: t("legend.root"), join: t("legend.join") }} />
+        </div>
+      ) : (
+        <div className="flex flex-1 items-center justify-center p-6 text-center text-sm text-muted-foreground">
+          {result && !result.ok ? <p role="alert" className="text-destructive">{result.error}</p>
+            : ok && ok.tables.length === 0 ? t("empty")
+            : ok ? t("allHidden")
+            : t("hint")}
+        </div>
+      )}
+
+      {ok && (
+        <div className="pointer-events-none absolute inset-x-2 top-2 flex flex-wrap items-center gap-2">
+          <span className="pointer-events-auto rounded-md border bg-card/90 px-2 py-1 text-xs tabular-nums text-muted-foreground shadow-sm backdrop-blur">
+            {t("summary", { tables: visible.length, links })}
+          </span>
+          <div className="pointer-events-auto relative min-w-36 max-w-xs flex-1">
+            <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
+            <Input value={query} placeholder={t("search")} aria-label={t("search")} className="h-8 bg-card/90 pl-8 text-sm shadow-sm backdrop-blur"
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") { const first = visible.find(matchesText); if (first) focusTable(first.name); }
+                if (e.key === "Escape") { setQuery(""); setSelected(null); }
+              }} />
           </div>
-          {selected && (
-            <div className="flex items-center justify-between gap-2 rounded-lg border bg-card px-3 py-2 text-sm">
-              <span className="flex min-w-0 items-center gap-2">
-                <span className="size-2.5 shrink-0 rounded-full" style={{ background: colorOf(selected) }} />
-                <b className="truncate">{selected}</b>
-                <span className="text-muted-foreground">{t("selected", { count: related })}</span>
-              </span>
-              <Button variant="ghost" size="sm" onClick={() => setSelected(null)}><X />{t("clear")}</Button>
-            </div>
-          )}
-          {result && !result.ok && <p role="alert" className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">{result.error}</p>}
-          {ok && ok.tables.length === 0 && <p className="rounded-lg border border-dashed p-12 text-center text-sm text-muted-foreground">{t("empty")}</p>}
-          {ok && ok.tables.length > 0 && !layout && <p className="rounded-lg border border-dashed p-12 text-center text-sm text-muted-foreground">{t("allHidden")}</p>}
-          {ok && layout && ok.tables.length > 0 && (
-            <>
-              <div ref={view} className="min-h-0 flex-1 overflow-auto rounded-lg border bg-card">
-                <ErDiagram ref={svg} tables={visible} layout={layout} scale={zoom} selected={selected} matches={matches} onSelect={setSelected}
-                  labels={{ entity: t("legend.entity"), root: t("legend.root"), join: t("legend.join") }} />
-              </div>
-              <ul className="flex shrink-0 flex-wrap gap-x-6 gap-y-2 border-t pt-4 text-xs text-muted-foreground">
-                <li className="flex items-center gap-2"><span className="size-3 rounded-[3px] border" style={{ borderColor: "hsl(14 75% 52%)", background: "hsl(14 80% 55% / 0.15)" }} />{t("legend.root")}</li>
-                <li className="flex items-center gap-2"><span className="size-3 rounded-[3px] border border-foreground" />{t("legend.entity")}</li>
-                <li className="flex items-center gap-2"><span className="size-3 rounded-[3px] border border-dashed border-foreground" />{t("legend.join")}</li>
-                <li><span className="font-mono">#</span> {t("legend.pk")}</li>
-                <li><span className="font-mono">→</span> {t("legend.fk")}</li>
-                <li><span className="font-mono">1 / N</span> {t("legend.cardinality")}</li>
-                <li className="text-muted-foreground">{t("legend.hint")}</li>
-              </ul>
-            </>
-          )}
-        </section>
+          <div className="pointer-events-auto ml-auto flex items-center gap-0.5 rounded-md border bg-card/90 p-0.5 shadow-sm backdrop-blur">
+            {layout && (
+              <>
+                <IconButton variant="ghost" label="Zoom out" onClick={() => setZoom((z) => Math.max(0.15, +(z - 0.15).toFixed(2)))}><ZoomOut /></IconButton>
+                <span className="w-10 text-center text-xs tabular-nums text-muted-foreground">{Math.round(zoom * 100)}%</span>
+                <IconButton variant="ghost" label="Zoom in" onClick={() => setZoom((z) => Math.min(2, +(z + 0.15).toFixed(2)))}><ZoomIn /></IconButton>
+                <IconButton variant="ghost" label="Fit" onClick={fit}><Maximize /></IconButton>
+                {Object.keys(moved).length > 0 && <IconButton variant="ghost" label="Reset layout" onClick={() => setMoved({})}><RotateCcw /></IconButton>}
+              </>
+            )}
+            <Badge variant="secondary" className="mx-1">{ok.detected}</Badge>
+          </div>
+        </div>
+      )}
+
+      {selected && (
+        <div className="absolute bottom-2 right-2 flex max-w-[calc(100%-1rem)] items-center gap-2 rounded-md border bg-card/95 py-0.5 pl-3 pr-1 text-sm shadow-sm backdrop-blur">
+          <span className="flex min-w-0 items-center gap-2">
+            <span className="size-2.5 shrink-0 rounded-full" style={{ background: colorOf(selected) }} />
+            <b className="truncate">{selected}</b>
+            <span className="text-muted-foreground">{t("selected", { count: related })}</span>
+          </span>
+          <IconButton variant="ghost" label={t("clear")} onClick={() => setSelected(null)}><X /></IconButton>
+        </div>
+      )}
+
+      {ok && layout && (
+        <ul className="pointer-events-none absolute bottom-2 left-2 flex max-w-[calc(100%-1rem)] flex-wrap gap-x-3 gap-y-1 rounded-md border bg-card/90 px-2 py-1 text-[11px] text-muted-foreground shadow-sm backdrop-blur" title={t("legend.hint")}>
+          <li className="flex items-center gap-1"><span className="size-2.5 rounded-[3px] border" style={{ borderColor: "hsl(14 75% 52%)", background: "hsl(14 80% 55% / 0.15)" }} />{t("legend.root")}</li>
+          <li className="flex items-center gap-1"><span className="size-2.5 rounded-[3px] border border-foreground" />{t("legend.entity")}</li>
+          <li className="flex items-center gap-1"><span className="size-2.5 rounded-[3px] border border-dashed border-foreground" />{t("legend.join")}</li>
+          <li><span className="font-mono">#</span> {t("legend.pk")}</li>
+          <li><span className="font-mono">→</span> {t("legend.fk")}</li>
+          <li><span className="font-mono">1/N</span></li>
+        </ul>
+      )}
+    </section>
   );
 
   return (
@@ -237,10 +343,10 @@ export function DiagramView() {
         subtitle={t("subtitle")}
         actions={
           <>
-            <Button variant="outline" onClick={copyMermaid} disabled={!ok}>
-              {copied ? <Check /> : <Copy />}{copied ? t("copied") : t("copyMermaid")}
-            </Button>
-            <Button onClick={downloadSvg} disabled={!ok}><Download />{t("downloadSvg")}</Button>
+            <IconButton variant="outline" label={copied ? t("copied") : t("copyMermaid")} onClick={copyMermaid} disabled={!ok}>
+              {copied ? <Check /> : <Copy />}
+            </IconButton>
+            <IconButton variant="default" label={t("downloadSvg")} onClick={downloadSvg} disabled={!ok}><Download /></IconButton>
           </>
         }
       />

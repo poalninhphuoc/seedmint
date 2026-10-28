@@ -56,6 +56,7 @@
     "tableRows": "{rows} dòng · {fields} trường",
     "builtFrom": "Dùng chung engine với CLI: @seedmint/core.",
     "importFolder": "Nhập thư mục",
+    "importFile": "Nhập tệp",
     "imported": "Đã đọc {count} file ({format}). Bỏ qua {skipped} file khác.",
     "tablesHint": "Số dòng tạo cho từng bảng. Nhập 0 để bỏ trống bảng.",
     "fieldsCount": "{count} trường",

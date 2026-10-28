@@ -56,6 +56,7 @@
     "tableRows": "{rows} filas · {fields} campos",
     "builtFrom": "Usa el mismo motor que la CLI: @seedmint/core.",
     "importFolder": "Importar carpeta",
+    "importFile": "Importar archivos",
     "imported": "{count} archivos leídos como {format}. {skipped} archivos más ignorados.",
     "tablesHint": "Filas a generar por tabla. Usa 0 para dejar una tabla vacía.",
     "fieldsCount": "{count} campos",
