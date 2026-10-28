@@ -6,6 +6,8 @@
 
 Công cụ mã nguồn mở tạo dữ liệu mẫu (seed data, mock data) từ schema Prisma, Drizzle, Zod, SQL. Có dữ liệu tiếng Việt thật: tên, địa chỉ, số điện thoại.
 
+**Dùng thử:** https://seedmint.vercel.app
+
 **Trạng thái:** CLI, thư viện và Web Studio đã chạy được (Prisma, Drizzle, Zod, TypeScript, SQL, JSON Schema vào; JSON, CSV, SQL, `seed.ts`, prompt cho AI ra).
 
 ## Vì sao

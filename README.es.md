@@ -6,6 +6,8 @@
 
 Generador de datos de ejemplo (seed data, mock data) de código abierto a partir de esquemas Prisma, Drizzle, Zod y SQL, con nombres, direcciones y teléfonos localizados.
 
+**Demo en vivo:** https://seedmint.vercel.app
+
 **Estado:** la CLI, la biblioteca y el Web Studio ya funcionan (entrada: Prisma, Drizzle, Zod, TypeScript, SQL, JSON Schema; salida: JSON, CSV, SQL, `seed.ts`, prompt para IA).
 
 ## Por qué

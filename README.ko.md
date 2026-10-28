@@ -6,6 +6,8 @@
 
 Prisma, Drizzle, Zod, SQL 스키마로 이름·주소·전화번호까지 현지화된 샘플 데이터(시드 데이터, 목 데이터)를 만드는 오픈 소스 도구입니다.
 
+**데모:** https://seedmint.vercel.app
+
 **상태:** CLI, 라이브러리, Web Studio가 동작합니다 (입력: Prisma, Drizzle, Zod, TypeScript, SQL, JSON Schema / 출력: JSON, CSV, SQL, `seed.ts`, AI 프롬프트).
 
 ## 왜 필요한가

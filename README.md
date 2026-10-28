@@ -9,6 +9,8 @@
 
 Open-source seed data and mock data generator for Prisma, Drizzle, Zod, SQL and JSON Schema, with localized names, addresses and phone numbers.
 
+**Live demo:** https://seedmint.vercel.app
+
 **Status:** early. The CLI and library work (Prisma, Drizzle, Zod, TS, SQL, JSON Schema in; JSON, CSV, SQL, `seed.ts`, AI prompt out). The Web Studio (Next.js + shadcn/ui, 6 UI languages) also works. The docs site, direct DB insert and AI engine are planned (see the roadmap).
 
 ## Why

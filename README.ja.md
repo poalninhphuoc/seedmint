@@ -6,6 +6,8 @@
 
 Prisma、Drizzle、Zod、SQL のスキーマから、氏名・住所・電話番号まで各国語に対応したサンプルデータ（シードデータ、モックデータ）を作るオープンソースツールです。
 
+**デモ：** https://seedmint.vercel.app
+
 **状態：** CLI、ライブラリ、Web Studio が動作します（入力: Prisma、Drizzle、Zod、TypeScript、SQL、JSON Schema／出力: JSON、CSV、SQL、`seed.ts`、AI 用プロンプト）。
 
 ## なぜ必要か

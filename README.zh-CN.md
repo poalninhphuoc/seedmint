@@ -6,6 +6,8 @@
 
 开源的示例数据（种子数据、模拟数据）生成工具：从 Prisma、Drizzle、Zod、SQL Schema 生成姓名、地址、电话都本地化的数据。
 
+**在线体验：** https://seedmint.vercel.app
+
 **状态：** CLI、库和 Web Studio 已可使用（输入：Prisma、Drizzle、Zod、TypeScript、SQL、JSON Schema；输出：JSON、CSV、SQL、`seed.ts`、AI 提示词）。
 
 ## 为什么
