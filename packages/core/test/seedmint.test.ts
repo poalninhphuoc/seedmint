@@ -455,3 +455,113 @@ components:
     expect(parseSchema(got.source, got.format).tables).toHaveLength(4);
   });
 });
+
+describe("composite foreign keys", () => {
+  const SQL = `
+CREATE TABLE product (shop_id INT NOT NULL, sku VARCHAR(20) NOT NULL, name TEXT NOT NULL, PRIMARY KEY (shop_id, sku));
+CREATE TABLE line (id INT PRIMARY KEY, shop_id INT NOT NULL, sku VARCHAR(20) NOT NULL, qty INT NOT NULL,
+  FOREIGN KEY (shop_id, sku) REFERENCES product (shop_id, sku));
+`;
+  const PRISMA = `
+model Product { shopId Int
+  sku String
+  lines Line[]
+  @@id([shopId, sku]) }
+model Line { id Int @id
+  shopId Int
+  sku String
+  product Product @relation(fields: [shopId, sku], references: [shopId, sku]) }
+`;
+
+  it("keeps every column of the key in SQL and Prisma", () => {
+    for (const [src, fmt] of [[SQL, "sql"], [PRISMA, "prisma"]] as const) {
+      const line = parseSchema(src, fmt).tables.find((t) => t.name.toLowerCase() === "line")!;
+      const refs = line.fields.filter((f) => f.ref).map((f) => f.ref!);
+      expect(refs.map((r) => r.field.toLowerCase())).toEqual(["shop_id", "sku"].map((x) => (fmt === "prisma" && x === "shop_id" ? "shopid" : x)));
+      expect(new Set(refs.map((r) => r.group)).size).toBe(1);
+      expect(refs[0].group).toBeTruthy();
+    }
+  });
+
+  it("points all columns of the key at the same parent row", () => {
+    const schema = parseSchema(SQL, "sql");
+    const data = mint({ schema, rows: 12, seed: 7 });
+    const parents = new Set(data.product.map((p) => `${p.shop_id}/${p.sku}`));
+    for (const l of data.line) expect(parents.has(`${l.shop_id}/${l.sku}`)).toBe(true);
+  });
+});
+
+describe("schema / module groups", () => {
+  it("reads the schema from SQL, Prisma and DBML", () => {
+    const sql = parseSchema("CREATE TABLE billing.invoice (id INT PRIMARY KEY);\nCREATE TABLE users (id INT PRIMARY KEY);", "sql");
+    expect(sql.tables.map((t) => [t.name, t.group])).toEqual([["invoice", "billing"], ["users", undefined]]);
+
+    const prisma = parseSchema('model Invoice {\n id Int @id\n @@schema("billing")\n}\nmodel User { id Int @id }', "prisma");
+    expect(prisma.tables.map((t) => t.group)).toEqual(["billing", undefined]);
+
+    const dbml = parseSchema("Table hr.employee { id int [pk] }\nTable sales.deal { id int [pk] }", "dbml");
+    expect(dbml.tables.map((t) => [t.name, t.group])).toEqual([["employee", "hr"], ["deal", "sales"]]);
+  });
+});
+
+describe("coherent rows", () => {
+  const SQL = `
+CREATE TABLE users (id INT PRIMARY KEY, full_name TEXT NOT NULL, email TEXT NOT NULL, birthday DATE NOT NULL, age INT NOT NULL, address TEXT NOT NULL, city TEXT NOT NULL, country TEXT NOT NULL);
+CREATE TABLE orders (id INT PRIMARY KEY, ordered_at TIMESTAMP NOT NULL, shipped_at TIMESTAMP NOT NULL);
+`;
+  const strip = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/đ/gi, "d").toLowerCase();
+  const now = new Date("2026-06-15T00:00:00Z");
+  const data = mint({ schema: parseSchema(SQL, "sql"), rows: 40, seed: 3, locale: "vi", now });
+
+  it("writes Vietnamese names family-name first and builds the email from them", () => {
+    for (const u of data.users) {
+      const parts = strip(String(u.full_name)).split(" ");
+      expect(parts).toHaveLength(3);
+      expect(String(u.email)).toContain(parts[2]);
+      expect(String(u.email)).toContain(parts[0]);
+    }
+  });
+
+  it("keeps age, province, country and dates consistent", () => {
+    for (const u of data.users) {
+      const b = new Date(String(u.birthday));
+      let age = now.getUTCFullYear() - b.getUTCFullYear();
+      if (now.getUTCMonth() < b.getUTCMonth() || (now.getUTCMonth() === b.getUTCMonth() && now.getUTCDate() < b.getUTCDate())) age--;
+      expect(u.age).toBe(age);
+      expect(String(u.address).endsWith(String(u.city))).toBe(true);
+      expect(u.country).toBe("Việt Nam");
+    }
+    for (const o of data.orders) expect(String(o.shipped_at) >= String(o.ordered_at)).toBe(true);
+  });
+});
+
+describe("Vietnamese catalog data", () => {
+  const SQL = "CREATE TABLE category (id INT PRIMARY KEY, name TEXT NOT NULL, slug TEXT NOT NULL);\nCREATE TABLE product (id INT PRIMARY KEY, name TEXT NOT NULL, slug TEXT NOT NULL);";
+  const data = mint({ schema: parseSchema(SQL, "sql"), rows: 60, seed: 5, locale: "vi" });
+
+  it("uses Vietnamese names and a slug built from the name", () => {
+    for (const t of ["category", "product"] as const)
+      for (const r of data[t]) {
+        expect(String(r.name)).toMatch(/[ạảãàáâấầẩẫậăắằẳẵặẹẻẽèéêếềểễệịỉĩìíọỏõòóôốồổỗộơớờởỡợụủũùúưứừửữựỳỷỹýđ]|^[A-ZĐ][a-z]+$/i);
+        expect(String(r.slug)).toMatch(/^[a-z0-9]+(-[a-z0-9]+)*$/);
+      }
+    expect(data.product[0].slug).toBe(String(data.product[0].name).normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/đ/gi, "d").toLowerCase().replace(/[^a-z0-9]+/g, "-"));
+    expect(new Set(data.category.map((r) => r.slug)).size).toBe(data.category.length);
+  });
+});
+
+describe("review text", () => {
+  const SQL = "CREATE TABLE review (id INT PRIMARY KEY, rating INT NOT NULL, comment TEXT NOT NULL);";
+  const NEGATIVE = /không giống|chậm|kém|sơ sài|thất vọng|không mua lại|hơi cao/;
+
+  it("follows the star rating and never repeats a sentence", () => {
+    const rows = mint({ schema: parseSchema(SQL, "sql"), rows: 80, seed: 11, locale: "vi" }).review;
+    for (const r of rows) {
+      expect(Number.isInteger(r.rating) && (r.rating as number) >= 1 && (r.rating as number) <= 5).toBe(true);
+      const parts = String(r.comment).split(/(?<=\.)\s+/);
+      expect(new Set(parts).size).toBe(parts.length);
+      if ((r.rating as number) >= 4) expect(String(r.comment)).not.toMatch(NEGATIVE);
+      if ((r.rating as number) <= 2) expect(String(r.comment)).toMatch(NEGATIVE);
+    }
+  });
+});

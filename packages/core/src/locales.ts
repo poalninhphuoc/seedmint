@@ -30,7 +30,20 @@ export interface Custom {
   stage?: (f: Faker) => string;
   lat?: (f: Faker) => number;
   lng?: (f: Faker) => number;
+  /** Given name, family name and "family middle given" order of the locale (Vietnamese puts the family name first). */
+  firstName?: (f: Faker) => string;
+  lastName?: (f: Faker) => string;
+  fullName?: (f: Faker) => string;
+  productName?: (f: Faker) => string;
+  categoryName?: (f: Faker) => string;
+  /** Review text that agrees with its star rating (1-5), or with no rating when `null`. */
+  review?: (f: Faker, rating: number | null) => string;
 }
+
+/** Name of the locale's own country, written in its language. */
+export const COUNTRY: Record<string, string> = {
+  en: "United States", vi: "Việt Nam", ja: "日本", ko: "대한민국", zh: "中国", th: "ประเทศไทย", id: "Indonesia", fr: "France", de: "Deutschland", es: "España",
+};
 
 const DEFS: Record<string, { def: LocaleDefinition; currency: string; money: [number, number, number] }> = {
   en: { def: en, currency: "USD", money: [1, 999, 0.01] },
@@ -54,6 +67,40 @@ const VI_PROVINCES = ["Hà Nội", "TP. Hồ Chí Minh", "Đà Nẵng", "Hải P
 const VI_DISTRICTS = ["Quận 1", "Quận 3", "Quận 7", "Bình Thạnh", "Tân Bình", "Cầu Giấy", "Đống Đa", "Hai Bà Trưng", "Thanh Xuân", "Hải Châu", "Ngô Quyền", "Ninh Kiều"];
 const VI_WARDS = ["Phường Bến Nghé", "Phường Tân Định", "Phường 5", "Phường 12", "Phường Dịch Vọng", "Phường Láng Hạ", "Phường Thạch Thang", "Xã Tân Phú", "Phường Mỹ An"];
 const VI_STREETS = ["Nguyễn Huệ", "Lê Lợi", "Trần Hưng Đạo", "Hai Bà Trưng", "Lý Thường Kiệt", "Nguyễn Trãi", "Điện Biên Phủ", "Phạm Văn Đồng", "Võ Văn Tần", "Cách Mạng Tháng Tám", "Lạc Long Quân", "Hoàng Diệu"];
+const VI_FAMILY = ["Nguyễn", "Nguyễn", "Nguyễn", "Trần", "Trần", "Lê", "Phạm", "Hoàng", "Huỳnh", "Phan", "Vũ", "Võ", "Đặng", "Bùi", "Đỗ", "Hồ", "Ngô", "Dương", "Lý"];
+const VI_MID_M = ["Văn", "Hữu", "Đức", "Minh", "Quang", "Thanh", "Công", "Mạnh", "Gia", "Anh"];
+const VI_MID_F = ["Thị", "Ngọc", "Thu", "Mai", "Khánh", "Phương", "Bảo", "Hồng", "Kim", "Diệu"];
+const VI_GIVEN_M = ["Anh", "Bình", "Cường", "Dũng", "Hải", "Hùng", "Khoa", "Long", "Nam", "Phúc", "Quân", "Sơn", "Thắng", "Tuấn", "Việt", "Huy", "Đạt", "Hiếu", "Khang", "Nghĩa", "Trung", "Lộc"];
+const VI_GIVEN_F = ["An", "Chi", "Dung", "Hà", "Hạnh", "Hoa", "Hương", "Lan", "Linh", "My", "Ngân", "Nhi", "Oanh", "Phương", "Thảo", "Trang", "Trinh", "Uyên", "Vy", "Yến", "Hằng", "Thủy", "Quỳnh"];
+const viGiven = (f: Faker) => (f.datatype.boolean() ? pick(f, VI_GIVEN_M) : pick(f, VI_GIVEN_F));
+const viFull = (f: Faker) => {
+  const male = f.datatype.boolean();
+  return `${pick(f, VI_FAMILY)} ${pick(f, male ? VI_MID_M : VI_MID_F)} ${pick(f, male ? VI_GIVEN_M : VI_GIVEN_F)}`;
+};
+
+const VI_CATEGORIES = ["Điện thoại", "Máy tính", "Thời trang nam", "Thời trang nữ", "Giày dép", "Đồng hồ", "Phụ kiện", "Mỹ phẩm", "Sức khỏe", "Nhà cửa & đời sống", "Thực phẩm", "Đồ uống", "Sách", "Đồ chơi", "Thể thao", "Mẹ & bé", "Thú cưng", "Điện gia dụng", "Văn phòng phẩm", "Xe cộ"];
+const VI_PRODUCTS = ["Áo thun", "Áo sơ mi", "Quần jean", "Giày thể thao", "Túi xách", "Đồng hồ", "Tai nghe", "Bàn phím cơ", "Chuột không dây", "Balo laptop", "Bình giữ nhiệt", "Nồi chiên không dầu", "Máy xay sinh tố", "Sữa rửa mặt", "Kem chống nắng", "Son môi", "Ghế công thái học", "Đèn bàn", "Ốp lưng điện thoại", "Sạc dự phòng", "Cà phê rang xay", "Trà thảo mộc", "Dầu gội", "Sách kỹ năng"];
+const VI_PRODUCT_MODS = ["cao cấp", "chính hãng", "phiên bản mới", "loại 1", "nhập khẩu", "dành cho nam", "dành cho nữ", "màu đen", "màu trắng", "bản giới hạn", "siêu bền", "tiết kiệm"];
+
+const REVIEW_VI = {
+  pos: ["Sản phẩm đúng như mô tả, chất lượng rất tốt.", "Giao hàng nhanh, đóng gói cẩn thận.", "Mình rất hài lòng, sẽ ủng hộ shop lần sau.", "Giá hợp lý so với chất lượng.", "Dùng vài tuần rồi vẫn rất bền.", "Nhân viên tư vấn nhiệt tình, dễ thương.", "Màu sắc đẹp, form chuẩn, dùng rất vừa.", "Chất lượng vượt mong đợi, đáng tiền.", "Đã mua lần thứ hai và vẫn rất ưng.", "Shop phản hồi nhanh, hỗ trợ tận tình."],
+  neu: ["Dùng tạm ổn, đúng với tầm giá.", "Giao hàng hơi chậm nhưng hàng vẫn ổn.", "Chất lượng ở mức trung bình.", "Nhìn chung bình thường, chưa có gì nổi bật.", "Đóng gói ổn, sản phẩm khá giống mô tả.", "Mình cần dùng thêm thời gian để đánh giá."],
+  neg: ["Sản phẩm không giống mô tả.", "Giao hàng chậm hơn dự kiến nhiều ngày.", "Chất lượng kém, dùng vài ngày đã hỏng.", "Đóng gói sơ sài, hộp bị móp.", "Shop phản hồi chậm, hỗ trợ chưa nhiệt tình.", "Giá hơi cao so với chất lượng.", "Màu sắc khác xa so với hình, hơi thất vọng.", "Mình sẽ không mua lại."],
+};
+const REVIEW_EN = {
+  pos: ["Exactly as described and great quality.", "Fast delivery and careful packaging.", "Very happy with it, I will order again.", "Good value for the price.", "Still working perfectly after a few weeks.", "Support was friendly and quick to answer."],
+  neu: ["Does the job, about what you expect for the price.", "Delivery was a bit slow but the item is fine.", "Average quality, nothing special.", "Packaging was fine and it matches the description."],
+  neg: ["Not as described.", "Arrived much later than promised.", "Poor quality, it broke after a few days.", "Packaging was sloppy and the box was dented.", "Support was slow to respond.", "Overpriced for what you get."],
+};
+/** One to three sentences whose tone follows the star rating, never the same sentence twice. */
+const reviewFrom = (pools: typeof REVIEW_VI) => (f: Faker, rating: number | null): string => {
+  const take = (arr: string[], n: number) => f.helpers.arrayElements(arr, n);
+  if (rating === null) return take([...pools.pos, ...pools.neu, ...pools.neg], 2).join(" ");
+  if (rating >= 4) return [...take(pools.pos, f.number.int({ min: 1, max: 3 }))].join(" ");
+  if (rating <= 2) return [...take(pools.neg, f.number.int({ min: 1, max: 2 }))].join(" ");
+  return [...take(pools.neu, 1), ...take(f.datatype.boolean() ? pools.pos : pools.neg, 1)].join(" ");
+};
+
 const VI_SENTENCES = [
   "Sản phẩm chất lượng tốt, giao hàng nhanh và đóng gói cẩn thận.",
   "Giao diện dễ dùng, mình làm quen chỉ sau vài phút.",
@@ -70,6 +117,12 @@ const VI_PROJECTS = ["Chung cư Sunrise Riverside", "Nhà máy Bình Dương 2",
 
 const CUSTOM: Record<string, Custom> = {
   vi: {
+    firstName: viGiven,
+    lastName: (f) => pick(f, VI_FAMILY),
+    fullName: viFull,
+    review: reviewFrom(REVIEW_VI),
+    categoryName: (f) => pick(f, VI_CATEGORIES),
+    productName: (f) => `${pick(f, VI_PRODUCTS)} ${pick(f, VI_PRODUCT_MODS)}`,
     word: (f) => pick(f, VI_WORDS),
     status: (f) => pick(f, ["Đang xử lý", "Hoàn thành", "Chờ duyệt", "Tạm dừng", "Đã hủy"]),
     stage: (f) => pick(f, ["Khảo sát", "Thiết kế", "Đang thi công", "Nghiệm thu", "Bảo hành"]),
@@ -92,6 +145,7 @@ const CUSTOM: Record<string, Custom> = {
     sentence: (f) => pick(f, VI_SENTENCES),
     paragraph: (f) => f.helpers.multiple(() => pick(f, VI_SENTENCES), { count: { min: 2, max: 4 } }).join(" "),
   },
+  en: { review: reviewFrom(REVIEW_EN) },
   ja: { zip: (f) => `${digits(f, 3)}-${digits(f, 4)}` },
   ko: { zip: (f) => digits(f, 5) },
 };

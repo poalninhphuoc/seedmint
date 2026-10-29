@@ -25,14 +25,16 @@ export function parseSql(src: string): Schema {
     const { inner } = readBalanced(code, re.lastIndex - 1);
     const fields: Field[] = [];
     const pk = new Set<string>();
-    const fks: { col: string; table: string; field: string }[] = [];
+    const fks: { col: string; table: string; field: string; group?: string }[] = [];
 
     for (const entry of splitTop(inner)) {
       const upper = entry.toUpperCase();
       const pkm = entry.match(/primary\s+key\s*\(([^)]*)\)/i);
       const fkm = entry.match(/foreign\s+key\s*\(([^)]*)\)\s*references\s+([\w."`\[\]]+)\s*\(([^)]*)\)/i);
       if (fkm) {
-        fks.push({ col: cols(fkm[1])[0], table: lastIdent(fkm[2]), field: cols(fkm[3])[0] });
+        const own = cols(fkm[1]), target = cols(fkm[3]);
+        const group = own.length > 1 ? `${lastIdent(m[1])}:${own.join(",")}` : undefined;
+        own.forEach((col, i) => fks.push({ col, table: lastIdent(fkm[2]), field: target[i] ?? target[0], group }));
         continue;
       }
       if (pkm && /^(CONSTRAINT|PRIMARY)/.test(upper)) {
@@ -65,9 +67,11 @@ export function parseSql(src: string): Schema {
         f.optional = false;
       }
       const fk = fks.find((x) => x.col === f.name);
-      if (fk) f.ref = { table: fk.table, field: fk.field };
+      if (fk) f.ref = fk.group ? { table: fk.table, field: fk.field, group: fk.group } : { table: fk.table, field: fk.field };
     }
-    tables.push({ name: lastIdent(m[1]), fields });
+    const parts = m[1].split(".");
+    const group = parts.length > 1 ? unquote(parts[parts.length - 2]) : undefined;
+    tables.push(group ? { name: lastIdent(m[1]), group, fields } : { name: lastIdent(m[1]), fields });
   }
   return { tables };
 }

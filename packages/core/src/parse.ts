@@ -46,7 +46,7 @@ export function finalize(schema: Schema): Schema {
       if (f.ref) {
         const target = schema.tables.find((x) => norm(x.name) === norm(f.ref!.table));
         if (!target) f.ref = undefined;
-        else f.ref = { table: target.name, field: f.ref.field || pkOf(target.name)?.name || "id" };
+        else f.ref = { ...f.ref, table: target.name, field: f.ref.field || pkOf(target.name)?.name || "id" };
         continue;
       }
       if (f.primary) continue;

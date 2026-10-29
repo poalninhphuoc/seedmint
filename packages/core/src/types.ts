@@ -15,7 +15,8 @@ export interface Field {
   optional?: boolean;
   primary?: boolean;
   enumValues?: string[];
-  ref?: { table: string; field: string };
+  /** `group` is shared by the columns of one composite foreign key, in column order. */
+  ref?: { table: string; field: string; group?: string };
   /** Semantic hint from the source, e.g. "email" from z.string().email(). */
   hint?: string;
   /** Trailing `// ...` comment from the source, used as an extra hint (e.g. "YYYY-MM-DD"). */
@@ -24,6 +25,8 @@ export interface Field {
 
 export interface Table {
   name: string;
+  /** Database schema or module the table belongs to (`billing.invoice`, Prisma `@@schema`, DBML `schema.table`). */
+  group?: string;
   fields: Field[];
 }
 

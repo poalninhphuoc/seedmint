@@ -143,9 +143,15 @@ function renderSql(data: Dataset, schema: Schema | undefined, d: SqlDialect, ddl
       const cols = t.fields.map((f) => `  ${q(f.name)} ${sqlType(d, f)}${f.optional || f.primary ? "" : " NOT NULL"}`);
       const pk = t.fields.filter((f) => f.primary).map((f) => q(f.name));
       if (pk.length) cols.push(`  PRIMARY KEY (${pk.join(", ")})`);
-      for (const f of t.fields)
-        if (f.ref && names.includes(f.ref.table) && f.ref.table !== t.name)
-          cols.push(`  FOREIGN KEY (${q(f.name)}) REFERENCES ${q(f.ref.table)} (${q(f.ref.field)})`);
+      const done = new Set<string>();
+      for (const f of t.fields) {
+        if (!f.ref || !names.includes(f.ref.table) || f.ref.table === t.name) continue;
+        const key = f.ref.group;
+        if (key && done.has(key)) continue;
+        const same = key ? t.fields.filter((x) => x.ref?.group === key) : [f];
+        if (key) done.add(key);
+        cols.push(`  FOREIGN KEY (${same.map((x) => q(x.name)).join(", ")}) REFERENCES ${q(f.ref.table)} (${same.map((x) => q(x.ref!.field)).join(", ")})`);
+      }
       const body = `${q(t.name)} (\n${cols.join(",\n")}\n);`;
       parts.push(d === "mssql" ? `IF OBJECT_ID(N'${t.name.replace(/'/g, "''")}', N'U') IS NULL\nCREATE TABLE ${body}` : `CREATE TABLE IF NOT EXISTS ${body}`);
     }

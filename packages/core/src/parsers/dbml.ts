@@ -36,7 +36,9 @@ export function parseDbml(src: string): Schema {
       if (ref) field.ref = { table: ref[1], field: ref[2] };
       fields.push(field);
     }
-    schema.tables.push({ name: m[1].split(".").pop()!, fields });
+    const parts = m[1].split(".");
+    const group = parts.length > 1 ? parts[parts.length - 2] : undefined;
+    schema.tables.push(group ? { name: parts[parts.length - 1], group, fields } : { name: parts[parts.length - 1], fields });
   }
   // Ref: a.x > b.y  (many-to-one from a to b), Ref: a.x < b.y (one-to-many)
   for (const m of code.matchAll(/\bref\b[^:\n{]*:\s*["`]?(\w+)["`]?\.["`]?(\w+)["`]?\s*([<>-])\s*["`]?(\w+)["`]?\.["`]?(\w+)/gi)) {

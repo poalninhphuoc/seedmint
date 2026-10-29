@@ -23,7 +23,7 @@ export function parsePrisma(src: string): Schema {
   for (const m of code.matchAll(/\bmodel\s+(\w+)\s*\{/g)) {
     const { inner } = readBalanced(code, m.index! + m[0].length - 1);
     const fields: Field[] = [];
-    const refs = new Map<string, { table: string; field: string }>();
+    const refs = new Map<string, { table: string; field: string; group?: string }>();
 
     for (const raw of inner.split(/\r?\n/)) {
       const line = raw.trim();
@@ -35,9 +35,10 @@ export function parsePrisma(src: string): Schema {
 
       const rel = attrs.match(/@relation\([^)]*fields:\s*\[([^\]]*)\][^)]*references:\s*\[([^\]]*)\]/);
       if (rel) {
-        const fk = rel[1].split(",")[0].trim();
-        const target = rel[2].split(",")[0].trim();
-        refs.set(fk, { table: type, field: target });
+        const own = rel[1].split(",").map((x) => x.trim()).filter(Boolean);
+        const target = rel[2].split(",").map((x) => x.trim()).filter(Boolean);
+        const group = own.length > 1 ? `${m[1]}:${own.join(",")}` : undefined;
+        own.forEach((fk, i) => refs.set(fk, group ? { table: type, field: target[i] ?? target[0], group } : { table: type, field: target[i] ?? target[0] }));
       }
       if (modelNames.has(type)) continue; // relation field, not a column
       if (list) {
@@ -61,7 +62,8 @@ export function parsePrisma(src: string): Schema {
       const ref = refs.get(f.name);
       if (ref) f.ref = ref;
     }
-    tables.push({ name: m[1], fields });
+    const group = inner.match(/@@schema\(\s*"([^"]+)"\s*\)/)?.[1];
+    tables.push(group ? { name: m[1], group, fields } : { name: m[1], fields });
   }
   return { tables };
 }
