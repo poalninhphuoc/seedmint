@@ -3,8 +3,9 @@
 import { ArrowDown, ArrowUp, ArrowUpDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { PreviewTable } from "@/app/actions";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
@@ -19,13 +20,39 @@ const compare = (a: Cell, b: Cell) => {
   return String(a).localeCompare(String(b), undefined, { numeric: true });
 };
 
-/** Table preview: search, sortable header, and a footer with the record count, page size and pages. */
-export function DataGrid({ table }: { table: PreviewTable }) {
+export interface GridFocus { column: string; value: Cell }
+
+/**
+ * Table preview: search, sortable header, and a footer with the record count, page size and pages.
+ * A foreign-key cell is a link (`onFollow`); `focus` outlines the row a link led to and opens its page.
+ */
+export function DataGrid({ table, focus = null, onFollow, lookup }: {
+  table: PreviewTable;
+  focus?: GridFocus | null;
+  onFollow?: (table: string, column: string, value: Cell) => void;
+  /** The row a foreign key points at, for the hover card. */
+  lookup?: (table: string, column: string, value: Cell) => { columns: string[]; row: Cell[] } | null;
+}) {
   const t = useTranslations("studio");
   const [q, setQ] = useState("");
   const [sort, setSort] = useState<{ col: number; dir: 1 | -1 } | null>(null);
   const [size, setSize] = useState(25);
-  const [page, setPage] = useState(0);
+  const target = useMemo(() => {
+    const col = focus ? table.columns.indexOf(focus.column) : -1;
+    const at = col < 0 ? -1 : table.rows.findIndex((r) => String(r[col]) === String(focus!.value));
+    return at < 0 ? null : { row: table.rows[at], at };
+  }, [focus, table]);
+  const [page, setPage] = useState(() => (target ? Math.floor(target.at / 25) : 0));
+  const hl = useRef<HTMLTableRowElement>(null);
+
+  // Following a link clears search and sorting so the row sits on its natural page.
+  useEffect(() => {
+    if (!target) return;
+    setQ("");
+    setSort(null);
+    setPage(Math.floor(target.at / size));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [target]);
 
   const rows = useMemo(() => {
     const needle = q.trim().toLowerCase();
@@ -38,6 +65,10 @@ export function DataGrid({ table }: { table: PreviewTable }) {
   const current = Math.min(page, pages - 1);
   const slice = rows.slice(current * size, current * size + size);
   const total = q ? rows.length : table.total;
+
+  useEffect(() => {
+    hl.current?.scrollIntoView({ block: "center" });
+  }, [target, current]);
 
   const toggle = (col: number) =>
     setSort((s) => (s?.col !== col ? { col, dir: 1 } : s.dir === 1 ? { col, dir: -1 } : null));
@@ -68,16 +99,36 @@ export function DataGrid({ table }: { table: PreviewTable }) {
             </tr>
           </thead>
           <tbody className="divide-y">
-            {slice.map((r, i) => (
-              <tr key={i} className="hover:bg-muted/50">
-                {r.map((v, j) => (
-                  <td key={j} title={v === null ? undefined : String(v)}
-                    className={cn("max-w-[18rem] truncate whitespace-nowrap px-3 py-2.5 first:pl-4 md:first:pl-6", typeof v === "number" && "text-right tabular-nums")}>
-                    {v === null ? <span className="text-muted-foreground">–</span> : String(v)}
-                  </td>
-                ))}
-              </tr>
-            ))}
+            {slice.map((r, i) => {
+              const on = target?.row === r;
+              return (
+                <tr key={i} ref={on ? hl : undefined} data-focus={on || undefined}
+                  className={cn("hover:bg-muted/50", on && "bg-brand/10 outline-2 -outline-offset-2 outline-brand")}>
+                  {r.map((v, j) => {
+                    const ref = table.refs?.[j];
+                    return (
+                      <td key={j} title={v === null || ref ? undefined : String(v)}
+                        className={cn("max-w-[18rem] truncate whitespace-nowrap px-3 py-2.5 first:pl-4 md:first:pl-6", typeof v === "number" && "text-right tabular-nums")}>
+                        {v === null ? <span className="text-muted-foreground">–</span>
+                          : ref && onFollow ? (
+                            <HoverCard openDelay={150} closeDelay={80}>
+                              <HoverCardTrigger asChild>
+                                <button type="button" onClick={() => onFollow(ref.table, ref.field, v)}
+                                  className="text-brand underline decoration-dotted underline-offset-4 hover:decoration-solid">
+                                  {String(v)}
+                                </button>
+                              </HoverCardTrigger>
+                              <HoverCardContent>
+                                <RefCard title={t("followRef", { table: ref.table })} found={lookup?.(ref.table, ref.field, v) ?? null} empty={t("refMissing")} />
+                              </HoverCardContent>
+                            </HoverCard>
+                          ) : String(v)}
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })}
             {slice.length === 0 && (
               <tr><td colSpan={table.columns.length} className="px-4 py-10 text-center text-muted-foreground">{t("noMatches")}</td></tr>
             )}
@@ -108,6 +159,27 @@ export function DataGrid({ table }: { table: PreviewTable }) {
           <PageButton tip label={t("pagination.last")} disabled={current >= pages - 1} onClick={() => setPage(pages - 1)}><ChevronsRight /></PageButton>
         </nav>
       </div>
+    </div>
+  );
+}
+
+/** Key columns and values of the row a foreign key points at. */
+function RefCard({ title, found, empty }: { title: string; found: { columns: string[]; row: Cell[] } | null; empty: string }) {
+  return (
+    <div className="space-y-2 text-[13px]">
+      <p className="text-xs font-medium text-muted-foreground">{title}</p>
+      {found ? (
+        <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
+          {found.columns.map((c, i) => (
+            <div key={c} className="contents">
+              <dt className="text-muted-foreground">{c}</dt>
+              <dd className="min-w-0 break-words">{found.row[i] === null ? <span className="text-muted-foreground">–</span> : String(found.row[i])}</dd>
+            </div>
+          ))}
+        </dl>
+      ) : (
+        <p className="text-muted-foreground">{empty}</p>
+      )}
     </div>
   );
 }

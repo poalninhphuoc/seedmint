@@ -18,6 +18,7 @@ export interface StudioSettings {
 
 const SCHEMA_KEY = "seedmint:schema";
 const SETTINGS_KEY = "seedmint:studio";
+const VIEW_KEY = "seedmint:view";
 
 const read = (k: string): string | null => {
   try {
@@ -45,5 +46,23 @@ export function loadSettings(): Partial<StudioSettings> {
   }
 }
 export const saveSettings = (s: StudioSettings) => write(SETTINGS_KEY, JSON.stringify(s));
+
+/** What the Studio shows: reloading restores it (the data itself is rebuilt from the schema, settings and seed). */
+export interface StudioView {
+  tab: string;
+  generated: boolean;
+  /** Row the user followed a foreign key to. */
+  focus: { table: string; column: string; value: string | number | boolean } | null;
+}
+
+export function loadView(): StudioView | null {
+  try {
+    const v = JSON.parse(read(VIEW_KEY) ?? "null");
+    return v && typeof v.tab === "string" ? { tab: v.tab, generated: !!v.generated, focus: v.focus ?? null } : null;
+  } catch {
+    return null;
+  }
+}
+export const saveView = (v: StudioView) => write(VIEW_KEY, JSON.stringify(v));
 
 export { SAMPLE_SCHEMA };

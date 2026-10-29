@@ -9,7 +9,9 @@
 - [x] Studio: folder import with file tree, per-table row counts, table preview tabs (search, sort, pagination), history, dark mode, resizable panes
 - [x] Diagram: ER view with coloured edges, click-to-highlight, show/hide, search, zoom, Mermaid and SVG export (see [diagram.md](diagram.md))
 - [x] Diagram: draggable tables, pan, Ctrl/⌘+wheel zoom, join-table and root detection, file/folder import, eleven built-in sample schemas
-- [ ] Diagram: PNG export, composite-key lines, group tables by schema/module
+- [x] Diagram: PNG export
+- [x] Diagram: composite-key lines (SQL and Prisma keep every column; one bracketed line, consistent generated rows)
+- [x] Diagram: group tables by schema/module (SQL `schema.table`, Prisma `@@schema`, DBML `schema.table`; one dashed frame per group)
 
 ## Next
 - [x] JSON-sample and one-line DSL parsers
@@ -30,6 +32,11 @@
 - [x] Schema folders (`prisma/schema/*.prisma`, several Drizzle files) in the Studio and CLI
 - [x] Vietnamese column-name inference (hoVaTen, diaChi, ngayBatDau...), `// YYYY-MM-DD` comment hints, sequential codes, ordered date ranges
 - [ ] Same name inference for other locales (ja, ko, zh, th, id)
+
+- [x] Coherent rows: email from the name, age from the birth date, province from the address, shipped/paid dates after the order date, Vietnamese names family-name first, country of the locale
+- [x] Studio: foreign-key cells are links that open the parent table and outline the row; a reload restores the same table, row and data
+- [x] Review text follows its star rating (vi, en); ratings are whole stars or half stars
+- [ ] Same coherence for gender vs name, status pools per table (order vs user), country-aware city for non-vi locales
 
 ## Later
 - [ ] Image placeholders, scenario dates ("last 30 days")

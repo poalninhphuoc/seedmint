@@ -26,7 +26,7 @@ import {
   DATE_PATTERNS, DECIMALS, DIALECT_LABELS, EXPORT_FORMATS, THOUSANDS, regionExample, type ExportFormat,
 } from "@/lib/formats";
 import { addHistory } from "@/lib/history";
-import { SAMPLE_SCHEMA, loadSchema, loadSettings, saveSchema, saveSettings, type StudioSettings } from "@/lib/studio-state";
+import { SAMPLE_SCHEMA, loadSchema, loadSettings, loadView, saveSchema, saveSettings, saveView, type StudioSettings, type StudioView } from "@/lib/studio-state";
 import type { RegionFormat, SqlDialect } from "@seedmint/core";
 
 const INPUTS = ["ts", "zod", "sql", "dsl", "json", "prisma", "drizzle", "jsonschema", "dbml", "graphql", "openapi", "csv"] as const;
@@ -47,6 +47,9 @@ export function Studio({ locales, regions, initialLocale }: {
   const [imported, setImported] = useState<{ count: number; format: string; skipped: number; files: ImportedFile[] } | null>(null);
   const [importError, setImportError] = useState<string | null>(null);
   const [tab, setTab] = useState("output");
+  const [focus, setFocus] = useState<StudioView["focus"]>(null);
+  const [restore, setRestore] = useState<StudioView | null>(null);
+  const [viewReady, setViewReady] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
   const [busy, start] = useTransition();
   const [exporting, setExporting] = useState(false);
@@ -60,8 +63,30 @@ export function Studio({ locales, regions, initialLocale }: {
     if (saved) setSchema(saved);
     const s = loadSettings();
     if (Object.keys(s).length) setSettings((cur) => ({ ...cur, ...s, region: { ...cur.region, ...s.region } }));
+    // A reload comes back to the same screen: the data is rebuilt from the saved schema, settings and seed.
+    const v = loadView();
+    if (v?.generated) setRestore(v);
+    else setViewReady(true);
     ready.current = true;
   }, []);
+  useEffect(() => {
+    if (!restore) return;
+    const v = restore;
+    setRestore(null);
+    start(async () => {
+      const r = await generate(input(settings.format));
+      setResult(r);
+      if (r.ok && r.preview.some((p) => `t:${p.name}` === v.tab)) {
+        setTab(v.tab);
+        setFocus(v.focus);
+      } else if (r.ok) setTab(r.preview[0] ? `t:${r.preview[0].name}` : "output");
+      setViewReady(true);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [restore]);
+  useEffect(() => {
+    if (viewReady) saveView({ tab, focus, generated: result?.ok === true });
+  }, [viewReady, tab, focus, result]);
   useEffect(() => {
     if (ready.current) saveSchema(schema);
   }, [schema]);
@@ -89,6 +114,7 @@ export function Studio({ locales, regions, initialLocale }: {
       setResult(r);
       if (!r.ok) return;
       setTab(r.preview[0] ? `t:${r.preview[0].name}` : "output");
+      setFocus(null);
       addHistory({
         kind: "generate", now: r.now, settings, schema, tables: r.tables.length,
         rows: r.tables.reduce((n, x) => n + x.rows, 0), files: r.files.map((f) => f.name),
@@ -303,7 +329,13 @@ export function Studio({ locales, regions, initialLocale }: {
 
           {ok.preview.map((p) => (
             <TabsContent key={p.name} value={`t:${p.name}`} className="min-h-0 flex-1 flex-col data-[state=active]:flex">
-              <DataGrid key={p.name} table={p} />
+              <DataGrid key={p.name} table={p} lookup={(table, column, value) => {
+                  const parent = ok.preview.find((x) => x.name === table);
+                  const col = parent ? parent.columns.indexOf(column) : -1;
+                  const row = parent?.rows.find((r) => String(r[col]) === String(value));
+                  return parent && row ? { columns: parent.columns, row } : null;
+                }} focus={focus?.table === p.name ? focus : null}
+                onFollow={(table, column, value) => { setFocus({ table, column, value: value as NonNullable<StudioView["focus"]>["value"] }); setTab(`t:${table}`); }} />
             </TabsContent>
           ))}
         </Tabs>
