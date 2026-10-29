@@ -12,7 +12,8 @@ The **Diagram** page of the Web Studio (`/diagram`) draws a schema as an entity-
   - *Root*: a table that other tables point at but that points at none (orange outline).
   - *Entity*: any other table.
   - *Join*: a table made only of two or more foreign keys plus an optional id, such as `post_tags` (dashed outline).
-- **One line per foreign key.** Parents sit on the left, children on the right. Lines are elbow-shaped with rounded corners, each in its own colour, with `1` at the parent end and `N` at the child end.
+- **One line per foreign key.** Parents sit on the left, children on the right. Lines are elbow-shaped with rounded corners, each in its own colour, with `1` at the parent end and `N` at the child end. A composite key (`FOREIGN KEY (a, b)`, Prisma `fields: [a, b]`) is one line with a bracket over its key rows, labelled `a + b`.
+- **Groups.** When tables come from two or more schemas or modules (SQL `billing.invoice`, Prisma `@@schema("billing")`, DBML `Table billing.invoice`), each group is arranged on its own and drawn inside a dashed, labelled frame that follows its tables when you drag them. A single group, or none, draws no frame.
 - **Relations come from** explicit references (`REFERENCES`, `@relation`, `[ref: > …]`, `.references()`) and from the `*_id` / `*Id` naming convention when no explicit link exists.
 
 ## Working with it
@@ -44,6 +45,7 @@ The same diagram in dark mode, here with the HR sample:
 
 - **Copy Mermaid**: an `erDiagram` block you can paste into GitHub, GitLab, Notion or any Mermaid renderer. Optional foreign keys use `|o`, required ones `||`.
 - **Download SVG**: the current diagram, including dragged positions, as a standalone vector file. It is always exported with a light palette (white boxes, dark text), whatever theme the page is in.
+- **Download PNG**: the same light-palette diagram rasterised at 2x on a white background.
 
 ## Notes for contributors
 

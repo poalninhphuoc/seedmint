@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Copy, Download, Eye, EyeOff, FileUp, FlaskConical, FolderOpen, Maximize, Network, RotateCcw, Search, X, ZoomIn, ZoomOut } from "lucide-react";
+import { Check, Copy, Download, Eye, EyeOff, FileUp, FlaskConical, FolderOpen, ImageDown, Maximize, Network, RotateCcw, Search, X, ZoomIn, ZoomOut } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, useTransition } from "react";
 import { analyze, importFiles, type AnalyzeResult, type ImportedFile } from "@/app/actions";
@@ -187,16 +187,48 @@ export function DiagramView() {
     setImported({ text: ts("imported", { count: r.used.length, format: r.format, skipped: r.skipped }), files: r.files });
   };
 
-  const downloadSvg = () => {
-    if (!svg.current) return;
+  const lightSvg = () => {
+    if (!svg.current) return null;
     const copy = svg.current.cloneNode(true) as SVGSVGElement;
     copy.setAttribute("width", String(layout?.width ?? 0));
     copy.setAttribute("height", String(layout?.height ?? 0));
-    const xml = new XMLSerializer().serializeToString(copy).replace(/var\(--card\)/g, "#ffffff").replace(/var\(--muted\)/g, "#f1f1f3").replace(/currentColor/g, "#18181b");
+    return new XMLSerializer().serializeToString(copy).replace(/var\(--card\)/g, "#ffffff").replace(/var\(--muted\)/g, "#f1f1f3").replace(/currentColor/g, "#18181b");
+  };
+
+  const save = (href: string, name: string) => {
+    Object.assign(document.createElement("a"), { href, download: name }).click();
+  };
+
+  const downloadSvg = () => {
+    const xml = lightSvg();
+    if (!xml) return;
     const url = URL.createObjectURL(new Blob([xml], { type: "image/svg+xml" }));
-    const a = Object.assign(document.createElement("a"), { href: url, download: "diagram.svg" });
-    a.click();
+    save(url, "diagram.svg");
     URL.revokeObjectURL(url);
+  };
+
+  const downloadPng = () => {
+    const xml = lightSvg();
+    if (!xml || !layout) return;
+    const scale = 2;
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = layout.width * scale;
+      canvas.height = layout.height * scale;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob((blob) => {
+        if (!blob) return;
+        const url = URL.createObjectURL(blob);
+        save(url, "diagram.png");
+        URL.revokeObjectURL(url);
+      }, "image/png");
+    };
+    img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(xml)}`;
   };
 
   const copyMermaid = async () => {
@@ -338,6 +370,7 @@ export function DiagramView() {
             <IconButton variant="outline" label={copied ? t("copied") : t("copyMermaid")} onClick={copyMermaid} disabled={!ok}>
               {copied ? <Check /> : <Copy />}
             </IconButton>
+            <IconButton variant="outline" label={t("downloadPng")} onClick={downloadPng} disabled={!ok}><ImageDown /></IconButton>
             <IconButton variant="default" label={t("downloadSvg")} onClick={downloadSvg} disabled={!ok}><Download /></IconButton>
           </>
         }

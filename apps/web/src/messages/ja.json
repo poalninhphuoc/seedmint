@@ -80,6 +80,8 @@
     "perPage": "表示",
     "perPageSuffix": "/ ページ",
     "noMatches": "一致する行がありません。",
+    "followRef": "{table} で開く",
+    "refMissing": "プレビューに該当する行がありません。",
     "previewCap": "プレビューは最初の {count} 行のみ表示します。",
     "exportMenu": "書き出し",
     "exportGroup": {
@@ -129,6 +131,7 @@
     "copyMermaid": "Mermaid をコピー",
     "copied": "コピーしました",
     "downloadSvg": "SVG をダウンロード",
+    "downloadPng": "PNG をダウンロード",
     "legend": {
       "entity": "エンティティ",
       "root": "集約ルート",

@@ -80,6 +80,8 @@
     "perPage": "Hiển thị",
     "perPageSuffix": "/ trang",
     "noMatches": "Không có dòng nào khớp.",
+    "followRef": "Mở dòng này trong bảng {table}",
+    "refMissing": "Không có dòng này trong bản xem trước.",
     "previewCap": "Bản xem trước chỉ hiện {count} dòng đầu.",
     "exportMenu": "Xuất file",
     "exportGroup": {
@@ -129,6 +131,7 @@
     "copyMermaid": "Chép Mermaid",
     "copied": "Đã chép",
     "downloadSvg": "Tải SVG",
+    "downloadPng": "Tải PNG",
     "legend": {
       "entity": "Thực thể",
       "root": "Gốc tổng hợp",

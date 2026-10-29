@@ -80,6 +80,8 @@
     "perPage": "每页显示",
     "perPageSuffix": "条",
     "noMatches": "没有匹配的行。",
+    "followRef": "在 {table} 中打开",
+    "refMissing": "预览中没有对应的行。",
     "previewCap": "预览仅显示前 {count} 行。",
     "exportMenu": "导出",
     "exportGroup": {
@@ -129,6 +131,7 @@
     "copyMermaid": "复制 Mermaid",
     "copied": "已复制",
     "downloadSvg": "下载 SVG",
+    "downloadPng": "下载 PNG",
     "legend": {
       "entity": "实体",
       "root": "聚合根",

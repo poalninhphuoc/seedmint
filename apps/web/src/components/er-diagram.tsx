@@ -24,7 +24,7 @@ export const ErDiagram = forwardRef<SVGSVGElement, Props>(function ErDiagram(
   { tables, labels, layout, scale = 1, selected = null, matches, onSelect, onMove }, ref,
 ) {
   const drag = useRef<{ name: string; id: number; px: number; py: number; x: number; y: number; moved: boolean } | null>(null);
-  const { boxes, edges, width, height } = layout ?? layoutEr(tables);
+  const { boxes, edges, groups, width, height } = layout ?? layoutEr(tables);
 
   // What the selection touches: connected tables and the key columns on both ends of each line.
   const focus = useMemo(() => {
@@ -37,8 +37,8 @@ export const ErDiagram = forwardRef<SVGSVGElement, Props>(function ErDiagram(
       lines.add(i);
       tablesHit.add(e.from);
       tablesHit.add(e.to);
-      rows.add(`${e.from}.${e.fromField}`);
-      rows.add(`${e.to}.${e.toField}`);
+      e.fromFields.forEach((n) => rows.add(`${e.from}.${n}`));
+      e.toFields.forEach((n) => rows.add(`${e.to}.${n}`));
     });
     return { tablesHit, rows, lines };
   }, [selected, edges]);
@@ -55,11 +55,20 @@ export const ErDiagram = forwardRef<SVGSVGElement, Props>(function ErDiagram(
       </defs>
       <rect width={width} height={height} fill="url(#er-dots)" onClick={() => onSelect?.(null)} />
 
+      {groups.map((g) => (
+        <g key={g.name} pointerEvents="none">
+          <rect x={g.x} y={g.y} width={g.w} height={g.h} rx="12" fill={g.color} fillOpacity="0.05" stroke={g.color} strokeOpacity="0.5" strokeWidth="1.5" strokeDasharray="6 5" />
+          <text x={g.x + 14} y={g.y + 18} fontSize="11" letterSpacing="1.4" fontWeight="600" fill={g.color}>{g.name.toUpperCase()}</text>
+        </g>
+      ))}
+
       {ordered.map(({ e, i }) => {
         const on = !focus || focus.lines.has(i);
         return (
           <g key={i} fill="none" style={{ opacity: on ? 1 : 0.07, transition: "opacity .15s" }} pointerEvents="none">
             <path d={e.d} stroke={e.color} strokeWidth={focus && on ? 3 : 2} strokeLinecap="round" strokeLinejoin="round" />
+            {e.pSpan && <path d={`M ${e.p.x} ${e.pSpan[0]} V ${e.pSpan[1]}`} stroke={e.color} strokeWidth="5" strokeLinecap="round" opacity="0.6" />}
+            {e.cSpan && <path d={`M ${e.c.x} ${e.cSpan[0]} V ${e.cSpan[1]}`} stroke={e.color} strokeWidth="5" strokeLinecap="round" opacity="0.6" />}
             <circle cx={e.p.x} cy={e.p.y} r="4" fill={e.color} />
             <circle cx={e.c.x} cy={e.c.y} r="4" fill="var(--card)" stroke={e.color} strokeWidth="2" />
             <g fill="currentColor" fontSize="11" fontWeight="600">
@@ -145,7 +154,7 @@ export const ErDiagram = forwardRef<SVGSVGElement, Props>(function ErDiagram(
 function accentFor(table: string, field: string, edges: Layout["edges"], lines?: Set<number>): string {
   for (const i of lines ?? []) {
     const e = edges[i];
-    if ((e.from === table && e.fromField === field) || (e.to === table && e.toField === field)) return e.color;
+    if ((e.from === table && e.fromFields.includes(field)) || (e.to === table && e.toFields.includes(field))) return e.color;
   }
   return "currentColor";
 }

@@ -80,6 +80,8 @@
     "perPage": "Show",
     "perPageSuffix": "/ page",
     "noMatches": "No matching rows.",
+    "followRef": "Open in {table}",
+    "refMissing": "No matching row in the preview.",
     "previewCap": "Preview shows the first {count} rows.",
     "exportMenu": "Export",
     "exportGroup": {
@@ -129,6 +131,7 @@
     "copyMermaid": "Copy Mermaid",
     "copied": "Copied",
     "downloadSvg": "Download SVG",
+    "downloadPng": "Download PNG",
     "legend": {
       "entity": "Entity",
       "root": "Aggregate root",

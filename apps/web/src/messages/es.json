@@ -80,6 +80,8 @@
     "perPage": "Mostrar",
     "perPageSuffix": "/ página",
     "noMatches": "Ninguna fila coincide.",
+    "followRef": "Abrir en {table}",
+    "refMissing": "No hay una fila coincidente en la vista previa.",
     "previewCap": "La vista previa muestra las primeras {count} filas.",
     "exportMenu": "Exportar",
     "exportGroup": {
@@ -129,6 +131,7 @@
     "copyMermaid": "Copiar Mermaid",
     "copied": "Copiado",
     "downloadSvg": "Descargar SVG",
+    "downloadPng": "Descargar PNG",
     "legend": {
       "entity": "Entidad",
       "root": "Raíz del agregado",

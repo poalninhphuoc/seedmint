@@ -35,6 +35,8 @@ export interface OutputFile { name: string; content: string; binary?: boolean }
 export interface PreviewTable {
   name: string;
   columns: string[];
+  /** Per column: the table and column it points at, or null when it is not a foreign key. */
+  refs: ({ table: string; field: string } | null)[];
   rows: (string | number | boolean | null)[][];
   total: number;
 }
@@ -139,6 +141,7 @@ export async function generate(input: GenerateInput): Promise<GenerateResult> {
         return {
           name: t.name,
           columns: t.fields.map((f) => f.name),
+          refs: t.fields.map((f) => (f.ref && f.ref.table !== t.name ? { table: f.ref.table, field: f.ref.field } : null)),
           rows: rows.slice(0, PREVIEW_ROWS).map((r) => t.fields.map((f) => cell(r[f.name]))),
           total: rows.length,
         };
@@ -154,7 +157,8 @@ export interface AnalyzeResult {
   detected: InputFormat;
   tables: {
     name: string;
-    fields: { name: string; kind: string; primary?: boolean; optional?: boolean; ref?: { table: string; field: string } }[];
+    group?: string;
+    fields: { name: string; kind: string; primary?: boolean; optional?: boolean; ref?: { table: string; field: string; group?: string } }[];
   }[];
 }
 
@@ -170,6 +174,7 @@ export async function analyze(input: { schema: string; from: InputFormat | "auto
       detected,
       tables: schema.tables.map((t) => ({
         name: t.name,
+        group: t.group,
         fields: t.fields.map((f) => ({ name: f.name, kind: f.kind, primary: f.primary, optional: f.optional, ref: f.ref })),
       })),
     };

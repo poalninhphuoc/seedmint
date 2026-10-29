@@ -82,3 +82,58 @@ describe("edges", () => {
     expect(xs.size).toBe(l.edges.length);
   });
 });
+
+describe("composite foreign keys", () => {
+  const composite: ErTable[] = [
+    { name: "product", fields: [{ name: "shop_id", kind: "integer", primary: true }, { name: "sku", kind: "string", primary: true }] },
+    {
+      name: "line",
+      fields: [
+        { name: "id", kind: "integer", primary: true },
+        { name: "shop_id", kind: "integer", ref: { table: "product", field: "shop_id", group: "line:shop_id,sku" } },
+        { name: "sku", kind: "string", ref: { table: "product", field: "sku", group: "line:shop_id,sku" } },
+      ],
+    },
+  ];
+
+  it("draws one line with a bracket over both key rows", () => {
+    const { edges } = layoutEr(composite);
+    expect(edges).toHaveLength(1);
+    expect(edges[0].toFields).toEqual(["shop_id", "sku"]);
+    expect(edges[0].fromFields).toEqual(["shop_id", "sku"]);
+    expect(edges[0].label).toBe("shop_id + sku");
+    expect(edges[0].pSpan![0]).toBeLessThan(edges[0].pSpan![1]);
+    expect(edges[0].cSpan![0]).toBeLessThan(edges[0].cSpan![1]);
+  });
+
+  it("emits one Mermaid relation for the key", () => {
+    expect(toMermaid(composite).match(/o\{ line/g)).toHaveLength(1);
+  });
+});
+
+describe("schema / module groups", () => {
+  const grouped: ErTable[] = [
+    { name: "user", group: "auth", fields: [{ name: "id", kind: "integer", primary: true }] },
+    { name: "session", group: "auth", fields: [{ name: "id", kind: "integer", primary: true }, { name: "user_id", kind: "integer", ref: { table: "user", field: "id" } }] },
+    { name: "invoice", group: "billing", fields: [{ name: "id", kind: "integer", primary: true }, { name: "user_id", kind: "integer", ref: { table: "user", field: "id" } }] },
+    { name: "payment", group: "billing", fields: [{ name: "id", kind: "integer", primary: true }, { name: "invoice_id", kind: "integer", ref: { table: "invoice", field: "id" } }] },
+  ];
+
+  it("stacks one framed cluster per group without overlap", () => {
+    const { groups, boxes } = layoutEr(grouped);
+    expect(groups.map((g) => g.name).sort()).toEqual(["auth", "billing"]);
+    const [a, b] = [...groups].sort((p, q) => p.y - q.y);
+    expect(a.y + a.h).toBeLessThan(b.y);
+    for (const g of groups)
+      for (const box of boxes.filter((x) => x.table.group === g.name)) {
+        expect(box.x).toBeGreaterThan(g.x);
+        expect(box.y + box.h).toBeLessThan(g.y + g.h);
+      }
+    expect(layoutEr(grouped).edges).toHaveLength(3);
+  });
+
+  it("draws no frames for a single group or none", () => {
+    expect(layoutEr(grouped.map((t) => ({ ...t, group: "app" }))).groups).toEqual([]);
+    expect(layoutEr(grouped.map(({ group: _g, ...t }) => t)).groups).toEqual([]);
+  });
+});
