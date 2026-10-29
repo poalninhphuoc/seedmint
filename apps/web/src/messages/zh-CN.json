@@ -98,7 +98,22 @@
       "previous": "上一页",
       "next": "下一页",
       "last": "最后一页"
-    }
+    },
+    "advanced": "高级",
+    "advancedHint": "区域格式、边界情况",
+    "autoRun": "自动更新",
+    "autoRunHint": "修改 schema 或设置后自动重新生成数据",
+    "updating": "更新中…",
+    "upToDate": "已是最新",
+    "shuffleSeed": "随机种子并重新生成",
+    "dropHere": "将文件拖到此处",
+    "applyAll": "全部设为 {rows} 行",
+    "share": "分享链接",
+    "linkCopied": "链接已复制",
+    "linkTooLong": "Schema 太长，无法生成链接。请改为导出文件。",
+    "editedCells": "已修改 {count} 个单元格",
+    "undoEdits": "撤销",
+    "editHint": "双击单元格进行编辑"
   },
   "localesPage": {
     "title": "语言区域",
@@ -152,7 +167,12 @@
     "zoomOut": "缩小",
     "zoomIn": "放大",
     "fit": "适应屏幕",
-    "resetLayout": "重置布局"
+    "resetLayout": "重置布局",
+    "useForData": "生成数据",
+    "export": "导出",
+    "openHint": "双击表格可在 Studio 中打开",
+    "shortcuts": "快捷键：F 适应窗口，0 恢复 100%，+ / - 缩放",
+    "minimap": "缩略图"
   },
   "historyPage": {
     "title": "历史记录",
@@ -231,6 +251,7 @@
     "noSchemaFiles": "所选内容中没有找到 schema 文件。",
     "generateFailed": "无法生成数据。",
     "readFailed": "无法读取 schema。",
-    "folderFailed": "无法读取文件夹。"
+    "folderFailed": "无法读取文件夹。",
+    "parseFailed": "无法解析 schema：{detail}"
   }
 }

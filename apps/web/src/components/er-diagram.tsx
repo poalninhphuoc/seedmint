@@ -18,10 +18,12 @@ interface Props {
   onSelect?: (name: string | null) => void;
   /** Called while a table is dragged, with its new top-left corner in diagram units. */
   onMove?: (name: string, x: number, y: number) => void;
+  /** Double click on a table. */
+  onOpen?: (name: string) => void;
 }
 
 export const ErDiagram = forwardRef<SVGSVGElement, Props>(function ErDiagram(
-  { tables, labels, layout, scale = 1, selected = null, matches, onSelect, onMove }, ref,
+  { tables, labels, layout, scale = 1, selected = null, matches, onSelect, onMove, onOpen }, ref,
 ) {
   const drag = useRef<{ name: string; id: number; px: number; py: number; x: number; y: number; moved: boolean } | null>(null);
   const { boxes, edges, groups, width, height } = layout ?? layoutEr(tables);
@@ -115,6 +117,7 @@ export const ErDiagram = forwardRef<SVGSVGElement, Props>(function ErDiagram(
               // keep `moved` for the click that follows, then clear it
               setTimeout(() => { if (drag.current === d) drag.current = null; });
             }}
+            onDoubleClick={(ev) => { ev.stopPropagation(); onOpen?.(b.table.name); }}
             onClick={(ev) => {
               ev.stopPropagation();
               if (drag.current?.moved) return;

@@ -98,7 +98,22 @@
       "previous": "Trang trước",
       "next": "Trang sau",
       "last": "Trang cuối"
-    }
+    },
+    "advanced": "Nâng cao",
+    "advancedHint": "khu vực, ca biên",
+    "autoRun": "Tự cập nhật",
+    "autoRunHint": "Tự tạo lại dữ liệu khi bạn đổi schema hoặc cài đặt",
+    "updating": "Đang cập nhật…",
+    "upToDate": "Mới nhất",
+    "shuffleSeed": "Seed ngẫu nhiên và tạo lại",
+    "dropHere": "Thả file vào đây",
+    "applyAll": "Đặt tất cả = {rows} dòng",
+    "share": "Chia sẻ link",
+    "linkCopied": "Đã chép link",
+    "linkTooLong": "Schema quá dài để chia sẻ qua link. Hãy xuất file.",
+    "editedCells": "{count} ô đã sửa",
+    "undoEdits": "Hoàn tác",
+    "editHint": "Bấm đúp vào ô để sửa"
   },
   "localesPage": {
     "title": "Ngôn ngữ dữ liệu",
@@ -152,7 +167,12 @@
     "zoomOut": "Thu nhỏ",
     "zoomIn": "Phóng to",
     "fit": "Vừa màn hình",
-    "resetLayout": "Đặt lại bố cục"
+    "resetLayout": "Đặt lại bố cục",
+    "useForData": "Tạo dữ liệu",
+    "export": "Xuất",
+    "openHint": "Bấm đúp vào bảng để mở trong Studio",
+    "shortcuts": "Phím tắt: F vừa màn hình, 0 về 100%, + / - thu phóng",
+    "minimap": "Bản đồ thu nhỏ"
   },
   "historyPage": {
     "title": "Lịch sử",
@@ -231,6 +251,7 @@
     "noSchemaFiles": "Không tìm thấy file schema nào trong lựa chọn này.",
     "generateFailed": "Không thể tạo dữ liệu.",
     "readFailed": "Không đọc được schema.",
-    "folderFailed": "Không đọc được thư mục."
+    "folderFailed": "Không đọc được thư mục.",
+    "parseFailed": "Không phân tích được schema: {detail}"
   }
 }

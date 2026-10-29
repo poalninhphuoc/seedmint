@@ -27,6 +27,26 @@ export interface GenerateInput {
   now?: string;
   /** Pack several files into one zip (used by one-click exports). */
   bundle?: boolean;
+  /** Hand-edited cells: table → row number in the generated data → column → value. Applied before formatting and export. */
+  edits?: CellEdits;
+}
+
+export type CellEdits = Record<string, Record<string, Record<string, string | number | boolean | null>>>;
+
+/** Writes the edits into the generated rows. Unknown tables, rows and columns are ignored. */
+function applyEdits(data: Record<string, Record<string, unknown>[]>, edits: CellEdits | undefined) {
+  for (const [table, byRow] of Object.entries(edits ?? {})) {
+    const rows = Object.hasOwn(data, table) ? data[table] : undefined;
+    if (!rows || !byRow || typeof byRow !== "object") continue;
+    for (const [i, cols] of Object.entries(byRow)) {
+      const row = /^\d+$/.test(i) ? rows[Number(i)] : undefined;
+      if (!row || !cols || typeof cols !== "object") continue;
+      for (const [col, v] of Object.entries(cols)) {
+        if (!Object.hasOwn(row, col)) continue;
+        if (v === null || ["string", "number", "boolean"].includes(typeof v)) row[col] = v;
+      }
+    }
+  }
 }
 
 /** Text files carry their content; binary files (xlsx) carry base64. */
@@ -110,6 +130,7 @@ function build(input: GenerateInput) {
   for (const [k, v] of Object.entries(input.tableRows ?? {})) rows[k] = clampRows(v);
   const now = /^\d{4}-\d{2}-\d{2}$/.test(input.now ?? "") ? input.now! : new Date().toISOString().slice(0, 10);
   const data = mint({ schema, locale: input.locale, rows, seed, edgeCases: input.edgeCases, now: new Date(now) });
+  applyEdits(data, input.edits);
   return { detected, schema, seed, data, now };
 }
 

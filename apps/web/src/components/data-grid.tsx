@@ -20,14 +20,20 @@ const compare = (a: Cell, b: Cell) => {
   return String(a).localeCompare(String(b), undefined, { numeric: true });
 };
 
+/** Hand edits of one table: row number in the generated data → column → value. */
+export type TableEdits = Record<string, Record<string, Cell>>;
+
 export interface GridFocus { column: string; value: Cell }
 
 /**
  * Table preview: search, sortable header, and a footer with the record count, page size and pages.
  * A foreign-key cell is a link (`onFollow`); `focus` outlines the row a link led to and opens its page.
  */
-export function DataGrid({ table, focus = null, onFollow, lookup }: {
+export function DataGrid({ table, focus = null, onFollow, lookup, edits, onEdit }: {
   table: PreviewTable;
+  edits?: TableEdits;
+  /** Called when a cell is changed by hand; `row` is its number in the generated data. */
+  onEdit?: (row: number, column: string, text: string, current: Cell) => void;
   focus?: GridFocus | null;
   onFollow?: (table: string, column: string, value: Cell) => void;
   /** The row a foreign key points at, for the hover card. */
@@ -44,6 +50,25 @@ export function DataGrid({ table, focus = null, onFollow, lookup }: {
   }, [focus, table]);
   const [page, setPage] = useState(() => (target ? Math.floor(target.at / 25) : 0));
   const hl = useRef<HTMLTableRowElement>(null);
+  const [editing, setEditing] = useState<{ row: number; col: number } | null>(null);
+  const [draft, setDraft] = useState("");
+  // A ref too: Enter, Escape and the blur that follows them must not commit twice or commit a cancelled edit.
+  const live = useRef<{ row: number; col: number } | null>(null);
+  const begin = (row: number, col: number, v: Cell) => {
+    if (!onEdit || row < 0) return;
+    live.current = { row, col };
+    setEditing({ row, col });
+    setDraft(v === null ? "" : String(v));
+  };
+  const commit = (v: Cell) => {
+    const at = live.current;
+    if (!at || !onEdit) return;
+    const next = draft;
+    const { row, col } = at;
+    live.current = null;
+    setEditing(null);
+    if (next !== (v === null ? "" : String(v))) onEdit(row, table.columns[col], next, v);
+  };
 
   // Following a link clears search and sorting so the row sits on its natural page.
   useEffect(() => {
@@ -82,6 +107,7 @@ export function DataGrid({ table, focus = null, onFollow, lookup }: {
           <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input value={q} onChange={(e) => { setQ(e.target.value); setPage(0); }} placeholder={t("search")} aria-label={t("search")} className="bg-card pl-9" />
         </div>
+        {onEdit && <span className="hidden text-xs text-muted-foreground md:inline">{t("editHint")}</span>}
       </div>
 
       <div className="max-h-[70svh] min-h-0 flex-1 overflow-auto lg:max-h-none">
@@ -101,15 +127,27 @@ export function DataGrid({ table, focus = null, onFollow, lookup }: {
           <tbody className="divide-y">
             {slice.map((r, i) => {
               const on = target?.row === r;
+              const at = onEdit ? table.rows.indexOf(r) : -1;
               return (
                 <tr key={i} ref={on ? hl : undefined} data-focus={on || undefined}
                   className={cn("hover:bg-muted/50", on && "bg-brand/10 outline-2 -outline-offset-2 outline-brand")}>
                   {r.map((v, j) => {
                     const ref = table.refs?.[j];
+                    const changed = at >= 0 && edits?.[at] && Object.hasOwn(edits[at], table.columns[j]);
+                    const isEditing = editing?.row === at && editing.col === j && at >= 0;
                     return (
-                      <td key={j} title={v === null || ref ? undefined : String(v)}
-                        className={cn("max-w-[18rem] truncate whitespace-nowrap px-3 py-2.5 first:pl-4 md:first:pl-6", typeof v === "number" && "text-right tabular-nums")}>
-                        {v === null ? <span className="text-muted-foreground">–</span>
+                      <td key={j} title={v === null || ref ? undefined : String(v)} onDoubleClick={() => begin(at, j, v)}
+                        className={cn("max-w-[18rem] truncate whitespace-nowrap px-3 py-2.5 first:pl-4 md:first:pl-6", typeof v === "number" && "text-right tabular-nums",
+                          changed && "bg-amber-500/10 shadow-[inset_3px_0_0_var(--color-amber-500)]", isEditing && "p-1")}>
+                        {isEditing ? (
+                          <input autoFocus value={draft} aria-label={table.columns[j]} onChange={(e) => setDraft(e.target.value)} onFocus={(e) => e.currentTarget.select()}
+                            onBlur={() => commit(v)}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") commit(v);
+                              else if (e.key === "Escape") { live.current = null; setEditing(null); }
+                            }}
+                            className="w-full min-w-24 rounded border border-brand bg-card px-2 py-1.5 text-[13px] outline-none" />
+                        ) : v === null ? <span className="text-muted-foreground">–</span>
                           : ref && onFollow ? (
                             <HoverCard openDelay={150} closeDelay={80}>
                               <HoverCardTrigger asChild>

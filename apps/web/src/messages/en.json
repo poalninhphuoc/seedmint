@@ -98,7 +98,22 @@
       "previous": "Previous page",
       "next": "Next page",
       "last": "Last page"
-    }
+    },
+    "advanced": "Advanced",
+    "advancedHint": "regional, edge cases",
+    "autoRun": "Auto update",
+    "autoRunHint": "Rebuild the data when the schema or a setting changes",
+    "updating": "Updating…",
+    "upToDate": "Up to date",
+    "shuffleSeed": "Random seed and regenerate",
+    "dropHere": "Drop files here",
+    "applyAll": "Set all to {rows} rows",
+    "share": "Share link",
+    "linkCopied": "Link copied",
+    "linkTooLong": "Schema is too long for a link. Export a file instead.",
+    "editedCells": "{count} cells edited",
+    "undoEdits": "Undo",
+    "editHint": "Double-click a cell to edit"
   },
   "localesPage": {
     "title": "Locales",
@@ -152,7 +167,12 @@
     "zoomOut": "Zoom out",
     "zoomIn": "Zoom in",
     "fit": "Fit to screen",
-    "resetLayout": "Reset layout"
+    "resetLayout": "Reset layout",
+    "useForData": "Generate data",
+    "export": "Export",
+    "openHint": "Double-click a table to open it in Studio",
+    "shortcuts": "Shortcuts: F fit, 0 reset to 100%, + / - zoom",
+    "minimap": "Minimap"
   },
   "historyPage": {
     "title": "History",
@@ -231,6 +251,7 @@
     "noSchemaFiles": "No schema files found in this selection.",
     "generateFailed": "Could not generate data.",
     "readFailed": "Could not read the schema.",
-    "folderFailed": "Could not read the folder."
+    "folderFailed": "Could not read the folder.",
+    "parseFailed": "Could not parse the schema: {detail}"
   }
 }

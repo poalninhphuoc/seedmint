@@ -98,7 +98,22 @@
       "previous": "Página anterior",
       "next": "Página siguiente",
       "last": "Última página"
-    }
+    },
+    "advanced": "Avanzado",
+    "advancedHint": "regional, casos límite",
+    "autoRun": "Actualizar solo",
+    "autoRunHint": "Regenera los datos al cambiar el esquema o un ajuste",
+    "updating": "Actualizando…",
+    "upToDate": "Al día",
+    "shuffleSeed": "Semilla aleatoria y regenerar",
+    "dropHere": "Suelta los archivos aquí",
+    "applyAll": "Poner todas en {rows} filas",
+    "share": "Compartir enlace",
+    "linkCopied": "Enlace copiado",
+    "linkTooLong": "El esquema es demasiado largo para un enlace. Exporta un archivo.",
+    "editedCells": "{count} celdas editadas",
+    "undoEdits": "Deshacer",
+    "editHint": "Doble clic en una celda para editar"
   },
   "localesPage": {
     "title": "Idiomas de datos",
@@ -152,7 +167,12 @@
     "zoomOut": "Alejar",
     "zoomIn": "Acercar",
     "fit": "Ajustar a la pantalla",
-    "resetLayout": "Restablecer diseño"
+    "resetLayout": "Restablecer diseño",
+    "useForData": "Generar datos",
+    "export": "Exportar",
+    "openHint": "Doble clic en una tabla para abrirla en Studio",
+    "shortcuts": "Atajos: F ajustar, 0 volver al 100 %, + / - zoom",
+    "minimap": "Minimapa"
   },
   "historyPage": {
     "title": "Historial",
@@ -231,6 +251,7 @@
     "noSchemaFiles": "No se encontraron archivos de esquema en la selección.",
     "generateFailed": "No se pudieron generar los datos.",
     "readFailed": "No se pudo leer el esquema.",
-    "folderFailed": "No se pudo leer la carpeta."
+    "folderFailed": "No se pudo leer la carpeta.",
+    "parseFailed": "No se pudo analizar el esquema: {detail}"
   }
 }

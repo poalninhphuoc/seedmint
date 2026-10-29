@@ -9,8 +9,11 @@ describe("errorKey", () => {
     expect(errorKey("No tables found in sql input.")).toEqual({ key: "noTables", values: { format: "sql" } });
     expect(errorKey("Could not detect the input format. Use --from ts|zod")?.key).toBe("detectFailed");
   });
+  it("keeps the parser's own wording as detail", () => {
+    expect(errorKey("Unexpected token } in JSON")).toEqual({ key: "parseFailed", values: { detail: "Unexpected token } in JSON" } });
+  });
   it("leaves unknown messages alone", () => {
-    expect(errorKey("Unexpected token } in JSON")).toBeNull();
+    expect(errorKey("Something else broke")).toBeNull();
   });
   it("matches what the real actions return", async () => {
     const empty = await analyze({ schema: " ", from: "auto" });

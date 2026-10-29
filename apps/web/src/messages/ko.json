@@ -98,7 +98,22 @@
       "previous": "이전 페이지",
       "next": "다음 페이지",
       "last": "마지막 페이지"
-    }
+    },
+    "advanced": "고급",
+    "advancedHint": "지역 형식, 엣지 케이스",
+    "autoRun": "자동 업데이트",
+    "autoRunHint": "스키마나 설정이 바뀌면 데이터를 다시 만듭니다",
+    "updating": "업데이트 중…",
+    "upToDate": "최신",
+    "shuffleSeed": "랜덤 시드로 다시 생성",
+    "dropHere": "여기에 파일을 놓으세요",
+    "applyAll": "모두 {rows}행으로 설정",
+    "share": "링크 공유",
+    "linkCopied": "링크를 복사했습니다",
+    "linkTooLong": "스키마가 너무 길어 링크로 만들 수 없습니다. 파일로 내보내세요.",
+    "editedCells": "{count}개 셀 수정됨",
+    "undoEdits": "되돌리기",
+    "editHint": "셀을 더블클릭하여 편집"
   },
   "localesPage": {
     "title": "로케일",
@@ -152,7 +167,12 @@
     "zoomOut": "축소",
     "zoomIn": "확대",
     "fit": "화면에 맞춤",
-    "resetLayout": "레이아웃 초기화"
+    "resetLayout": "레이아웃 초기화",
+    "useForData": "데이터 생성",
+    "export": "내보내기",
+    "openHint": "테이블을 두 번 클릭하면 Studio에서 엽니다",
+    "shortcuts": "단축키: F 화면에 맞춤, 0 100%, + / - 확대/축소",
+    "minimap": "미니맵"
   },
   "historyPage": {
     "title": "기록",
@@ -231,6 +251,7 @@
     "noSchemaFiles": "선택한 항목에서 스키마 파일을 찾을 수 없습니다.",
     "generateFailed": "데이터를 생성하지 못했습니다.",
     "readFailed": "스키마를 읽지 못했습니다.",
-    "folderFailed": "폴더를 읽지 못했습니다."
+    "folderFailed": "폴더를 읽지 못했습니다.",
+    "parseFailed": "스키마를 분석할 수 없습니다: {detail}"
   }
 }

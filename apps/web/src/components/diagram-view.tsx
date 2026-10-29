@@ -1,14 +1,19 @@
 "use client";
 
-import { Check, Copy, Download, Eye, EyeOff, FileUp, FlaskConical, FolderOpen, ImageDown, Maximize, Network, RotateCcw, Search, X, ZoomIn, ZoomOut } from "lucide-react";
+import { Check, ChevronDown, ChevronRight, Copy, Download, Eye, EyeOff, FileUp, FlaskConical, FolderOpen, ImageDown, Maximize, Network, RotateCcw, Search, WandSparkles, X, ZoomIn, ZoomOut } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, useTransition } from "react";
 import { analyze, importFiles, type AnalyzeResult, type ImportedFile } from "@/app/actions";
+import { DropZone } from "@/components/drop-zone";
 import { ErDiagram } from "@/components/er-diagram";
 import { FileTree } from "@/components/file-tree";
 import { PageHeader } from "@/components/page-header";
 import { SplitView } from "@/components/split-view";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useRouter } from "@/i18n/navigation";
+import { saveView } from "@/lib/studio-state";
 import { useErrorText } from "@/hooks/use-error-text";
 import { IconButton } from "@/components/icon-button";
 import { Input } from "@/components/ui/input";
@@ -23,6 +28,8 @@ export function DiagramView() {
   const t = useTranslations("diagramPage");
   const ts = useTranslations("studio");
   const errorText = useErrorText();
+  const router = useRouter();
+  const [showSchema, setShowSchema] = useState(true);
   const folder = useRef<HTMLInputElement>(null);
   const fileInput = useRef<HTMLInputElement>(null);
   const [imported, setImported] = useState<{ text: string; files: ImportedFile[] } | null>(null);
@@ -38,6 +45,7 @@ export function DiagramView() {
   const [selected, setSelected] = useState<string | null>(null);
   const [hidden, setHidden] = useState<ReadonlySet<string>>(new Set());
   const [query, setQuery] = useState("");
+  const [port, setPort] = useState({ left: 0, top: 0, w: 0, h: 0 });
 
   useEffect(() => {
     const saved = loadSchema();
@@ -158,6 +166,23 @@ export function DiagramView() {
       el.removeEventListener("click", onClick, true);
     };
   }, [hasCanvas]);
+  // Shortcuts: F fits the diagram, 0 resets to 100%, + and - zoom. Ignored while typing.
+  const keys = useRef<(k: string) => void>(() => {});
+  keys.current = (k) => {
+    if (k === "f") fit();
+    else if (k === "0") setZoom(1);
+    else if (k === "+" || k === "=") setZoom((z) => Math.min(2, +(z + 0.15).toFixed(2)));
+    else if (k === "-") setZoom((z) => Math.max(0.15, +(z - 0.15).toFixed(2)));
+  };
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const el = e.target as HTMLElement;
+      if (e.metaKey || e.ctrlKey || e.altKey || el.closest("input, textarea, select, [contenteditable]")) return;
+      keys.current(e.key.toLowerCase());
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
   useLayoutEffect(() => {
     const a = anchor.current;
     if (!a || !view.current) return;
@@ -165,6 +190,20 @@ export function DiagramView() {
     view.current.scrollLeft = a.px * zoom - a.x;
     view.current.scrollTop = a.py * zoom - a.y;
   }, [zoom]);
+
+  // Track what part of the canvas is on screen, for the minimap.
+  useEffect(() => {
+    const el = view.current;
+    if (!el) return;
+    let raf = 0;
+    const read = () => { raf = 0; setPort({ left: el.scrollLeft, top: el.scrollTop, w: el.clientWidth, h: el.clientHeight }); };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(read); };
+    read();
+    el.addEventListener("scroll", onScroll);
+    const ro = new ResizeObserver(onScroll);
+    ro.observe(el);
+    return () => { el.removeEventListener("scroll", onScroll); ro.disconnect(); if (raf) cancelAnimationFrame(raf); };
+  }, [hasCanvas, zoom]);
 
   const fit = () => {
     if (!layout) return;
@@ -193,6 +232,13 @@ export function DiagramView() {
     copy.setAttribute("width", String(layout?.width ?? 0));
     copy.setAttribute("height", String(layout?.height ?? 0));
     return new XMLSerializer().serializeToString(copy).replace(/var\(--card\)/g, "#ffffff").replace(/var\(--muted\)/g, "#f1f1f3").replace(/currentColor/g, "#18181b");
+  };
+
+  // The schema is already stored for the Studio; ask it to build data and open on this table.
+  const openInStudio = (table?: string) => {
+    saveSchema(schema);
+    saveView({ tab: table ? `t:${table}` : "output", focus: null, generated: true });
+    router.push("/");
   };
 
   const save = (href: string, name: string) => {
@@ -245,7 +291,10 @@ export function DiagramView() {
   const left = (
         <section className="space-y-3 p-4 md:p-6">
           <div className="flex items-center justify-between gap-2">
-            <h2 className="font-semibold">{t("inputTitle")}</h2>
+            <button type="button" onClick={() => setShowSchema((v) => !v)} aria-expanded={showSchema} className="flex items-center gap-1 font-semibold">
+              {showSchema ? <ChevronDown className="size-4 text-muted-foreground" /> : <ChevronRight className="size-4 text-muted-foreground" />}
+              {t("inputTitle")}
+            </button>
             <div className="flex gap-2">
               <IconButton variant="outline" label={ts("importFile")} onClick={() => fileInput.current?.click()}><FileUp /></IconButton>
               <IconButton variant="outline" label={ts("importFolder")} onClick={() => folder.current?.click()}><FolderOpen /></IconButton>
@@ -263,8 +312,12 @@ export function DiagramView() {
             </div>
           )}
           {importError && <p role="alert" className="text-sm text-destructive">{errorText(importError)}</p>}
-          <Textarea value={schema} onChange={(e) => { setSchema(e.target.value); setImported(null); }} spellCheck={false} aria-label={t("inputTitle")}
-            className="max-h-72 min-h-40 bg-card font-mono text-[13px] leading-relaxed" />
+          {showSchema && (
+            <DropZone onFiles={pickFolder}>
+            <Textarea value={schema} onChange={(e) => { setSchema(e.target.value); setImported(null); }} spellCheck={false} aria-label={t("inputTitle")}
+              className="max-h-72 min-h-40 bg-card font-mono text-[13px] leading-relaxed" />
+            </DropZone>
+          )}
 
           {ok && ok.tables.length > 0 && (
             <div className="space-y-2 pt-3">
@@ -294,7 +347,7 @@ export function DiagramView() {
     <section className="relative flex h-full min-h-[24rem] min-w-0 flex-col">
       {ok && layout && ok.tables.length > 0 ? (
         <div ref={view} className="min-h-0 flex-1 cursor-grab touch-pan-x touch-pan-y select-none overflow-auto bg-card pt-12 pb-10">
-          <ErDiagram ref={svg} tables={visible} layout={layout} scale={zoom} selected={selected} matches={matches} onSelect={setSelected} onMove={(name, x, y) => setMoved((m) => ({ ...m, [name]: { x, y } }))}
+          <ErDiagram ref={svg} tables={visible} layout={layout} scale={zoom} selected={selected} matches={matches} onSelect={setSelected} onMove={(name, x, y) => setMoved((m) => ({ ...m, [name]: { x, y } }))} onOpen={openInStudio}
             labels={{ entity: t("legend.entity"), root: t("legend.root"), join: t("legend.join") }} />
         </div>
       ) : (
@@ -335,6 +388,11 @@ export function DiagramView() {
         </div>
       )}
 
+      {layout && port.w > 0 && (layout.width * zoom > port.w + 4 || layout.height * zoom > port.h + 4) && (
+        <Minimap layout={layout} zoom={zoom} port={port} label={t("minimap")}
+          onGo={(x, y) => view.current?.scrollTo({ left: x * zoom - port.w / 2, top: y * zoom - port.h / 2 })} />
+      )}
+
       {selected && (
         <div className="absolute bottom-2 right-2 flex max-w-[calc(100%-1rem)] items-center gap-2 rounded-md border bg-card/95 py-0.5 pl-3 pr-1 text-sm shadow-sm backdrop-blur">
           <span className="flex min-w-0 items-center gap-2">
@@ -347,7 +405,7 @@ export function DiagramView() {
       )}
 
       {ok && layout && (
-        <ul className="pointer-events-none absolute bottom-2 left-2 flex max-w-[calc(100%-1rem)] flex-wrap gap-x-3 gap-y-1 rounded-md border bg-card/90 px-2 py-1 text-[11px] text-muted-foreground shadow-sm backdrop-blur" title={t("legend.hint")}>
+        <ul className="pointer-events-none absolute bottom-2 left-2 flex max-w-[calc(100%-1rem)] flex-wrap gap-x-3 gap-y-1 rounded-md border bg-card/90 px-2 py-1 text-[11px] text-muted-foreground shadow-sm backdrop-blur" title={`${t("legend.hint")}. ${t("openHint")}. ${t("shortcuts")}`}>
           <li className="flex items-center gap-1"><span className="size-2.5 rounded-[3px] border" style={{ borderColor: "hsl(14 75% 52%)", background: "hsl(14 80% 55% / 0.15)" }} />{t("legend.root")}</li>
           <li className="flex items-center gap-1"><span className="size-2.5 rounded-[3px] border border-foreground" />{t("legend.entity")}</li>
           <li className="flex items-center gap-1"><span className="size-2.5 rounded-[3px] border border-dashed border-foreground" />{t("legend.join")}</li>
@@ -367,15 +425,46 @@ export function DiagramView() {
         subtitle={t("subtitle")}
         actions={
           <>
-            <IconButton variant="outline" label={copied ? t("copied") : t("copyMermaid")} onClick={copyMermaid} disabled={!ok}>
-              {copied ? <Check /> : <Copy />}
-            </IconButton>
-            <IconButton variant="outline" label={t("downloadPng")} onClick={downloadPng} disabled={!ok}><ImageDown /></IconButton>
-            <IconButton variant="default" label={t("downloadSvg")} onClick={downloadSvg} disabled={!ok}><Download /></IconButton>
+            <Button onClick={() => openInStudio()} disabled={!ok || ok.tables.length === 0}>
+              <WandSparkles />{t("useForData")}
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" disabled={!ok}><Download />{t("export")}<ChevronDown className="size-3.5 opacity-60" /></Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onSelect={downloadPng}><ImageDown />{t("downloadPng")}</DropdownMenuItem>
+                <DropdownMenuItem onSelect={downloadSvg}><Download />{t("downloadSvg")}</DropdownMenuItem>
+                <DropdownMenuItem onSelect={copyMermaid}>{copied ? <Check /> : <Copy />}{copied ? t("copied") : t("copyMermaid")}</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </>
         }
       />
       <SplitView id="diagram" defaultLeft={30} left={left} right={right} />
     </>
+  );
+}
+
+const MAP_W = 150;
+
+/** Whole diagram in miniature; the frame is what is on screen. Click or drag to move there. */
+function Minimap({ layout, zoom, port, label, onGo }: {
+  layout: NonNullable<ReturnType<typeof layoutEr>>; zoom: number; port: { left: number; top: number; w: number; h: number }; label: string; onGo: (x: number, y: number) => void;
+}) {
+  const k = MAP_W / layout.width;
+  const h = Math.max(24, Math.min(110, layout.height * k));
+  const go = (e: React.PointerEvent<SVGSVGElement>) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    onGo(((e.clientX - r.left) / r.width) * layout.width, ((e.clientY - r.top) / r.height) * layout.height);
+  };
+  return (
+    <svg role="img" aria-label={label} viewBox={`0 0 ${layout.width} ${layout.height}`} width={MAP_W} height={h} preserveAspectRatio="xMinYMin meet"
+      className="absolute right-2 top-16 cursor-pointer touch-none rounded-md border bg-card/90 shadow-sm backdrop-blur"
+      onPointerDown={(e) => { e.currentTarget.setPointerCapture(e.pointerId); go(e); }}
+      onPointerMove={(e) => { if (e.buttons) go(e); }}>
+      {layout.boxes.map((b, i) => <rect key={`${i}:${b.table.name}`} x={b.x} y={b.y} width={b.w} height={b.h} rx="6" fill={colorOf(b.table.name)} opacity="0.7" />)}
+      <rect x={port.left / zoom} y={port.top / zoom} width={port.w / zoom} height={port.h / zoom} fill="var(--brand)" fillOpacity="0.1" stroke="var(--brand)" strokeWidth={Math.max(2, 2 / k / 2)} />
+    </svg>
   );
 }

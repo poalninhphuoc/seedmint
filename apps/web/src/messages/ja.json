@@ -98,7 +98,22 @@
       "previous": "前のページ",
       "next": "次のページ",
       "last": "最後のページ"
-    }
+    },
+    "advanced": "詳細設定",
+    "advancedHint": "地域形式、エッジケース",
+    "autoRun": "自動更新",
+    "autoRunHint": "スキーマや設定を変更すると自動で再生成します",
+    "updating": "更新中…",
+    "upToDate": "最新",
+    "shuffleSeed": "シードをランダムにして再生成",
+    "dropHere": "ここにファイルをドロップ",
+    "applyAll": "すべて {rows} 行にする",
+    "share": "共有リンク",
+    "linkCopied": "リンクをコピーしました",
+    "linkTooLong": "スキーマが長すぎてリンクにできません。ファイルで書き出してください。",
+    "editedCells": "{count} セルを編集済み",
+    "undoEdits": "元に戻す",
+    "editHint": "セルをダブルクリックして編集"
   },
   "localesPage": {
     "title": "ロケール",
@@ -152,7 +167,12 @@
     "zoomOut": "縮小",
     "zoomIn": "拡大",
     "fit": "画面に合わせる",
-    "resetLayout": "レイアウトをリセット"
+    "resetLayout": "レイアウトをリセット",
+    "useForData": "データを生成",
+    "export": "エクスポート",
+    "openHint": "テーブルをダブルクリックで Studio に開く",
+    "shortcuts": "ショートカット：F 全体表示、0 100%、+ / - ズーム",
+    "minimap": "ミニマップ"
   },
   "historyPage": {
     "title": "履歴",
@@ -231,6 +251,7 @@
     "noSchemaFiles": "選択した内容にスキーマファイルが見つかりません。",
     "generateFailed": "データを生成できませんでした。",
     "readFailed": "スキーマを読み込めませんでした。",
-    "folderFailed": "フォルダを読み込めませんでした。"
+    "folderFailed": "フォルダを読み込めませんでした。",
+    "parseFailed": "スキーマを解析できません：{detail}"
   }
 }

@@ -29,6 +29,20 @@ describe("generate", () => {
     expect(user.rows[0][0]).toBe(1);
   });
 
+  it("applies hand edits to the preview and to the exported file, and ignores unknown targets", async () => {
+    const edits = { User: { "1": { name: "Nguyễn Văn Test", balance: 1234.5, nope: "x" } }, Ghost: { "0": { a: 1 } }, __proto__: { "0": { a: 1 } } };
+    const plain = await generate(base);
+    const r = await generate({ ...base, edits });
+    if (!r.ok || !plain.ok) throw new Error("failed");
+    const user = r.preview.find((p) => p.name === "User")!;
+    expect(user.rows[1][user.columns.indexOf("name")]).toBe("Nguyễn Văn Test");
+    expect(user.columns).not.toContain("nope");
+    // the other rows are untouched, and the export carries the edit
+    expect(user.rows[0]).toEqual(plain.preview.find((p) => p.name === "User")!.rows[0]);
+    expect(r.files.map((f) => f.content).join("")).toContain("Nguyễn Văn Test");
+    expect(plain.files.map((f) => f.content).join("")).not.toContain("Nguyễn Văn Test");
+  });
+
   it("is reproducible for the same reference day", async () => {
     const a = await generate(base), b = await generate(base);
     expect(JSON.stringify(a)).toBe(JSON.stringify(b));

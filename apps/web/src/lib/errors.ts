@@ -9,12 +9,13 @@ const PATTERNS: [RegExp, string][] = [
   [/^Could not generate data/, "generateFailed"],
   [/^Could not read the schema/, "readFailed"],
   [/^Could not read the folder/, "folderFailed"],
+  [/JSON|^Unexpected |^Expected |position \d+/, "parseFailed"],
 ];
 
 export function errorKey(message: string): { key: string; values: Record<string, string> } | null {
   for (const [re, key] of PATTERNS) {
     const m = message.match(re);
-    if (m) return { key, values: { format: m[1] ?? "" } };
+    if (m) return { key, values: key === "parseFailed" ? { detail: message } : { format: m[1] ?? "" } };
   }
   return null;
 }
