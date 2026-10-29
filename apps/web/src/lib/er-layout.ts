@@ -216,6 +216,31 @@ export function withOffsets(base: Layout, moved: Readonly<Record<string, { x: nu
   return { boxes, edges: routeEdges(boxes), groups: frames(boxes), width: Math.max(base.width, right), height: Math.max(base.height, bottom) };
 }
 
+const overlaps = (a: Box, b: Box, pad: number) =>
+  a.x < b.x + b.w + pad && b.x < a.x + a.w + pad && a.y < b.y + b.h + pad && b.y < a.y + a.h + pad;
+
+/**
+ * Hand-placed tables keep absolute positions, so they can end up on top of a neighbour: after the base layout shifts
+ * (a table hidden or shown, the schema edited) or when one is dropped on another. This moves each hand-placed table
+ * straight down to the first free spot; tables of the automatic layout never move. `last` is settled after the rest.
+ */
+export function settleMoved(base: Layout, moved: Readonly<Record<string, { x: number; y: number }>>, last?: string): Record<string, { x: number; y: number }> {
+  const names = Object.keys(moved).filter((n) => base.boxes.some((b) => b.table.name === n));
+  if (last && names.includes(last)) names.push(...names.splice(names.indexOf(last), 1));
+  const boxes = base.boxes.map((b) => ({ ...b, ...(moved[b.table.name] ?? {}) }));
+  const out: Record<string, { x: number; y: number }> = {};
+  for (const n of names) {
+    const b = boxes.find((x) => x.table.name === n)!;
+    for (let guard = 0; guard < boxes.length * 4; guard++) {
+      const hit = boxes.filter((o) => o !== b && overlaps(b, o, GAP_Y / 2)).sort((p, q) => q.y + q.h - (p.y + p.h))[0];
+      if (!hit) break;
+      b.y = hit.y + hit.h + GAP_Y;
+    }
+    out[n] = { x: b.x, y: b.y };
+  }
+  return out;
+}
+
 const MERMAID_TYPE: Record<string, string> = {
   string: "string", integer: "int", number: "float", boolean: "boolean", date: "date", datetime: "datetime",
   uuid: "string", json: "json", enum: "string",

@@ -1,9 +1,11 @@
 "use client";
 
-import { Check, ChevronDown, ChevronRight, Copy, Download, Eye, EyeOff, FileUp, FlaskConical, FolderOpen, ImageDown, Maximize, Network, RotateCcw, Search, WandSparkles, X, ZoomIn, ZoomOut } from "lucide-react";
+import { Check, ChevronDown, ChevronRight, Copy, Download, Eye, EyeOff, FilePlus2, FileUp, FlaskConical, FolderOpen, ImageDown, Maximize, Network, RotateCcw, Save, Search, TableProperties, WandSparkles, X, ZoomIn, ZoomOut } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, useTransition } from "react";
-import { analyze, importFiles, type AnalyzeResult, type ImportedFile } from "@/app/actions";
+import { useUrlState } from "@/lib/url-state";
+import { analyze, generate, importFiles, type AnalyzeResult, type ImportedFile, type PreviewTable } from "@/app/actions";
+import { DataGrid } from "@/components/data-grid";
 import { DropZone } from "@/components/drop-zone";
 import { ErDiagram } from "@/components/er-diagram";
 import { FileTree } from "@/components/file-tree";
@@ -13,13 +15,16 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useRouter } from "@/i18n/navigation";
-import { saveView } from "@/lib/studio-state";
+import { fullSettings, saveView } from "@/lib/studio-state";
+import { addVersion } from "@/lib/history";
 import { useErrorText } from "@/hooks/use-error-text";
 import { IconButton } from "@/components/icon-button";
 import { Input } from "@/components/ui/input";
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 import { folderInputProps, readFolder } from "@/lib/folder";
-import { colorOf, layoutEr, toMermaid, withOffsets } from "@/lib/er-layout";
+import { colorOf, layoutEr, settleMoved, toMermaid, withOffsets } from "@/lib/er-layout";
 import { loadSchema, saveSchema } from "@/lib/schema-store";
 import { SampleMenu } from "@/components/sample-menu";
 import { SAMPLE_SCHEMA } from "@/lib/sample";
@@ -39,38 +44,73 @@ export function DiagramView() {
   const [schema, setSchema] = useState(SAMPLE_SCHEMA);
   const [result, setResult] = useState<AnalyzeResult | { ok: false; error: string } | null>(null);
   const [copied, setCopied] = useState(false);
+  const [savedAt, setSavedAt] = useState(false);
   const [, start] = useTransition();
   const svg = useRef<SVGSVGElement>(null);
-  const ready = useRef(false);
-  const [selected, setSelected] = useState<string | null>(null);
+  // Flips once the saved schema is in state; saving before that would overwrite it with the sample.
+  const [loaded, setLoaded] = useState(false);
+  const url = useUrlState();
+  // The selected table and the search text live in the URL: reload or Back comes back to the same view.
+  const selected = url.params.get("table");
+  const setSelected = (n: string | null) => url.set({ table: n });
   const [hidden, setHidden] = useState<ReadonlySet<string>>(new Set());
-  const [query, setQuery] = useState("");
+  const query = url.params.get("q") ?? "";
+  const setQuery = (q: string) => url.set({ q }, "replace");
+  const [editing, setEditing] = useState(false);
+  const [preview, setPreview] = useState<string | null>(null);
+  const [data, setData] = useState<PreviewTable[] | null>(null);
+  const [dataError, setDataError] = useState<string | null>(null);
   const [port, setPort] = useState({ left: 0, top: 0, w: 0, h: 0 });
 
   useEffect(() => {
     const saved = loadSchema();
     if (saved) setSchema(saved);
-    ready.current = true;
+    setLoaded(true);
   }, []);
 
   useEffect(() => {
-    if (!ready.current) return;
-    saveSchema(schema);
-  }, [schema]);
+    if (loaded) saveSchema(schema);
+  }, [schema, loaded]);
 
   // Re-read the schema shortly after typing stops.
   useEffect(() => {
-    const id = setTimeout(() => start(async () => setResult(await analyze({ schema, from: "auto" }))), 350);
+    const id = setTimeout(() => start(async () => setResult(schema.trim() ? await analyze({ schema, from: "auto" }) : null)), 350);
     return () => clearTimeout(id);
   }, [schema]);
 
   useEffect(() => setMoved({}), [schema]);
+
+  // Sample rows for the table whose icon was clicked; rebuilt shortly after the schema changes.
+  useEffect(() => {
+    if (!preview) return;
+    let stale = false;
+    const id = setTimeout(async () => {
+      const r = await generate({
+        schema, from: "auto", locale: "en", rows: 25, seed: 42, format: "json", edgeCases: false, dialect: "postgres", ddl: false,
+        regional: false, region: { date: "yyyy-MM-dd", decimal: ".", thousands: "," },
+      });
+      if (stale) return;
+      setDataError(r.ok ? null : r.error);
+      setData(r.ok ? r.preview : null);
+    }, 350);
+    return () => { stale = true; clearTimeout(id); };
+  }, [preview, schema]);
+  const shown = preview && data ? data.find((x) => x.name === preview) ?? null : null;
 
   const ok = result?.ok ? result : null;
   const visible = useMemo(() => (ok ? ok.tables.filter((x) => !hidden.has(x.name)) : []), [ok, hidden]);
   const [moved, setMoved] = useState<Readonly<Record<string, { x: number; y: number }>>>({});
   const auto = useMemo(() => (visible.length ? layoutEr(visible) : null), [visible]);
   const layout = useMemo(() => (auto ? withOffsets(auto, moved) : null), [auto, moved]);
+  // Hiding or showing a table, or editing the schema, shifts the automatic layout under the tables placed by hand: move them clear of their neighbours.
+  useEffect(() => {
+    if (!auto) return;
+    setMoved((m) => {
+      if (!Object.keys(m).length) return m;
+      const next = settleMoved(auto, m);
+      return Object.keys(m).every((n) => !next[n] || (next[n].x === m[n].x && next[n].y === m[n].y)) ? m : { ...m, ...next };
+    });
+  }, [auto]);
   const links = layout?.edges.length ?? 0;
 
   const needle = query.trim().toLowerCase();
@@ -212,7 +252,7 @@ export function DiagramView() {
   };
   // Fit the whole diagram into view whenever the set of tables changes.
   const shape = auto ? `${auto.boxes.length}:${auto.width}` : "";
-  useEffect(() => { if (selected && hidden.has(selected)) setSelected(null); }, [hidden, selected]);
+  useEffect(() => { if (selected && hidden.has(selected)) url.set({ table: null }, "replace"); }, [hidden, selected]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(fit, [shape]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const pickFolder = async (files: FileList | null) => {
@@ -229,9 +269,33 @@ export function DiagramView() {
   const lightSvg = () => {
     if (!svg.current) return null;
     const copy = svg.current.cloneNode(true) as SVGSVGElement;
+    copy.querySelectorAll("[data-no-drag]").forEach((n) => n.remove());
     copy.setAttribute("width", String(layout?.width ?? 0));
     copy.setAttribute("height", String(layout?.height ?? 0));
     return new XMLSerializer().serializeToString(copy).replace(/var\(--card\)/g, "#ffffff").replace(/var\(--muted\)/g, "#f1f1f3").replace(/currentColor/g, "#18181b");
+  };
+
+  /** Files the current schema under its project in the history (Lịch sử). */
+  const saveProject = () => {
+    if (!ok?.tables.length) return;
+    addVersion({
+      kind: "save", now: new Date().toISOString(), settings: fullSettings(), schema, tables: ok.tables.map((x) => x.name),
+      rows: 0, files: [], data: null,
+    });
+    setSavedAt(true);
+    setTimeout(() => setSavedAt(false), 2000);
+  };
+
+  /** Empties the schema box and the diagram, to start a new project. Saved projects stay in the history. */
+  const newProject = () => {
+    if (schema.trim() && !confirm(ts("newProjectConfirm"))) return;
+    setSchema("");
+    setImported(null);
+    setImportError(null);
+    setResult(null);
+    setHidden(new Set());
+    setMoved({});
+    url.set({ table: null, q: null }, "replace");
   };
 
   // The schema is already stored for the Studio; ask it to build data and open on this table.
@@ -314,8 +378,12 @@ export function DiagramView() {
           {importError && <p role="alert" className="text-sm text-destructive">{errorText(importError)}</p>}
           {showSchema && (
             <DropZone onFiles={pickFolder}>
-            <Textarea value={schema} onChange={(e) => { setSchema(e.target.value); setImported(null); }} spellCheck={false} aria-label={t("inputTitle")}
-              className="max-h-72 min-h-40 bg-card font-mono text-[13px] leading-relaxed" />
+            <div className="relative h-24">
+              <Textarea value={schema} onChange={(e) => { setSchema(e.target.value); setImported(null); }} spellCheck={false} aria-label={t("inputTitle")}
+                onFocus={() => setEditing(true)} onBlur={() => setEditing(false)}
+                className={cn("absolute inset-x-0 top-0 field-sizing-fixed min-h-0 resize-none bg-card font-mono text-[13px] leading-relaxed transition-[height,box-shadow] duration-200",
+                  editing ? "z-20 h-[min(34rem,70vh)] shadow-xl" : "h-24 overflow-hidden")} />
+            </div>
             </DropZone>
           )}
 
@@ -343,12 +411,13 @@ export function DiagramView() {
           )}
         </section>
   );
-  const right = (
+  const canvas = (
     <section className="relative flex h-full min-h-[24rem] min-w-0 flex-col">
       {ok && layout && ok.tables.length > 0 ? (
         <div ref={view} className="min-h-0 flex-1 cursor-grab touch-pan-x touch-pan-y select-none overflow-auto bg-card pt-12 pb-10">
-          <ErDiagram ref={svg} tables={visible} layout={layout} scale={zoom} selected={selected} matches={matches} onSelect={setSelected} onMove={(name, x, y) => setMoved((m) => ({ ...m, [name]: { x, y } }))} onOpen={openInStudio}
-            labels={{ entity: t("legend.entity"), root: t("legend.root"), join: t("legend.join") }} />
+          <ErDiagram ref={svg} tables={visible} layout={layout} scale={zoom} selected={selected} matches={matches} onSelect={setSelected} onMove={(name, x, y) => setMoved((m) => ({ ...m, [name]: { x, y } }))} onMoveEnd={(name) => auto && setMoved((m) => settleMoved(auto, m, name))} onOpen={openInStudio}
+            onPreview={(name) => setPreview((p) => (p === name ? null : name))} previewing={preview} needle={needle}
+            labels={{ entity: t("legend.entity"), root: t("legend.root"), join: t("legend.join"), preview: t("previewData") }} />
         </div>
       ) : (
         <div className="flex flex-1 items-center justify-center p-6 text-center text-sm text-muted-foreground">
@@ -417,6 +486,37 @@ export function DiagramView() {
     </section>
   );
 
+  // The data of one table slides up under the diagram; the divider between them can be dragged.
+  const right = (
+    <ResizablePanelGroup orientation="vertical" id="diagram-right" className="h-[70vh] lg:h-full">
+      <ResizablePanel id="diagram-canvas" minSize="25%" className="overflow-hidden">{canvas}</ResizablePanel>
+      {preview && (
+        <>
+          <ResizableHandle withHandle />
+          <ResizablePanel id="diagram-data" defaultSize="40%" minSize="15%" maxSize="75%" className="overflow-hidden">
+            <section className="flex h-full min-h-0 flex-col bg-background">
+              <div className="flex items-center gap-2 border-b px-3 py-1.5 text-sm">
+                <TableProperties className="size-4 text-muted-foreground" />
+                <span className="size-2.5 shrink-0 rounded-full" style={{ background: colorOf(preview) }} />
+                <b className="truncate">{preview}</b>
+                <span className="text-muted-foreground">{t("sampleData")}</span>
+                <span className="ml-auto flex items-center gap-1">
+                  <Button variant="ghost" size="sm" onClick={() => openInStudio(preview)}><WandSparkles />{t("openStudio")}</Button>
+                  <IconButton variant="ghost" label={t("clear")} onClick={() => setPreview(null)}><X /></IconButton>
+                </span>
+              </div>
+              <div className="min-h-0 flex-1 overflow-auto p-3">
+                {shown ? <DataGrid key={shown.name} table={shown} />
+                  : dataError ? <p role="alert" className="text-sm text-destructive">{errorText(dataError)}</p>
+                  : <p className="text-sm text-muted-foreground">…</p>}
+              </div>
+            </section>
+          </ResizablePanel>
+        </>
+      )}
+    </ResizablePanelGroup>
+  );
+
   return (
     <>
       <PageHeader
@@ -425,6 +525,10 @@ export function DiagramView() {
         subtitle={t("subtitle")}
         actions={
           <>
+            <IconButton variant="outline" label={savedAt ? ts("projectSaved") : ts("saveProject")} onClick={saveProject} disabled={!ok?.tables.length}>
+              {savedAt ? <Check /> : <Save />}
+            </IconButton>
+            <IconButton variant="outline" label={ts("newProject")} onClick={newProject} disabled={!schema && !result}><FilePlus2 /></IconButton>
             <Button onClick={() => openInStudio()} disabled={!ok || ok.tables.length === 0}>
               <WandSparkles />{t("useForData")}
             </Button>

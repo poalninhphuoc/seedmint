@@ -21,7 +21,8 @@
     "language": "언어",
     "diagram": "다이어그램",
     "history": "기록",
-    "theme": "다크 모드 전환"
+    "theme": "다크 모드 전환",
+    "data": "데이터"
   },
   "studio": {
     "title": "스튜디오",
@@ -32,6 +33,10 @@
     "inputTitle": "스키마",
     "inputHint": "Prisma, Drizzle, Zod, TypeScript, SQL, DBML, GraphQL, OpenAPI, JSON Schema, CSV 또는 users(name, email) 같은 한 줄.",
     "loadSample": "예시 불러오기",
+    "saveProject": "프로젝트 저장",
+    "projectSaved": "프로젝트를 저장했습니다",
+    "newProject": "새 프로젝트",
+    "newProjectConfirm": "현재 스키마와 데이터를 지우고 새 프로젝트를 시작할까요? 저장한 프로젝트는 기록에 남습니다.",
     "inputFormat": "입력 형식",
     "auto": "자동 감지",
     "locale": "로케일",
@@ -113,7 +118,8 @@
     "linkTooLong": "스키마가 너무 길어 링크로 만들 수 없습니다. 파일로 내보내세요.",
     "editedCells": "{count}개 셀 수정됨",
     "undoEdits": "되돌리기",
-    "editHint": "셀을 더블클릭하여 편집"
+    "editHint": "셀을 더블클릭하여 편집",
+    "storageFull": "브라우저가 최신 변경 사항을 저장하지 못했습니다(저장소가 가득 찼거나 차단됨). 필요한 내용을 지금 내보내세요. 새로고침하면 사라집니다."
   },
   "localesPage": {
     "title": "로케일",
@@ -172,12 +178,15 @@
     "export": "내보내기",
     "openHint": "테이블을 두 번 클릭하면 Studio에서 엽니다",
     "shortcuts": "단축키: F 화면에 맞춤, 0 100%, + / - 확대/축소",
-    "minimap": "미니맵"
+    "minimap": "미니맵",
+    "previewData": "샘플 데이터 보기",
+    "sampleData": "샘플 데이터",
+    "openStudio": "Studio에서 열기"
   },
   "historyPage": {
     "title": "기록",
-    "subtitle": "이 브라우저에서 실행한 내보내기입니다. 스튜디오에서 열거나 다시 내보낼 수 있습니다.",
-    "empty": "아직 내보낸 항목이 없습니다. 스튜디오에서 데이터를 생성하거나 내보내세요.",
+    "subtitle": "이 브라우저에 저장된 데이터베이스와 버전입니다. Studio나 데이터 관리에서 열거나 다시 내보내세요.",
+    "empty": "아직 없습니다. 데이터를 생성·내보내기·저장하면 데이터베이스별로 여기에 표시됩니다.",
     "clearAll": "모두 삭제",
     "open": "열기",
     "exportAgain": "다시 내보내기",
@@ -188,12 +197,20 @@
       "format": "형식",
       "locale": "로케일",
       "tables": "테이블",
-      "rows": "행"
+      "rows": "행",
+      "version": "버전"
     },
     "kind": {
       "generate": "생성됨",
-      "export": "내보냄"
-    }
+      "export": "내보냄",
+      "save": "저장됨"
+    },
+    "rename": "이름 변경",
+    "deleteProject": "데이터베이스 삭제",
+    "openData": "데이터 열기",
+    "withData": "데이터 포함",
+    "tablesCount": "테이블 {count}개",
+    "versions": "버전 {count}개"
   },
   "samples": {
     "title": "예시 스키마",
@@ -253,5 +270,56 @@
     "readFailed": "스키마를 읽지 못했습니다.",
     "folderFailed": "폴더를 읽지 못했습니다.",
     "parseFailed": "스키마를 분석할 수 없습니다: {detail}"
+  },
+  "dataPage": {
+    "title": "데이터",
+    "subtitle": "스키마에서 자동으로 만든 각 테이블의 행을 보고 수정합니다.",
+    "empty": "아직 데이터가 없습니다. 스키마에서 생성한 뒤 행을 추가·수정·삭제하세요.",
+    "generate": "데이터 생성",
+    "regenerate": "다시 생성",
+    "regenerateConfirm": "수정한 내용을 포함해 모든 행을 새로 생성한 데이터로 바꿀까요?",
+    "saveVersion": "버전 저장",
+    "saved": "저장됨",
+    "export": "내보내기",
+    "exportCsv": "{table} CSV로",
+    "exportJson": "모든 테이블 JSON으로",
+    "tablesTitle": "테이블",
+    "search": "행 검색",
+    "rowsCount": "{count}행",
+    "noRows": "행이 없습니다.",
+    "add": "행 추가",
+    "edit": "수정",
+    "delete": "삭제",
+    "previous": "이전 페이지",
+    "next": "다음 페이지",
+    "addTitle": "{table}에 행 추가",
+    "editTitle": "{table}의 행 수정",
+    "formHint": "다른 테이블을 가리키는 키는 기존 행에서 고릅니다.",
+    "save": "저장",
+    "cancel": "취소",
+    "auto": "자동",
+    "emptyValue": "비어 있음",
+    "invalid": "올바른 {kind}이(가) 아닙니다.",
+    "blocked": "삭제할 수 없음: {list}의 행이 이 행을 가리킵니다.",
+    "tooLarge": "행이 너무 많아 여기서 수정할 수 없습니다. Studio에서 테이블당 행 수를 {max} 이하로 줄이세요.",
+    "stale": "이 데이터를 만든 뒤 스키마가 바뀌었습니다. 다시 생성해 맞추세요."
+  },
+  "gate": {
+    "title": "프로젝트 시작",
+    "subtitle": "모든 프로젝트는 고유 id를 가지며 스키마, 설정, 편집, 데이터를 따로 보관하므로 서로 섞이지 않습니다.",
+    "close": "프로젝트로 돌아가기",
+    "blankTitle": "빈 프로젝트",
+    "blankHint": "빈 상태에서 시작해 직접 스키마를 붙여넣거나 가져옵니다.",
+    "namePlaceholder": "프로젝트 이름(선택)",
+    "create": "프로젝트 만들기",
+    "samplesTitle": "샘플로 시작",
+    "samplesHint": "샘플은 새 프로젝트로 복사되며 원본 샘플은 바뀌지 않습니다.",
+    "existingTitle": "내 프로젝트",
+    "open": "열기",
+    "tablesCount": "테이블 {count}개",
+    "defaultName": "내 프로젝트",
+    "switch": "프로젝트",
+    "projects": "프로젝트",
+    "newOrSample": "새 프로젝트 또는 샘플…"
   }
 }

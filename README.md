@@ -94,7 +94,7 @@ pnpm --filter @seedmint/web dev   # http://localhost:3000
 |---|---|
 | ![Studio: schema on the left, generated rows on the right](docs/images/studio.png) | ![Diagram of an HR schema in dark mode](docs/images/diagram-dark.png) |
 
-Pages: **Studio** (generate and export), **Diagram** (ER view of your schema, see [docs/diagram.md](docs/diagram.md)), **History**, **Locales** and **Formats**. Eleven sample schemas are one click away from the sample menu.
+Pages: **Studio** (generate and export), **Diagram** (ER view of your schema, see [docs/diagram.md](docs/diagram.md)), **Data** (a generated admin: browse, add, edit and delete rows, with foreign keys picked from existing rows), **History** (your databases and their versions, with data), **Locales** and **Formats**. Eleven sample schemas are one click away from the sample menu.
 
 Set `NEXT_PUBLIC_SITE_URL` to your public origin so canonical, hreflang and sitemap URLs are correct. The UI is available in English, Tiếng Việt, 简体中文, 日本語, 한국어 and Español.
 

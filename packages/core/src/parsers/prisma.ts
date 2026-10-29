@@ -1,5 +1,5 @@
 import type { Field, FieldKind, Schema, Table } from "../types.js";
-import { readBalanced, stripComments } from "./util.js";
+import { readBalanced } from "./util.js";
 
 const SCALAR: Record<string, FieldKind> = {
   String: "string", Int: "integer", BigInt: "integer", Float: "number", Decimal: "number",
@@ -8,20 +8,17 @@ const SCALAR: Record<string, FieldKind> = {
 
 /** Parses `model` and `enum` blocks of a schema.prisma file. Relation fields are skipped; their scalar FK keeps a `ref`. */
 export function parsePrisma(src: string): Schema {
-  // Keep trailing `// note` on field lines as an @comment attribute so inference can read hints like "YYYY-MM-DD".
-  const withNotes = src.replace(/^(\s*\w+\s+\w+(?:\[\])?\??[^\n/]*?)\s*\/\/(?!\/)\s*(.+)$/gm, (_m, head: string, note: string) =>
-    `${head} @comment("${note.replace(/["\r]/g, "'").trim()}")`);
-  const code = stripComments(withNotes.replace(/\/\/\/.*$/gm, ""));
+  const code = stripPrismaComments(src);
   const enums = new Map<string, string[]>();
   for (const m of code.matchAll(/\benum\s+(\w+)\s*\{/g)) {
-    const { inner } = readBalanced(code, m.index! + m[0].length - 1);
+    const inner = blockBody(code, m.index! + m[0].length - 1);
     enums.set(m[1], inner.split(/\s+/).filter((v) => /^\w+$/.test(v)));
   }
   const modelNames = new Set([...code.matchAll(/\bmodel\s+(\w+)\s*\{/g)].map((m) => m[1]));
 
   const tables: Table[] = [];
   for (const m of code.matchAll(/\bmodel\s+(\w+)\s*\{/g)) {
-    const { inner } = readBalanced(code, m.index! + m[0].length - 1);
+    const inner = blockBody(code, m.index! + m[0].length - 1);
     const fields: Field[] = [];
     const refs = new Map<string, { table: string; field: string; group?: string }>();
 
@@ -66,4 +63,53 @@ export function parsePrisma(src: string): Schema {
     tables.push(group ? { name: m[1], group, fields } : { name: m[1], fields });
   }
   return { tables };
+}
+
+const BLOCK_HEADER = /^[ \t]*(?:model|enum|type|view|generator|datasource)[ \t]+\w+[ \t]*\{/m;
+
+/**
+ * The text of the block opened at `openIdx`. A block never reaches into the next one: if a stray quote or brace
+ * hides the closing `}`, the body still stops at the next `model`/`enum`/... header instead of swallowing its fields.
+ */
+function blockBody(code: string, openIdx: number): string {
+  const { inner } = readBalanced(code, openIdx);
+  const next = inner.search(BLOCK_HEADER);
+  return next < 0 ? inner : inner.slice(0, next);
+}
+
+/**
+ * Removes `//`, `///` and `/* *\/` comments without touching string literals (`@default("a--b")`, `@map("x//y")`).
+ * A trailing `// note` on a field line is kept as an @comment attribute so inference can read hints like "YYYY-MM-DD".
+ */
+function stripPrismaComments(src: string): string {
+  const out: string[] = [];
+  let inBlock = false;
+  for (const line of src.split(/\r?\n/)) {
+    let res = "";
+    let quote = false;
+    let note = "";
+    for (let i = 0; i < line.length; i++) {
+      const c = line[i];
+      if (inBlock) {
+        if (c === "*" && line[i + 1] === "/") { inBlock = false; i++; }
+        continue;
+      }
+      if (quote) {
+        res += c;
+        if (c === "\\") res += line[++i] ?? "";
+        else if (c === '"') quote = false;
+        continue;
+      }
+      if (c === '"') { quote = true; res += c; continue; }
+      if (c === "/" && line[i + 1] === "*") { inBlock = true; i++; continue; }
+      if (c === "/" && line[i + 1] === "/") {
+        if (line[i + 2] !== "/") note = line.slice(i + 2).trim();
+        break;
+      }
+      res += c;
+    }
+    if (note && /^\s*\w+\s+\w+/.test(res)) res = `${res.trimEnd()} @comment("${note.replace(/["'`\\]/g, "’")}")`;
+    out.push(res);
+  }
+  return out.join("\n");
 }

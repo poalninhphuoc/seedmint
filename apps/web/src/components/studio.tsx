@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, ChevronRight, Copy, Dices, Download, FlaskConical, FolderOpen, Link2, Sparkles, WandSparkles } from "lucide-react";
+import { Check, ChevronRight, Copy, Dices, Download, FilePlus2, FlaskConical, FolderOpen, Link2, Save, Sparkles, WandSparkles } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { analyze, generate, importFiles, type AnalyzeResult, type CellEdits, type GenerateResult, type ImportedFile, type OutputFile } from "@/app/actions";
@@ -26,17 +26,72 @@ import { folderInputProps, readFolder } from "@/lib/folder";
 import {
   DATE_PATTERNS, DECIMALS, DIALECT_LABELS, EXPORT_FORMATS, THOUSANDS, regionExample, type ExportFormat,
 } from "@/lib/formats";
-import { addHistory } from "@/lib/history";
+import { fromPreview } from "@/lib/dataset";
+import { addVersion, createProject, ensureWorkspace, openProject } from "@/lib/history";
+import { ProjectGate } from "@/components/project-gate";
+import { ProjectSwitcher } from "@/components/project-switcher";
+import { useUrlState } from "@/lib/url-state";
 import { MAX_LINK, readShareHash, shareHash } from "@/lib/share";
-import { SAMPLE_SCHEMA, loadSchema, loadSettings, loadView, saveSchema, saveSettings, saveView, type StudioSettings, type StudioView } from "@/lib/studio-state";
+import { SAMPLES } from "@/lib/sample";
+import { SAMPLE_SCHEMA, loadEdits, loadSchema, loadSettings, loadView, runKeyOf, saveEdits, saveSchema, saveSettings, saveView, type StudioSettings, type StudioView } from "@/lib/studio-state";
+import { readItem, writeItem } from "@/lib/storage";
+import { StorageWarning } from "@/components/storage-warning";
 import type { RegionFormat, SqlDialect } from "@seedmint/core";
 
 const AUTO_KEY = "seedmint:auto";
 const INPUTS = ["ts", "zod", "sql", "dsl", "json", "prisma", "drizzle", "jsonschema", "dbml", "graphql", "openapi", "csv"] as const;
-export function Studio({ locales, regions, initialLocale }: {
+interface StudioProps {
   locales: { code: string; label: string }[];
   regions: Record<string, RegionFormat>;
   initialLocale: string;
+}
+
+/**
+ * Work starts from a project, each with its own id: a blank one or a ready-made sample. The workspace below is
+ * remounted for every project (`key`), so one project's schema, settings, edits and data never leak into another.
+ */
+export function Studio(props: StudioProps) {
+  const t = useTranslations("gate");
+  const ts = useTranslations("samples");
+  const tStudio = useTranslations("studio");
+  // undefined: not looked up yet (storage is only readable in the browser); null: nothing open, show the start screen.
+  const [active, setActive] = useState<string | null | undefined>(undefined);
+  const [gate, setGate] = useState(false);
+  useEffect(() => setActive(ensureWorkspace()), []);
+
+  const enter = (id: string) => {
+    // The open table and followed key in the address belong to the project being left.
+    history.replaceState(null, "", location.pathname + location.hash);
+    setActive(id);
+    setGate(false);
+  };
+  const blank = (name: string) => enter(createProject(name || t("defaultName"), null, "").id);
+  const sample = (id: string) => {
+    const s = SAMPLES.find((x) => x.id === id);
+    if (s) enter(createProject(ts(`${id}.name`), id, s.schema).id);
+  };
+  const open = (id: string) => {
+    openProject(id);
+    enter(id);
+  };
+
+  if (active === undefined) return null;
+  if (!active || gate) {
+    return (
+      <>
+        <PageHeader icon={<WandSparkles />} title={tStudio("title")} subtitle={tStudio("subtitle")} />
+        <ProjectGate onBlank={blank} onSample={sample} onOpen={open} onClose={active ? () => setGate(false) : undefined} />
+      </>
+    );
+  }
+  return <StudioWorkspace key={active} {...props} projectId={active} onSwitch={open} onNew={() => setGate(true)} onNewSample={sample} />;
+}
+
+function StudioWorkspace({ locales, regions, initialLocale, projectId, onSwitch, onNew, onNewSample }: StudioProps & {
+  projectId: string;
+  onSwitch: (id: string) => void;
+  onNew: () => void;
+  onNewSample: (sampleId: string) => void;
 }) {
   const t = useTranslations("studio");
   const errorText = useErrorText();
@@ -50,8 +105,17 @@ export function Studio({ locales, regions, initialLocale }: {
   const [imported, setImported] = useState<{ count: number; format: string; skipped: number; files: ImportedFile[] } | null>(null);
   const [importError, setImportError] = useState<string | null>(null);
   const [schemaError, setSchemaError] = useState<string | null>(null);
-  const [tab, setTab] = useState("output");
-  const [focus, setFocus] = useState<StudioView["focus"]>(null);
+  const url = useUrlState();
+  // The open table tab and the followed foreign key live in the URL: reload or Back comes back to the same view.
+  const urlTable = url.params.get("table");
+  const tab = urlTable ? `t:${urlTable}` : "output";
+  // Switching tabs by hand adds a history entry; the code's own moves (after a build, a restore) rewrite the current one.
+  const setTab = (v: string, mode: "push" | "replace" = "replace") => url.set({ table: v.startsWith("t:") ? v.slice(2) : null, focus: null }, mode);
+  const focusParam = url.params.get("focus");
+  const focus: StudioView["focus"] = urlTable && focusParam?.includes(":")
+    ? { table: urlTable, column: focusParam.slice(0, focusParam.indexOf(":")), value: focusParam.slice(focusParam.indexOf(":") + 1) }
+    : null;
+  const setFocus = (f: StudioView["focus"]) => url.set({ focus: f ? `${f.column}:${f.value}` : null }, "replace");
   const [restore, setRestore] = useState<StudioView | null>(null);
   const [viewReady, setViewReady] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
@@ -59,27 +123,32 @@ export function Studio({ locales, regions, initialLocale }: {
   const [exporting, setExporting] = useState(false);
   const [auto, setAuto] = useState(false);
   const [shared, setShared] = useState<"ok" | "long" | null>(null);
+  const [savedAt, setSavedAt] = useState(false);
   const [took, setTook] = useState<{ ms: number; seed: number } | null>(null);
   const hasResult = useRef(false);
   const [edits, setEdits] = useState<CellEdits>({});
   const editsRef = useRef(edits);
   editsRef.current = edits;
+  const lastKey = useRef("");
   const sharedLink = useRef<ReturnType<typeof readShareHash>>(null);
   const ready = useRef(false);
+  // Flips once the saved schema and settings are in state; saving before that would overwrite them with the defaults.
+  const [loaded, setLoaded] = useState(false);
   const folder = useRef<HTMLInputElement>(null);
 
   const set = (patch: Partial<StudioSettings>) => setSettings((s) => ({ ...s, ...patch }));
 
   useEffect(() => {
     const saved = loadSchema();
-    if (saved) setSchema(saved);
+    // An empty schema is a saved state too (after "new project"); only a missing key falls back to the sample.
+    if (saved !== null) setSchema(saved);
     const s = loadSettings();
     if (Object.keys(s).length) setSettings((cur) => ({ ...cur, ...s, region: { ...cur.region, ...s.region } }));
     // A reload comes back to the same screen: the data is rebuilt from the saved schema, settings and seed.
     const v = loadView();
     if (v?.generated) setRestore(v);
     else setViewReady(true);
-    try { setAuto(localStorage.getItem(AUTO_KEY) === "1"); } catch { /* storage can be blocked */ }
+    setAuto(readItem(AUTO_KEY) === "1");
     // A shared link wins over what is saved in this browser.
     // Kept in a ref: React may run this effect twice in development, and the hash is cleared after the first run.
     const shared = (sharedLink.current ??= readShareHash(location.hash));
@@ -93,17 +162,26 @@ export function Studio({ locales, regions, initialLocale }: {
       history.replaceState(null, "", location.pathname + location.search);
     }
     ready.current = true;
+    setLoaded(true);
   }, []);
   useEffect(() => {
     if (!restore) return;
     const v = restore;
     setRestore(null);
+    // Cell edits belong to one run; they come back only if the schema, settings and seed are the ones they were made on.
+    const kept = loadEdits(runKeyOf(schema, settings));
+    editsRef.current = kept;
+    setEdits(kept);
+    lastKey.current = runKeyOf(schema, settings);
     start(async () => {
       const r = await generate(input(settings.format));
       setResult(r);
-      if (r.ok && r.preview.some((p) => `t:${p.name}` === v.tab)) {
-        setTab(v.tab);
-        setFocus(v.focus);
+      // A table in the address wins over the one saved in this browser.
+      const wanted = new URLSearchParams(location.search).get("table");
+      if (r.ok && wanted && r.preview.some((p) => p.name === wanted)) {
+        /* the URL already says where to be */
+      } else if (r.ok && r.preview.some((p) => `t:${p.name}` === v.tab)) {
+        url.set({ table: v.tab.slice(2), focus: v.focus ? `${v.focus.column}:${v.focus.value}` : null }, "replace");
       } else if (r.ok) setTab(r.preview[0] ? `t:${r.preview[0].name}` : "output");
       setViewReady(true);
     });
@@ -113,11 +191,11 @@ export function Studio({ locales, regions, initialLocale }: {
     if (viewReady) saveView({ tab, focus, generated: result?.ok === true });
   }, [viewReady, tab, focus, result]);
   useEffect(() => {
-    if (ready.current) saveSchema(schema);
-  }, [schema]);
+    if (loaded) saveSchema(schema);
+  }, [schema, loaded]);
   useEffect(() => {
-    if (ready.current) saveSettings(settings);
-  }, [settings]);
+    if (loaded) saveSettings(settings);
+  }, [settings, loaded]);
 
   // Keep the table list in step with the schema text.
   useEffect(() => {
@@ -145,9 +223,9 @@ export function Studio({ locales, regions, initialLocale }: {
       setTook({ ms: Math.round(performance.now() - t0), seed: s.seed });
       setTab(r.preview[0] ? `t:${r.preview[0].name}` : "output");
       setFocus(null);
-      addHistory({
-        kind: "generate", now: r.now, settings: s, schema, tables: r.tables.length,
-        rows: r.tables.reduce((n, x) => n + x.rows, 0), files: r.files.map((f) => f.name),
+      addVersion({
+        kind: "generate", now: r.now, settings: s, schema, tables: r.tables.map((x) => x.name),
+        rows: r.tables.reduce((n, x) => n + x.rows, 0), files: r.files.map((f) => f.name), data: fromPreview(schema, r.preview),
       });
     });
 
@@ -166,13 +244,19 @@ export function Studio({ locales, regions, initialLocale }: {
   }, [auto, schema, settings]);
 
   // Edits are tied to row numbers of one particular run, so a new schema, seed or row count drops them.
-  const runKey = JSON.stringify([schema, settings.from, settings.locale, settings.rows, settings.tableRows, settings.seed, settings.edgeCases]);
-  const lastKey = useRef(runKey);
+  const runKey = runKeyOf(schema, settings);
   useEffect(() => {
     if (lastKey.current === runKey) return;
     lastKey.current = runKey;
-    if (Object.keys(editsRef.current).length) setEdits({});
+    if (Object.keys(editsRef.current).length) {
+      editsRef.current = {};
+      setEdits({});
+    }
   }, [runKey]);
+  // Edits survive a reload: kept next to the run they belong to, once the saved view has been restored.
+  useEffect(() => {
+    if (viewReady) saveEdits(runKey, edits);
+  }, [viewReady, runKey, edits]);
 
   const editCell = (table: string, row: number, column: string, text: string, current: string | number | boolean | null) => {
     const low = text.trim().toLowerCase();
@@ -200,7 +284,7 @@ export function Studio({ locales, regions, initialLocale }: {
 
   const toggleAuto = (v: boolean) => {
     setAuto(v);
-    try { localStorage.setItem(AUTO_KEY, v ? "1" : "0"); } catch { /* storage can be blocked */ }
+    writeItem(AUTO_KEY, v ? "1" : "0", false);
   };
   const shuffleSeed = () => {
     const seed = Math.floor(Math.random() * 1_000_000);
@@ -225,9 +309,9 @@ export function Studio({ locales, regions, initialLocale }: {
       const r = await generate(input(format, true, dialect));
       if (!r.ok) return setResult(r);
       r.files.forEach(downloadFile);
-      addHistory({
-        kind: "export", now: r.now, settings: { ...settings, format, dialect: dialect ?? settings.dialect }, schema, tables: r.tables.length,
-        rows: r.tables.reduce((n, x) => n + x.rows, 0), files: r.files.map((f) => f.name),
+      addVersion({
+        kind: "export", now: r.now, settings: { ...settings, format, dialect: dialect ?? settings.dialect }, schema, tables: r.tables.map((x) => x.name),
+        rows: r.tables.reduce((n, x) => n + x.rows, 0), files: r.files.map((f) => f.name), data: fromPreview(schema, r.preview),
       });
     } finally {
       setExporting(false);
@@ -243,6 +327,19 @@ export function Studio({ locales, regions, initialLocale }: {
     set({ from: r.format, tableRows: {} });
     setImported({ count: r.used.length, format: r.format, skipped: r.skipped, files: r.files });
     if (folder.current) folder.current.value = "";
+  };
+
+  /** Files the current schema, settings and data under its project in the history (Lịch sử). */
+  const saveProject = () => {
+    const names = info?.tables.map((x) => x.name) ?? [];
+    if (!names.length) return;
+    addVersion({
+      kind: "save", now: ok?.now ?? new Date().toISOString(), settings, schema, tables: names,
+      rows: ok ? ok.tables.reduce((n, x) => n + x.rows, 0) : 0, files: ok ? ok.files.map((f) => f.name) : [],
+      data: ok ? fromPreview(schema, ok.preview) : null,
+    });
+    setSavedAt(true);
+    setTimeout(() => setSavedAt(false), 2000);
   };
 
   const share = async () => {
@@ -286,8 +383,12 @@ export function Studio({ locales, regions, initialLocale }: {
             <p className="text-sm text-muted-foreground">{t("inputHint")}</p>
           </div>
           <div className="flex gap-2">
+            <IconButton variant="outline" label={savedAt ? t("projectSaved") : t("saveProject")} onClick={saveProject} disabled={!info?.tables.length}>
+              {savedAt ? <Check /> : <Save />}
+            </IconButton>
+            <IconButton variant="outline" label={t("newProject")} onClick={onNew}><FilePlus2 /></IconButton>
             <IconButton variant="outline" label={t("importFolder")} onClick={() => folder.current?.click()}><FolderOpen /></IconButton>
-            <SampleMenu onPick={(sample) => { setSchema(sample.schema); setImported(null); set({ tableRows: {}, from: "auto" }); }}>
+            <SampleMenu onPick={(sample) => onNewSample(sample.id)}>
               <IconButton variant="outline" label={t("loadSample")}><FlaskConical /></IconButton>
             </SampleMenu>
           </div>
@@ -303,7 +404,7 @@ export function Studio({ locales, regions, initialLocale }: {
         {importError && <p role="alert" className="text-sm text-destructive">{errorText(importError)}</p>}
         <DropZone onFiles={pickFolder}>
           <Textarea value={schema} onChange={(e) => { setSchema(e.target.value); setImported(null); }} spellCheck={false}
-            aria-label={t("inputTitle")} aria-invalid={!!schemaError} className="max-h-96 min-h-64 bg-card font-mono text-[13px] leading-relaxed" />
+            aria-label={t("inputTitle")} aria-invalid={!!schemaError && !!schema.trim()} className="max-h-96 min-h-64 bg-card font-mono text-[13px] leading-relaxed" />
         </DropZone>
         {schemaError && schema.trim() && <p role="alert" className="text-sm text-destructive">{errorText(schemaError)}</p>}
       </section>
@@ -453,7 +554,7 @@ export function Studio({ locales, regions, initialLocale }: {
       {result && !result.ok && <p role="alert" className="m-4 rounded-lg bg-destructive/10 p-3 text-sm text-destructive md:mx-6">{errorText(result.error)}</p>}
       {!result && <p className="m-4 rounded-lg border border-dashed p-12 text-center text-sm text-muted-foreground md:mx-6">{t("empty")}</p>}
       {ok && (
-        <Tabs value={activeTab} onValueChange={setTab} className={`min-h-0 min-w-0 flex-1 gap-0 transition-opacity ${busy ? "opacity-50" : ""}`}>
+        <Tabs value={activeTab} onValueChange={(v) => setTab(v, "push")} className={`min-h-0 min-w-0 flex-1 gap-0 transition-opacity ${busy ? "opacity-50" : ""}`}>
           <div className="overflow-x-auto border-b px-4 py-2 md:px-6">
             <TabsList className="h-auto justify-start">
               <TabsTrigger value="output">{settings.format}</TabsTrigger>
@@ -474,7 +575,7 @@ export function Studio({ locales, regions, initialLocale }: {
                   const row = parent?.rows.find((r) => String(r[col]) === String(value));
                   return parent && row ? { columns: parent.columns, row } : null;
                 }} focus={focus?.table === p.name ? focus : null}
-                onFollow={(table, column, value) => { setFocus({ table, column, value: value as NonNullable<StudioView["focus"]>["value"] }); setTab(`t:${table}`); }} />
+                onFollow={(table, column, value) => url.set({ table, focus: `${column}:${value}` })} />
             </TabsContent>
           ))}
         </Tabs>
@@ -510,6 +611,7 @@ export function Studio({ locales, regions, initialLocale }: {
         subtitle={t("subtitle")}
         actions={
           <>
+          <ProjectSwitcher activeId={projectId} onSwitch={onSwitch} onNew={onNew} />
           <IconButton variant="outline" label={shared === "ok" ? t("linkCopied") : shared === "long" ? t("linkTooLong") : t("share")} onClick={share}>
             {shared === "ok" ? <Check /> : <Link2 />}
           </IconButton>
@@ -520,6 +622,7 @@ export function Studio({ locales, regions, initialLocale }: {
           </>
         }
       />
+      <StorageWarning />
       <SplitView id="studio" left={left} right={right} />
     </>
   );

@@ -21,7 +21,8 @@
     "language": "语言",
     "diagram": "关系图",
     "history": "历史记录",
-    "theme": "切换深色模式"
+    "theme": "切换深色模式",
+    "data": "数据"
   },
   "studio": {
     "title": "工作台",
@@ -32,6 +33,10 @@
     "inputTitle": "你的 Schema",
     "inputHint": "Prisma、Drizzle、Zod、TypeScript、SQL、DBML、GraphQL、OpenAPI、JSON Schema、CSV，或类似 users(name, email) 的单行写法。",
     "loadSample": "载入示例",
+    "saveProject": "保存项目",
+    "projectSaved": "项目已保存",
+    "newProject": "新建项目",
+    "newProjectConfirm": "清空当前的 schema 和数据，开始新项目？已保存的项目仍在历史记录中。",
     "inputFormat": "输入格式",
     "auto": "自动识别",
     "locale": "语言区域",
@@ -113,7 +118,8 @@
     "linkTooLong": "Schema 太长，无法生成链接。请改为导出文件。",
     "editedCells": "已修改 {count} 个单元格",
     "undoEdits": "撤销",
-    "editHint": "双击单元格进行编辑"
+    "editHint": "双击单元格进行编辑",
+    "storageFull": "浏览器无法保存你的最新更改（存储已满或被阻止）。请立即导出所需内容，否则刷新后会丢失。"
   },
   "localesPage": {
     "title": "语言区域",
@@ -172,12 +178,15 @@
     "export": "导出",
     "openHint": "双击表格可在 Studio 中打开",
     "shortcuts": "快捷键：F 适应窗口，0 恢复 100%，+ / - 缩放",
-    "minimap": "缩略图"
+    "minimap": "缩略图",
+    "previewData": "查看示例数据",
+    "sampleData": "示例数据",
+    "openStudio": "在 Studio 中打开"
   },
   "historyPage": {
     "title": "历史记录",
-    "subtitle": "在此浏览器中执行过的导出。可在工作台中打开或再次导出。",
-    "empty": "还没有导出记录。请在工作台中生成或导出数据。",
+    "subtitle": "你的数据库及其版本，保存在此浏览器中。可在 Studio 或数据页打开，或重新导出。",
+    "empty": "暂无内容。生成、导出或保存数据后，会按数据库显示在这里。",
     "clearAll": "全部清除",
     "open": "打开",
     "exportAgain": "再次导出",
@@ -188,12 +197,20 @@
       "format": "格式",
       "locale": "区域",
       "tables": "表",
-      "rows": "行"
+      "rows": "行",
+      "version": "版本"
     },
     "kind": {
       "generate": "已生成",
-      "export": "已导出"
-    }
+      "export": "已导出",
+      "save": "已保存"
+    },
+    "rename": "重命名",
+    "deleteProject": "删除数据库",
+    "openData": "打开数据",
+    "withData": "含数据",
+    "tablesCount": "{count} 个表",
+    "versions": "{count} 个版本"
   },
   "samples": {
     "title": "示例 schema",
@@ -253,5 +270,56 @@
     "readFailed": "无法读取 schema。",
     "folderFailed": "无法读取文件夹。",
     "parseFailed": "无法解析 schema：{detail}"
+  },
+  "dataPage": {
+    "title": "数据",
+    "subtitle": "根据你的 schema 自动生成，浏览并编辑每个表的数据。",
+    "empty": "还没有数据。请根据 schema 生成，然后添加、编辑、删除行。",
+    "generate": "生成数据",
+    "regenerate": "重新生成",
+    "regenerateConfirm": "用新生成的数据替换所有行（包括你的修改）？",
+    "saveVersion": "保存版本",
+    "saved": "已保存",
+    "export": "导出",
+    "exportCsv": "{table} 为 CSV",
+    "exportJson": "所有表为 JSON",
+    "tablesTitle": "表",
+    "search": "搜索行",
+    "rowsCount": "{count} 行",
+    "noRows": "没有行。",
+    "add": "添加行",
+    "edit": "编辑",
+    "delete": "删除",
+    "previous": "上一页",
+    "next": "下一页",
+    "addTitle": "向 {table} 添加行",
+    "editTitle": "编辑 {table} 中的行",
+    "formHint": "指向其他表的外键从现有行中选择。",
+    "save": "保存",
+    "cancel": "取消",
+    "auto": "自动",
+    "emptyValue": "空",
+    "invalid": "不是有效的 {kind}。",
+    "blocked": "无法删除：{list} 中的行仍指向此行。",
+    "tooLarge": "行数过多，无法在此编辑。请在 Studio 中把每表行数降到 {max} 以内。",
+    "stale": "自生成此数据后 schema 已更改。请重新生成以保持一致。"
+  },
+  "gate": {
+    "title": "开始一个项目",
+    "subtitle": "每个项目都有独立的 id，并各自保存 schema、设置、编辑和数据，项目之间不会混淆。",
+    "close": "返回项目",
+    "blankTitle": "空白项目",
+    "blankHint": "从零开始，粘贴或导入你自己的 schema。",
+    "namePlaceholder": "项目名称（可选）",
+    "create": "创建项目",
+    "samplesTitle": "从示例开始",
+    "samplesHint": "示例会被复制为新项目；原始示例不会被修改。",
+    "existingTitle": "你的项目",
+    "open": "打开",
+    "tablesCount": "{count} 个表",
+    "defaultName": "我的项目",
+    "switch": "项目",
+    "projects": "项目",
+    "newOrSample": "新建项目或示例…"
   }
 }

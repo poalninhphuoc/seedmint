@@ -35,7 +35,7 @@ pnpm --filter @seedmint/web dev   # http://localhost:3000
 
 界面支持 6 种语言：English、Tiếng Việt、简体中文、日本語、한국어、Español。
 
-页面：**Studio**（生成与导出）、**图表**（schema 的 ER 视图，可拖动表格、导出 Mermaid/SVG，见 [docs/diagram.md](docs/diagram.md)）、**历史**、**区域语言**、**格式**。示例菜单内置 11 个示例 schema。
+页面：**Studio**（生成与导出）、**图表**（schema 的 ER 视图，可拖动表格、导出 Mermaid/SVG，见 [docs/diagram.md](docs/diagram.md)）、**数据**（自动生成的管理页：浏览、添加、编辑、删除行，外键从现有行中选择）、**历史**（按数据库和版本保存，含数据）、**区域语言**、**格式**。示例菜单内置 11 个示例 schema。
 
 ## 路线图与贡献
 

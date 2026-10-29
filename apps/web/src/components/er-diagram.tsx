@@ -3,8 +3,9 @@ import { HEADER, ROW, colorOf, layoutEr, type ErTable, type Layout } from "@/lib
 
 const ROOT_STROKE = "hsl(14 75% 52%)";
 const ROOT_FILL = "hsl(14 80% 55% / 0.1)";
+const FOUND = "hsl(45 95% 50%)";
 
-export interface DiagramLabels { entity: string; root: string; join: string }
+export interface DiagramLabels { entity: string; root: string; join: string; preview?: string }
 
 interface Props {
   tables: ErTable[];
@@ -16,14 +17,22 @@ interface Props {
   /** Tables matching the search box get a ring. */
   matches?: ReadonlySet<string>;
   onSelect?: (name: string | null) => void;
+  /** Called when a dragged table is dropped. */
+  onMoveEnd?: (name: string) => void;
   /** Called while a table is dragged, with its new top-left corner in diagram units. */
   onMove?: (name: string, x: number, y: number) => void;
   /** Double click on a table. */
   onOpen?: (name: string) => void;
+  /** Click on the table icon in a header: show that table's data. */
+  onPreview?: (name: string) => void;
+  /** Table whose data is on show; its icon stays lit. */
+  previewing?: string | null;
+  /** Lower-cased search text; matching fields are marked inside their table. */
+  needle?: string;
 }
 
 export const ErDiagram = forwardRef<SVGSVGElement, Props>(function ErDiagram(
-  { tables, labels, layout, scale = 1, selected = null, matches, onSelect, onMove, onOpen }, ref,
+  { tables, labels, layout, scale = 1, selected = null, matches, onSelect, onMove, onMoveEnd, onOpen, onPreview, previewing = null, needle = "" }, ref,
 ) {
   const drag = useRef<{ name: string; id: number; px: number; py: number; x: number; y: number; moved: boolean } | null>(null);
   const { boxes, edges, groups, width, height } = layout ?? layoutEr(tables);
@@ -113,7 +122,10 @@ export const ErDiagram = forwardRef<SVGSVGElement, Props>(function ErDiagram(
             onPointerUp={(ev) => {
               const d = drag.current;
               if (!d || d.id !== ev.pointerId) return;
-              if (d.moved) ev.currentTarget.releasePointerCapture(ev.pointerId);
+              if (d.moved) {
+                ev.currentTarget.releasePointerCapture(ev.pointerId);
+                onMoveEnd?.(d.name);
+              }
               // keep `moved` for the click that follows, then clear it
               setTimeout(() => { if (drag.current === d) drag.current = null; });
             }}
@@ -123,7 +135,7 @@ export const ErDiagram = forwardRef<SVGSVGElement, Props>(function ErDiagram(
               if (drag.current?.moved) return;
               onSelect?.(isSel ? null : b.table.name);
             }}>
-            {(isSel || hit) && <rect x={b.x - 5} y={b.y - 5} width={b.w + 10} height={b.h + 10} rx="10" fill="none" stroke={accent} strokeWidth="2" opacity="0.55" />}
+            {(isSel || hit) && <rect x={b.x - 5} y={b.y - 5} width={b.w + 10} height={b.h + 10} rx="10" fill="none" stroke={hit ? FOUND : accent} strokeWidth={hit ? 3 : 2} opacity={hit ? 0.95 : 0.55} />}
             <rect x={b.x} y={b.y} width={b.w} height={b.h} rx="6" fill={root ? ROOT_FILL : "var(--card)"}
               stroke={isSel ? accent : stroke} strokeWidth={isSel ? 2.5 : root ? 1.5 : 1.25} strokeDasharray={join ? "5 4" : undefined} />
             <rect x={b.x + 1} y={b.y + 1} width={b.w - 2} height={HEADER - 1} rx="5" fill={join ? "var(--muted)" : "currentColor"} opacity={join ? 1 : 0.05} />
@@ -132,14 +144,28 @@ export const ErDiagram = forwardRef<SVGSVGElement, Props>(function ErDiagram(
               {tag.toUpperCase()}
             </text>
             <text x={b.x + 18} y={b.y + 38} fontSize="16" fontWeight="600" fill="currentColor" fontFamily="ui-sans-serif, system-ui, sans-serif">{b.table.name}</text>
+            {onPreview && (
+              <g data-no-drag transform={`translate(${b.x + b.w - 30} ${b.y + 9})`} style={{ cursor: "pointer" }}
+                onPointerDown={(ev) => ev.stopPropagation()} onDoubleClick={(ev) => ev.stopPropagation()}
+                onClick={(ev) => { ev.stopPropagation(); onPreview(b.table.name); }}>
+                <title>{labels.preview}</title>
+                <rect width="22" height="22" rx="5" fill={previewing === b.table.name ? accent : "var(--card)"} stroke={previewing === b.table.name ? accent : "currentColor"} strokeOpacity={previewing === b.table.name ? 1 : 0.35} />
+                <g fill="none" stroke={previewing === b.table.name ? "#fff" : "currentColor"} strokeWidth="1.3" strokeLinecap="round" opacity={previewing === b.table.name ? 1 : 0.7}>
+                  <rect x="5" y="6" width="12" height="10" rx="1.5" />
+                  <path d="M5 10.3h12M5 13.6h12M10 6v10" />
+                </g>
+              </g>
+            )}
             <line x1={b.x} x2={b.x + b.w} y1={b.y + HEADER} y2={b.y + HEADER} stroke={stroke} strokeWidth="1" opacity="0.4" />
             {b.table.fields.map((f, i) => {
               const hot = focus?.rows.has(`${b.table.name}.${f.name}`);
+              const found = needle !== "" && f.name.toLowerCase().includes(needle);
               const ry = b.y + HEADER + i * ROW;
               return (
                 <g key={`${i}:${f.name}`} fontSize="12" fill="currentColor">
+                  {found && <rect x={b.x + 5} y={ry + 1} width={b.w - 10} height={ROW - 2} rx="4" fill={FOUND} fillOpacity="0.4" stroke={FOUND} strokeWidth="1.5" />}
                   {hot && <rect x={b.x + 7} y={ry + 1} width={b.w - 14} height={ROW - 2} rx="4" fill={accentFor(b.table.name, f.name, edges, focus?.lines)} opacity="0.22" />}
-                  <text x={b.x + 16} y={ry + ROW / 2 + 5} fontWeight={f.primary || hot ? 700 : 400}>
+                  <text x={b.x + 16} y={ry + ROW / 2 + 5} fontWeight={f.primary || hot || found ? 700 : 400}>
                     {f.primary ? "# " : f.ref ? "→ " : ""}{f.name}{f.optional ? "?" : ""}
                   </text>
                   <text x={b.x + b.w - 16} y={ry + ROW / 2 + 5} textAnchor="end" opacity="0.55">{f.kind}</text>

@@ -35,7 +35,7 @@ pnpm --filter @seedmint/web dev   # http://localhost:3000
 
 Giao diện có 6 ngôn ngữ: English, Tiếng Việt, 简体中文, 日本語, 한국어, Español.
 
-Các trang: **Studio** (tạo và xuất dữ liệu), **Sơ đồ** (xem schema dạng ER, kéo thả bảng, xuất Mermaid/SVG, xem [docs/diagram.md](docs/diagram.md)), **Lịch sử**, **Ngôn ngữ dữ liệu**, **Định dạng**. Có 11 schema mẫu trong menu mẫu.
+Các trang: **Studio** (tạo và xuất dữ liệu), **Sơ đồ** (xem schema dạng ER, kéo thả bảng, xuất Mermaid/SVG, xem [docs/diagram.md](docs/diagram.md)), **Dữ liệu** (trang quản trị tự dựng: xem, thêm, sửa, xóa dòng, khóa ngoại chọn từ các dòng có sẵn), **Lịch sử** (các database và phiên bản kèm dữ liệu), **Ngôn ngữ dữ liệu**, **Định dạng**. Có 11 schema mẫu trong menu mẫu.
 
 ## Lộ trình và đóng góp
 

@@ -565,3 +565,24 @@ describe("review text", () => {
     }
   });
 });
+
+describe("Prisma comment handling", () => {
+  const cols = (src: string) => parseSchema(src).tables.map((t) => `${t.name}:${t.fields.map((f) => f.name).join("|")}`);
+  const B = "\nmodel B {\n  id String @id\n}";
+
+  it("does not attach a standalone comment after a blank line to the previous field", () => {
+    expect(cols(`model A {\n  id String @id\n  x String?\n\n  // ---- Mục ----\n  y Int\n}${B}`)).toEqual(["A:id|x|y", "B:id"]);
+  });
+  it("keeps quotes, braces, dashes and urls in comments from breaking model boundaries", () => {
+    for (const note of [`note -- tail`, `it's "quoted"`, `dung {x}`, `https://a.b/c`, "back`tick"]) {
+      expect(cols(`model A {\n  id String @id\n  x String? // ${note}\n  y Int\n}${B}`)).toEqual(["A:id|x|y", "B:id"]);
+    }
+    expect(cols(`model A {\n  id String @id\n  // } oops {\n  x String?\n}${B}`)).toEqual(["A:id|x", "B:id"]);
+  });
+  it("leaves comment markers inside string literals alone", () => {
+    expect(cols(`model A {\n  id String @id @map("_id")\n  s String @default("a--b // c")\n  y Int @map("y--z")\n}${B}`)).toEqual(["A:id|s|y", "B:id"]);
+  });
+  it("handles block comments and CRLF", () => {
+    expect(cols(`model A {\r\n  id String @id\r\n  /* x\r\n  } */\r\n  y Int\r\n}\r\n${B}`)).toEqual(["A:id|y", "B:id"]);
+  });
+});

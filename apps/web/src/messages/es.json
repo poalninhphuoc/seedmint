@@ -21,7 +21,8 @@
     "language": "Idioma",
     "diagram": "Diagrama",
     "history": "Historial",
-    "theme": "Cambiar modo oscuro"
+    "theme": "Cambiar modo oscuro",
+    "data": "Datos"
   },
   "studio": {
     "title": "Studio",
@@ -32,6 +33,10 @@
     "inputTitle": "Tu esquema",
     "inputHint": "Prisma, Drizzle, Zod, TypeScript, SQL, DBML, GraphQL, OpenAPI, JSON Schema, CSV o una línea como users(name, email).",
     "loadSample": "Cargar ejemplo",
+    "saveProject": "Guardar proyecto",
+    "projectSaved": "Proyecto guardado",
+    "newProject": "Proyecto nuevo",
+    "newProjectConfirm": "¿Borrar el esquema y los datos actuales para empezar un proyecto nuevo? Los proyectos guardados siguen en el Historial.",
     "inputFormat": "Formato de entrada",
     "auto": "Detección automática",
     "locale": "Idioma de los datos",
@@ -113,7 +118,8 @@
     "linkTooLong": "El esquema es demasiado largo para un enlace. Exporta un archivo.",
     "editedCells": "{count} celdas editadas",
     "undoEdits": "Deshacer",
-    "editHint": "Doble clic en una celda para editar"
+    "editHint": "Doble clic en una celda para editar",
+    "storageFull": "El navegador no pudo guardar tus últimos cambios (almacenamiento lleno o bloqueado). Exporta lo que necesites ahora o se perderá al recargar."
   },
   "localesPage": {
     "title": "Idiomas de datos",
@@ -172,12 +178,15 @@
     "export": "Exportar",
     "openHint": "Doble clic en una tabla para abrirla en Studio",
     "shortcuts": "Atajos: F ajustar, 0 volver al 100 %, + / - zoom",
-    "minimap": "Minimapa"
+    "minimap": "Minimapa",
+    "previewData": "Ver datos de ejemplo",
+    "sampleData": "Datos de ejemplo",
+    "openStudio": "Abrir en Studio"
   },
   "historyPage": {
     "title": "Historial",
-    "subtitle": "Exportaciones hechas en este navegador. Ábrelas en Studio o expórtalas de nuevo.",
-    "empty": "Aún no se ha exportado nada. Genera o exporta datos en Studio.",
+    "subtitle": "Tus bases de datos y sus versiones, guardadas en este navegador. Ábrelas en Studio o en Datos, o expórtalas de nuevo.",
+    "empty": "Nada aún. Genera, exporta o guarda datos y aparecerán aquí por base de datos.",
     "clearAll": "Borrar todo",
     "open": "Abrir",
     "exportAgain": "Exportar de nuevo",
@@ -188,12 +197,20 @@
       "format": "Formato",
       "locale": "Idioma",
       "tables": "Tablas",
-      "rows": "Filas"
+      "rows": "Filas",
+      "version": "Versión"
     },
     "kind": {
       "generate": "Generado",
-      "export": "Exportado"
-    }
+      "export": "Exportado",
+      "save": "Guardado"
+    },
+    "rename": "Renombrar",
+    "deleteProject": "Eliminar base de datos",
+    "openData": "Abrir datos",
+    "withData": "Con datos",
+    "tablesCount": "{count} tablas",
+    "versions": "{count} versiones"
   },
   "samples": {
     "title": "Esquemas de ejemplo",
@@ -253,5 +270,56 @@
     "readFailed": "No se pudo leer el esquema.",
     "folderFailed": "No se pudo leer la carpeta.",
     "parseFailed": "No se pudo analizar el esquema: {detail}"
+  },
+  "dataPage": {
+    "title": "Datos",
+    "subtitle": "Explora y edita las filas de cada tabla, creadas desde tu esquema.",
+    "empty": "Aún no hay datos. Genéralos desde tu esquema y luego añade, edita y borra filas.",
+    "generate": "Generar datos",
+    "regenerate": "Regenerar",
+    "regenerateConfirm": "¿Reemplazar todas las filas, incluidas tus ediciones, por datos nuevos?",
+    "saveVersion": "Guardar versión",
+    "saved": "Guardado",
+    "export": "Exportar",
+    "exportCsv": "{table} como CSV",
+    "exportJson": "Todas las tablas como JSON",
+    "tablesTitle": "Tablas",
+    "search": "Buscar filas",
+    "rowsCount": "{count} filas",
+    "noRows": "Sin filas.",
+    "add": "Añadir fila",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "previous": "Página anterior",
+    "next": "Página siguiente",
+    "addTitle": "Añadir fila a {table}",
+    "editTitle": "Editar fila de {table}",
+    "formHint": "Las claves de otras tablas se eligen entre las filas existentes.",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "auto": "auto",
+    "emptyValue": "Vacío",
+    "invalid": "No es un valor {kind} válido.",
+    "blocked": "No se puede borrar: filas de {list} aún apuntan a esta.",
+    "tooLarge": "Demasiadas filas para editar. Reduce las filas por tabla (máx. {max}) en Studio.",
+    "stale": "El esquema cambió desde que se crearon estos datos. Regenera para ajustarlos."
+  },
+  "gate": {
+    "title": "Empezar un proyecto",
+    "subtitle": "Cada proyecto tiene su propio id y guarda su propio esquema, ajustes, ediciones y datos, así que los proyectos nunca se mezclan.",
+    "close": "Volver al proyecto",
+    "blankTitle": "Proyecto en blanco",
+    "blankHint": "Empieza desde cero y pega o importa tu propio esquema.",
+    "namePlaceholder": "Nombre del proyecto (opcional)",
+    "create": "Crear proyecto",
+    "samplesTitle": "Empezar desde un ejemplo",
+    "samplesHint": "El ejemplo se copia en un proyecto nuevo; el ejemplo original nunca cambia.",
+    "existingTitle": "Tus proyectos",
+    "open": "Abrir",
+    "tablesCount": "{count, plural, one {# tabla} other {# tablas}}",
+    "defaultName": "Mi proyecto",
+    "switch": "Proyectos",
+    "projects": "Proyectos",
+    "newOrSample": "Nuevo proyecto o ejemplo…"
   }
 }

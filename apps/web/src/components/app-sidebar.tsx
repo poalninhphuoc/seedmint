@@ -1,6 +1,6 @@
 "use client";
 
-import { BookOpenText, FileOutput, History, Languages, Network, Sprout, Wand2 } from "lucide-react";
+import { BookOpenText, FileOutput, History, Languages, Network, Sprout, Table2, Wand2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
 import {
@@ -18,6 +18,7 @@ export function AppSidebar() {
     { label: t("nav.generate"), items: [
         { href: "/", icon: Wand2, label: t("nav.studio") },
         { href: "/diagram", icon: Network, label: t("nav.diagram") },
+        { href: "/data", icon: Table2, label: t("nav.data") },
         { href: "/history", icon: History, label: t("nav.history") },
       ] },
     {

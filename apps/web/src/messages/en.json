@@ -21,7 +21,8 @@
     "language": "Language",
     "diagram": "Diagram",
     "history": "History",
-    "theme": "Toggle dark mode"
+    "theme": "Toggle dark mode",
+    "data": "Data"
   },
   "studio": {
     "title": "Studio",
@@ -32,6 +33,10 @@
     "inputTitle": "Your schema",
     "inputHint": "Prisma, Drizzle, Zod, TypeScript, SQL, DBML, GraphQL, OpenAPI, JSON Schema, CSV or a one-liner like users(name, email).",
     "loadSample": "Load sample",
+    "saveProject": "Save project",
+    "projectSaved": "Project saved",
+    "newProject": "New project",
+    "newProjectConfirm": "Clear the current schema and data to start a new project? Saved projects stay in History.",
     "inputFormat": "Input format",
     "auto": "Auto-detect",
     "locale": "Locale",
@@ -113,7 +118,8 @@
     "linkTooLong": "Schema is too long for a link. Export a file instead.",
     "editedCells": "{count} cells edited",
     "undoEdits": "Undo",
-    "editHint": "Double-click a cell to edit"
+    "editHint": "Double-click a cell to edit",
+    "storageFull": "The browser could not save your latest changes (storage is full or blocked). Export what you need now, or a reload will lose it."
   },
   "localesPage": {
     "title": "Locales",
@@ -172,12 +178,15 @@
     "export": "Export",
     "openHint": "Double-click a table to open it in Studio",
     "shortcuts": "Shortcuts: F fit, 0 reset to 100%, + / - zoom",
-    "minimap": "Minimap"
+    "minimap": "Minimap",
+    "previewData": "Show sample data",
+    "sampleData": "Sample data",
+    "openStudio": "Open in Studio"
   },
   "historyPage": {
     "title": "History",
-    "subtitle": "Exports you ran in this browser. Open one in Studio or export it again.",
-    "empty": "Nothing exported yet. Generate or export data in Studio.",
+    "subtitle": "Your databases and their versions, kept in this browser. Open one in Studio or the data admin, or export it again.",
+    "empty": "Nothing yet. Generate, export or save data and it appears here under its database.",
     "clearAll": "Clear all",
     "open": "Open",
     "exportAgain": "Export again",
@@ -188,12 +197,20 @@
       "format": "Format",
       "locale": "Locale",
       "tables": "Tables",
-      "rows": "Rows"
+      "rows": "Rows",
+      "version": "Version"
     },
     "kind": {
       "generate": "Generated",
-      "export": "Exported"
-    }
+      "export": "Exported",
+      "save": "Saved"
+    },
+    "rename": "Rename",
+    "deleteProject": "Delete database",
+    "openData": "Open data",
+    "withData": "Data",
+    "tablesCount": "{count} tables",
+    "versions": "{count} versions"
   },
   "samples": {
     "title": "Sample schemas",
@@ -253,5 +270,56 @@
     "readFailed": "Could not read the schema.",
     "folderFailed": "Could not read the folder.",
     "parseFailed": "Could not parse the schema: {detail}"
+  },
+  "dataPage": {
+    "title": "Data",
+    "subtitle": "Browse and edit the rows of every table, built from your schema.",
+    "empty": "No data yet. Generate it from your schema, then add, edit and delete rows.",
+    "generate": "Generate data",
+    "regenerate": "Regenerate",
+    "regenerateConfirm": "Replace all rows, including your edits, with newly generated data?",
+    "saveVersion": "Save version",
+    "saved": "Saved",
+    "export": "Export",
+    "exportCsv": "{table} as CSV",
+    "exportJson": "All tables as JSON",
+    "tablesTitle": "Tables",
+    "search": "Search rows",
+    "rowsCount": "{count} rows",
+    "noRows": "No rows.",
+    "add": "Add row",
+    "edit": "Edit",
+    "delete": "Delete",
+    "previous": "Previous page",
+    "next": "Next page",
+    "addTitle": "Add a row to {table}",
+    "editTitle": "Edit a row in {table}",
+    "formHint": "Links to other tables are picked from existing rows.",
+    "save": "Save",
+    "cancel": "Cancel",
+    "auto": "auto",
+    "emptyValue": "Empty",
+    "invalid": "Not a valid {kind}.",
+    "blocked": "Can't delete: rows in {list} still point to this row.",
+    "tooLarge": "Too many rows to edit here. Lower the rows per table (up to {max}) in Studio.",
+    "stale": "The schema changed since this data was made. Regenerate to match it."
+  },
+  "gate": {
+    "title": "Start a project",
+    "subtitle": "Every project has its own id and keeps its own schema, settings, edits and data, so projects never mix.",
+    "close": "Back to project",
+    "blankTitle": "Blank project",
+    "blankHint": "Start empty and paste or import your own schema.",
+    "namePlaceholder": "Project name (optional)",
+    "create": "Create project",
+    "samplesTitle": "Start from a sample",
+    "samplesHint": "A sample is copied into a new project; the original sample is never changed.",
+    "existingTitle": "Your projects",
+    "open": "Open",
+    "tablesCount": "{count, plural, one {# table} other {# tables}}",
+    "defaultName": "My project",
+    "switch": "Projects",
+    "projects": "Projects",
+    "newOrSample": "New project or sample…"
   }
 }

@@ -35,7 +35,7 @@ pnpm --filter @seedmint/web dev   # http://localhost:3000
 
 La interfaz está en 6 idiomas: English, Tiếng Việt, 简体中文, 日本語, 한국어, Español.
 
-Páginas: **Studio** (generar y exportar), **Diagrama** (vista ER del esquema, tablas arrastrables, exporta Mermaid/SVG; ver [docs/diagram.md](docs/diagram.md)), **Historial**, **Idiomas** y **Formatos**. El menú de ejemplos trae 11 esquemas.
+Páginas: **Studio** (generar y exportar), **Diagrama** (vista ER del esquema, tablas arrastrables, exporta Mermaid/SVG; ver [docs/diagram.md](docs/diagram.md)), **Datos** (panel de administración generado: ver, añadir, editar y borrar filas, con claves foráneas elegidas entre filas existentes), **Historial** (tus bases de datos y sus versiones, con datos), **Idiomas** y **Formatos**. El menú de ejemplos trae 11 esquemas.
 
 ## Hoja de ruta y contribuciones
 

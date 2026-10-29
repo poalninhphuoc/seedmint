@@ -7,6 +7,8 @@
 - [x] Formats: JSON, CSV, SQL INSERT
 - [x] Web Studio: Next.js App Router + shadcn/ui, six UI languages (`apps/web`)
 - [x] Studio: folder import with file tree, per-table row counts, table preview tabs (search, sort, pagination), history, dark mode, resizable panes
+- [x] Data admin (`/data`): generated CRUD over the rows of every table, foreign keys picked from existing rows, delete blocked while rows still point at one, CSV/JSON export
+- [x] History grouped by database (tables shared by at least half make one database) with versions, optional data snapshots, rename, restore to Studio or Data
 - [x] Diagram: ER view with coloured edges, click-to-highlight, show/hide, search, zoom, Mermaid and SVG export (see [diagram.md](diagram.md))
 - [x] Diagram: draggable tables, pan, Ctrl/⌘+wheel zoom, join-table and root detection, file/folder import, eleven built-in sample schemas
 - [x] Diagram: PNG export

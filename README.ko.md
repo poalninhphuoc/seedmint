@@ -35,7 +35,7 @@ pnpm --filter @seedmint/web dev   # http://localhost:3000
 
 화면은 6개 언어를 지원합니다: English, Tiếng Việt, 简体中文, 日本語, 한국어, Español.
 
-페이지: **Studio**(생성 및 내보내기), **다이어그램**(스키마 ER 보기, 테이블 드래그, Mermaid/SVG 내보내기, [docs/diagram.md](docs/diagram.md) 참고), **기록**, **로케일**, **형식**. 예시 메뉴에 스키마 11종이 있습니다.
+페이지: **Studio**(생성 및 내보내기), **다이어그램**(스키마 ER 보기, 테이블 드래그, Mermaid/SVG 내보내기, [docs/diagram.md](docs/diagram.md) 참고), **데이터**(자동 생성 관리 화면: 행 보기·추가·수정·삭제, 외래 키는 기존 행에서 선택), **기록**(데이터베이스와 버전, 데이터 포함), **로케일**, **형식**. 예시 메뉴에 스키마 11종이 있습니다.
 
 ## 로드맵과 기여
 

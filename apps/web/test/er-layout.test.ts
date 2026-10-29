@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { layoutEr, toMermaid, type ErTable } from "../src/lib/er-layout";
+import { layoutEr, settleMoved, toMermaid, withOffsets, type Box, type ErTable } from "../src/lib/er-layout";
 
 const tables: ErTable[] = [
   { name: "Author", fields: [{ name: "id", kind: "uuid", primary: true }, { name: "name", kind: "string" }] },
@@ -135,5 +135,27 @@ describe("schema / module groups", () => {
   it("draws no frames for a single group or none", () => {
     expect(layoutEr(grouped.map((t) => ({ ...t, group: "app" }))).groups).toEqual([]);
     expect(layoutEr(grouped.map(({ group: _g, ...t }) => t)).groups).toEqual([]);
+  });
+});
+
+describe("settleMoved", () => {
+  const t = (name: string, n: number): ErTable => ({ name, fields: Array.from({ length: n }, (_, i) => ({ name: `f${i}`, kind: "string" })) });
+  const overlap = (a: Box, b: Box) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
+
+  it("moves a table dropped on a neighbour clear of it, and leaves the others alone", () => {
+    const base = layoutEr([t("A", 20), t("B", 10), t("C", 5)]);
+    const a = base.boxes.find((b) => b.table.name === "A")!;
+    const b = base.boxes.find((x) => x.table.name === "B")!;
+    const moved = { B: { x: a.x + 10, y: a.y + 30 } };
+    const settled = settleMoved(base, moved, "B");
+    const boxes = withOffsets(base, settled).boxes;
+    for (let i = 0; i < boxes.length; i++) for (let j = i + 1; j < boxes.length; j++) expect(overlap(boxes[i], boxes[j])).toBe(false);
+    expect(settled.B.x).toBe(a.x + 10);
+    expect(b).toBeTruthy();
+  });
+
+  it("keeps a position that is already free", () => {
+    const base = layoutEr([t("A", 3), t("B", 3)]);
+    expect(settleMoved(base, { B: { x: 2000, y: 2000 } })).toEqual({ B: { x: 2000, y: 2000 } });
   });
 });

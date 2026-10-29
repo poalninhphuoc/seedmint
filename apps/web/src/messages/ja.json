@@ -21,7 +21,8 @@
     "language": "言語",
     "diagram": "ER 図",
     "history": "履歴",
-    "theme": "ダークモードを切り替え"
+    "theme": "ダークモードを切り替え",
+    "data": "データ"
   },
   "studio": {
     "title": "スタジオ",
@@ -32,6 +33,10 @@
     "inputTitle": "スキーマ",
     "inputHint": "Prisma、Drizzle、Zod、TypeScript、SQL、DBML、GraphQL、OpenAPI、JSON Schema、CSV、または users(name, email) のような 1 行。",
     "loadSample": "サンプルを読み込む",
+    "saveProject": "プロジェクトを保存",
+    "projectSaved": "プロジェクトを保存しました",
+    "newProject": "新規プロジェクト",
+    "newProjectConfirm": "現在のスキーマとデータを消去して新しいプロジェクトを始めますか？保存済みのプロジェクトは履歴に残ります。",
     "inputFormat": "入力形式",
     "auto": "自動判定",
     "locale": "ロケール",
@@ -113,7 +118,8 @@
     "linkTooLong": "スキーマが長すぎてリンクにできません。ファイルで書き出してください。",
     "editedCells": "{count} セルを編集済み",
     "undoEdits": "元に戻す",
-    "editHint": "セルをダブルクリックして編集"
+    "editHint": "セルをダブルクリックして編集",
+    "storageFull": "ブラウザが最新の変更を保存できませんでした（容量不足またはブロック）。必要なデータは今すぐエクスポートしてください。再読み込みすると失われます。"
   },
   "localesPage": {
     "title": "ロケール",
@@ -172,12 +178,15 @@
     "export": "エクスポート",
     "openHint": "テーブルをダブルクリックで Studio に開く",
     "shortcuts": "ショートカット：F 全体表示、0 100%、+ / - ズーム",
-    "minimap": "ミニマップ"
+    "minimap": "ミニマップ",
+    "previewData": "サンプルデータを表示",
+    "sampleData": "サンプルデータ",
+    "openStudio": "Studio で開く"
   },
   "historyPage": {
     "title": "履歴",
-    "subtitle": "このブラウザで実行した書き出しです。スタジオで開くか、もう一度書き出せます。",
-    "empty": "まだ書き出していません。スタジオでデータを生成または書き出してください。",
+    "subtitle": "このブラウザに保存されたデータベースとそのバージョン。Studio やデータ管理で開く、または再エクスポートできます。",
+    "empty": "まだありません。データを生成・エクスポート・保存すると、データベースごとにここに表示されます。",
     "clearAll": "すべて削除",
     "open": "開く",
     "exportAgain": "再書き出し",
@@ -188,12 +197,20 @@
       "format": "形式",
       "locale": "ロケール",
       "tables": "テーブル",
-      "rows": "行"
+      "rows": "行",
+      "version": "バージョン"
     },
     "kind": {
       "generate": "生成",
-      "export": "書き出し"
-    }
+      "export": "書き出し",
+      "save": "保存済み"
+    },
+    "rename": "名前を変更",
+    "deleteProject": "データベースを削除",
+    "openData": "データを開く",
+    "withData": "データあり",
+    "tablesCount": "{count} テーブル",
+    "versions": "{count} バージョン"
   },
   "samples": {
     "title": "サンプルスキーマ",
@@ -253,5 +270,56 @@
     "readFailed": "スキーマを読み込めませんでした。",
     "folderFailed": "フォルダを読み込めませんでした。",
     "parseFailed": "スキーマを解析できません：{detail}"
+  },
+  "dataPage": {
+    "title": "データ",
+    "subtitle": "スキーマから自動生成された各テーブルの行を閲覧・編集します。",
+    "empty": "まだデータがありません。スキーマから生成し、行を追加・編集・削除できます。",
+    "generate": "データを生成",
+    "regenerate": "再生成",
+    "regenerateConfirm": "編集を含むすべての行を新しく生成したデータに置き換えますか？",
+    "saveVersion": "バージョンを保存",
+    "saved": "保存しました",
+    "export": "エクスポート",
+    "exportCsv": "{table} を CSV で",
+    "exportJson": "全テーブルを JSON で",
+    "tablesTitle": "テーブル",
+    "search": "行を検索",
+    "rowsCount": "{count} 行",
+    "noRows": "行がありません。",
+    "add": "行を追加",
+    "edit": "編集",
+    "delete": "削除",
+    "previous": "前のページ",
+    "next": "次のページ",
+    "addTitle": "{table} に行を追加",
+    "editTitle": "{table} の行を編集",
+    "formHint": "他テーブルへの参照は既存の行から選びます。",
+    "save": "保存",
+    "cancel": "キャンセル",
+    "auto": "自動",
+    "emptyValue": "空",
+    "invalid": "有効な {kind} ではありません。",
+    "blocked": "削除できません：{list} の行がこの行を参照しています。",
+    "tooLarge": "行数が多すぎて編集できません。Studio でテーブルあたりの行数を {max} 以下にしてください。",
+    "stale": "このデータの生成後にスキーマが変更されました。再生成して合わせてください。"
+  },
+  "gate": {
+    "title": "プロジェクトを始める",
+    "subtitle": "各プロジェクトは固有の ID を持ち、スキーマ・設定・編集・データを個別に保持するので、混ざることはありません。",
+    "close": "プロジェクトに戻る",
+    "blankTitle": "空のプロジェクト",
+    "blankHint": "空の状態から始め、自分のスキーマを貼り付けるか取り込みます。",
+    "namePlaceholder": "プロジェクト名（任意）",
+    "create": "プロジェクトを作成",
+    "samplesTitle": "サンプルから始める",
+    "samplesHint": "サンプルは新しいプロジェクトにコピーされ、元のサンプルは変更されません。",
+    "existingTitle": "あなたのプロジェクト",
+    "open": "開く",
+    "tablesCount": "{count} テーブル",
+    "defaultName": "マイプロジェクト",
+    "switch": "プロジェクト",
+    "projects": "プロジェクト",
+    "newOrSample": "新規プロジェクトまたはサンプル…"
   }
 }

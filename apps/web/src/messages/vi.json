@@ -21,7 +21,8 @@
     "language": "Ngôn ngữ",
     "diagram": "Sơ đồ",
     "history": "Lịch sử",
-    "theme": "Chuyển chế độ sáng/tối"
+    "theme": "Chuyển chế độ sáng/tối",
+    "data": "Dữ liệu"
   },
   "studio": {
     "title": "Studio",
@@ -32,6 +33,10 @@
     "inputTitle": "Schema của bạn",
     "inputHint": "Prisma, Drizzle, Zod, TypeScript, SQL, DBML, GraphQL, OpenAPI, JSON Schema, CSV hoặc một dòng như users(name, email).",
     "loadSample": "Dùng mẫu",
+    "saveProject": "Lưu dự án",
+    "projectSaved": "Đã lưu dự án",
+    "newProject": "Dự án mới",
+    "newProjectConfirm": "Xóa schema và dữ liệu hiện tại để bắt đầu dự án mới? Các dự án đã lưu vẫn còn trong Lịch sử.",
     "inputFormat": "Định dạng đầu vào",
     "auto": "Tự nhận diện",
     "locale": "Ngôn ngữ dữ liệu",
@@ -113,7 +118,8 @@
     "linkTooLong": "Schema quá dài để chia sẻ qua link. Hãy xuất file.",
     "editedCells": "{count} ô đã sửa",
     "undoEdits": "Hoàn tác",
-    "editHint": "Bấm đúp vào ô để sửa"
+    "editHint": "Bấm đúp vào ô để sửa",
+    "storageFull": "Trình duyệt không lưu được thay đổi mới nhất (bộ nhớ đầy hoặc bị chặn). Hãy xuất dữ liệu cần giữ ngay, nếu không tải lại trang sẽ mất."
   },
   "localesPage": {
     "title": "Ngôn ngữ dữ liệu",
@@ -172,12 +178,15 @@
     "export": "Xuất",
     "openHint": "Bấm đúp vào bảng để mở trong Studio",
     "shortcuts": "Phím tắt: F vừa màn hình, 0 về 100%, + / - thu phóng",
-    "minimap": "Bản đồ thu nhỏ"
+    "minimap": "Bản đồ thu nhỏ",
+    "previewData": "Xem dữ liệu mẫu",
+    "sampleData": "Dữ liệu mẫu",
+    "openStudio": "Mở trong Studio"
   },
   "historyPage": {
     "title": "Lịch sử",
-    "subtitle": "Các lần xuất dữ liệu trên trình duyệt này. Mở lại trong Studio hoặc xuất lại.",
-    "empty": "Chưa xuất gì. Hãy tạo hoặc xuất dữ liệu trong Studio.",
+    "subtitle": "Các database và phiên bản của chúng, lưu trong trình duyệt này. Mở trong Studio hoặc trang Dữ liệu, hoặc xuất lại.",
+    "empty": "Chưa có gì. Sinh, xuất hoặc lưu dữ liệu và nó sẽ hiện ở đây theo từng database.",
     "clearAll": "Xóa tất cả",
     "open": "Mở",
     "exportAgain": "Xuất lại",
@@ -188,12 +197,20 @@
       "format": "Định dạng",
       "locale": "Ngôn ngữ",
       "tables": "Bảng",
-      "rows": "Dòng"
+      "rows": "Dòng",
+      "version": "Phiên bản"
     },
     "kind": {
       "generate": "Đã tạo",
-      "export": "Đã xuất"
-    }
+      "export": "Đã xuất",
+      "save": "Đã lưu"
+    },
+    "rename": "Đổi tên",
+    "deleteProject": "Xóa database",
+    "openData": "Mở dữ liệu",
+    "withData": "Có dữ liệu",
+    "tablesCount": "{count} bảng",
+    "versions": "{count} phiên bản"
   },
   "samples": {
     "title": "Mẫu schema",
@@ -253,5 +270,56 @@
     "readFailed": "Không đọc được schema.",
     "folderFailed": "Không đọc được thư mục.",
     "parseFailed": "Không phân tích được schema: {detail}"
+  },
+  "dataPage": {
+    "title": "Dữ liệu",
+    "subtitle": "Xem và sửa dữ liệu từng bảng, tự dựng từ schema của bạn.",
+    "empty": "Chưa có dữ liệu. Sinh từ schema rồi thêm, sửa, xóa dòng.",
+    "generate": "Sinh dữ liệu",
+    "regenerate": "Sinh lại",
+    "regenerateConfirm": "Thay toàn bộ dòng, kể cả phần bạn đã sửa, bằng dữ liệu mới sinh?",
+    "saveVersion": "Lưu phiên bản",
+    "saved": "Đã lưu",
+    "export": "Xuất",
+    "exportCsv": "{table} dạng CSV",
+    "exportJson": "Mọi bảng dạng JSON",
+    "tablesTitle": "Bảng",
+    "search": "Tìm dòng",
+    "rowsCount": "{count} dòng",
+    "noRows": "Không có dòng nào.",
+    "add": "Thêm dòng",
+    "edit": "Sửa",
+    "delete": "Xóa",
+    "previous": "Trang trước",
+    "next": "Trang sau",
+    "addTitle": "Thêm dòng vào {table}",
+    "editTitle": "Sửa dòng trong {table}",
+    "formHint": "Khóa ngoại được chọn từ các dòng đang có.",
+    "save": "Lưu",
+    "cancel": "Hủy",
+    "auto": "tự động",
+    "emptyValue": "Trống",
+    "invalid": "Không phải kiểu {kind} hợp lệ.",
+    "blocked": "Không thể xóa: các dòng ở {list} vẫn trỏ tới dòng này.",
+    "tooLarge": "Quá nhiều dòng để sửa ở đây. Giảm số dòng mỗi bảng (tối đa {max}) trong Studio.",
+    "stale": "Schema đã đổi từ lúc sinh dữ liệu này. Hãy sinh lại cho khớp."
+  },
+  "gate": {
+    "title": "Bắt đầu một dự án",
+    "subtitle": "Mỗi dự án có id riêng và giữ riêng schema, cài đặt, chỉnh sửa và dữ liệu, nên các dự án không bao giờ lẫn vào nhau.",
+    "close": "Quay lại dự án",
+    "blankTitle": "Dự án trống",
+    "blankHint": "Bắt đầu từ đầu, dán hoặc nhập schema của bạn.",
+    "namePlaceholder": "Tên dự án (không bắt buộc)",
+    "create": "Tạo dự án",
+    "samplesTitle": "Bắt đầu từ dự án mẫu",
+    "samplesHint": "Mẫu được sao chép thành một dự án mới; mẫu gốc không bao giờ bị thay đổi.",
+    "existingTitle": "Dự án của bạn",
+    "open": "Mở",
+    "tablesCount": "{count} bảng",
+    "defaultName": "Dự án của tôi",
+    "switch": "Dự án",
+    "projects": "Dự án",
+    "newOrSample": "Dự án mới hoặc mẫu…"
   }
 }
